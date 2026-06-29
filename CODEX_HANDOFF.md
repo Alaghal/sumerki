@@ -2,11 +2,11 @@
 
 ## Current Phase
 
-Phase 6: Frontend Shell.
+Phase 7: Frontend Auth + Kingdom Flow.
 
 ## Status
 
-Phase 6 is complete according to the attached prompt: the repository now has a minimal React, TypeScript, Vite, Tailwind, and React Router frontend shell.
+Phase 7 is complete according to the attached prompt: the frontend now connects to the existing backend auth and kingdom APIs for the first account flow.
 
 ## Completed
 
@@ -26,75 +26,80 @@ Phase 6 is complete according to the attached prompt: the repository now has a m
 - Added backend skeleton, health/readiness endpoints, auth API, and kingdom creation API in earlier phases.
 - Added frontend app structure under `frontend/`.
 - Added Vite, React, TypeScript, Tailwind, and React Router setup.
-- Added public placeholder routes for `/login`, `/register`, `/create-kingdom`, `/app`, and fallback not found.
-- Added `AppShell` layout with top bar, sidebar, and main content area.
-- Added placeholder login, register, kingdom creation, dashboard, and not found pages.
-- Added minimal reusable `Card` and `Button` UI components.
-- Added minimal future API client using `VITE_API_BASE_URL` with fallback `http://localhost:8080`.
-- Added `frontend/.env.example`.
-- Added frontend Makefile helpers.
-- Updated README frontend run instructions.
+- Connected register and login forms to the backend.
+- Added typed frontend API functions for auth, session, and kingdom calls.
+- Added MVP JWT storage in `localStorage` under `sumerki.auth.token`.
+- Added React session context for token, user, kingdom, loading, and error state.
+- Added protected route behavior for `/app` and `/create-kingdom`.
+- Added public route redirects for authenticated users.
+- Connected the create kingdom form to the backend.
+- Added logout from the top bar.
+- Updated the dashboard to show the real kingdom name, culture, patron state, and user email.
+- Kept resources, ruler, buildings, army, and reports as placeholders.
+- Updated README with the full local account flow.
 
 ## Phase Order Note
 
-- The attached prompt defines Phase 6 as `Frontend Shell`.
-- `docs/MVP_PHASES.md` currently defines Phase 6 as `Ruler System` and Phase 7 as `Frontend Skeleton`.
+- The attached prompt defines Phase 7 as `Frontend Auth + Kingdom Flow`.
+- `docs/MVP_PHASES.md` currently defines Phase 7 as `Frontend Skeleton` and Phase 8 as `Frontend Auth, Kingdom, and Ruler Integration`.
 - This session followed the attached prompt and did not modify `docs/MVP_PHASES.md`.
+- Ruler integration was not implemented because the attached prompt explicitly excludes it.
 
 ## Changed Files
 
 - `README.md`
-- `Makefile`
 - `CODEX_HANDOFF.md`
-- `frontend/.env.example`
-- `frontend/index.html`
-- `frontend/package.json`
-- `frontend/package-lock.json`
-- `frontend/postcss.config.js`
-- `frontend/tailwind.config.js`
-- `frontend/tsconfig.json`
-- `frontend/tsconfig.node.json`
-- `frontend/vite.config.ts`
-- `frontend/src/main.tsx`
 - `frontend/src/App.tsx`
-- `frontend/src/vite-env.d.ts`
-- `frontend/src/styles/index.css`
 - `frontend/src/api/client.ts`
-- `frontend/src/routes/AppRoutes.tsx`
-- `frontend/src/components/layout/AppShell.tsx`
+- `frontend/src/api/errors.ts`
+- `frontend/src/context/SessionContext.tsx`
 - `frontend/src/components/layout/TopBar.tsx`
-- `frontend/src/components/layout/Sidebar.tsx`
-- `frontend/src/components/ui/Card.tsx`
-- `frontend/src/components/ui/Button.tsx`
-- `frontend/src/pages/LoginPage.tsx`
-- `frontend/src/pages/RegisterPage.tsx`
 - `frontend/src/pages/CreateKingdomPage.tsx`
 - `frontend/src/pages/DashboardPage.tsx`
-- `frontend/src/pages/NotFoundPage.tsx`
+- `frontend/src/pages/LoginPage.tsx`
+- `frontend/src/pages/RegisterPage.tsx`
+- `frontend/src/routes/AppRoutes.tsx`
 
-Phase 4 and Phase 5 backend files are still present as untracked working-tree files in this checkout and were preserved while implementing the frontend shell.
+No backend files, migrations, Docker Compose files, or project docs outside README and this handoff were modified.
 
-## Constraints
+## Commands Run
 
-- No backend code was modified in this phase.
-- No migrations were modified in this phase.
-- Frontend routes are public placeholders only.
-- No auth integration, JWT storage, protected routes, or backend auth calls were implemented.
-- Kingdom creation form is not connected to the backend.
-- Dashboard uses placeholder data only.
-- Resources, buildings, ruler API integration, army, missions, combat, events, patrons, map, alliances, payments, Phaser, Pixi, and Three.js were not implemented.
+- `npm run typecheck`
+- `npm run build`
+- `docker compose up -d postgres`
+- `POSTGRES_PORT=15432 docker compose up -d postgres`
+- `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make migrate-up`
+- `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' JWT_SECRET='dev-secret' BACKEND_PORT=18080 go run ./cmd/server`
+- `curl -sS http://localhost:18080/health`
+- `curl -sS -i http://localhost:18080/ready`
+- `VITE_API_BASE_URL=http://localhost:18080 npm run dev -- --host 127.0.0.1 --port 5173`
+- `npm install`
 
 ## Verification
 
-- Ran `cd frontend && npm install`.
-- Ran `cd frontend && npm run typecheck`.
-- Ran `cd frontend && npm run build`.
-- Ran `cd frontend && npm run dev -- --host 127.0.0.1`; Vite started at `http://127.0.0.1:5173/`.
-- Verified HTTP 200 responses for `/login`, `/register`, `/create-kingdom`, and `/app`.
-- Used browser inspection to confirm `/login` renders the login placeholder page.
-- Used browser inspection to confirm `/register` renders the register placeholder page.
-- Used browser inspection to confirm `/create-kingdom` renders the kingdom creation placeholder page with the three required cultures and Russian descriptions.
-- Used browser inspection to confirm `/app` renders the dashboard inside the shell with top bar, sidebar, and placeholder dashboard cards.
+- `npm install` completed successfully.
+- `npm run typecheck` completed successfully.
+- `npm run build` completed successfully.
+- Verified backend health returned `{"status":"ok"}`.
+- Verified backend readiness returned HTTP 200 with `{"status":"ready","database":"ok"}`.
+- Verified in the browser:
+  - register redirects to `/create-kingdom`
+  - create kingdom redirects to `/app`
+  - dashboard displays the real kingdom name
+  - dashboard displays the real culture label
+  - dashboard displays the user email
+  - dashboard displays `Без покровителя` when patron is null
+  - logout redirects to `/login`
+  - `/app` without a session redirects to `/login`
+  - login redirects to `/app`
+  - page refresh restores the session and dashboard
+- Verified no forbidden paths were changed with `git diff --name-only -- backend backend/migrations docker-compose.yml docs/MVP_SCOPE.md docs/MVP_PHASES.md docs/API_CONTRACT.md docs/DOMAIN_MODEL.md`.
+
+Notes:
+
+- Port `5432` was already in use locally, so live verification used `POSTGRES_PORT=15432`.
+- The backend was run on `18080` for verification, and the frontend used `VITE_API_BASE_URL=http://localhost:18080`.
+- Browser policy blocked setting an intentionally invalid token through a `javascript:` URL, so invalid-token behavior was not browser-forced. The frontend code clears session state for `invalid_token`, `expired_token`, and related auth errors from `/api/me` or `/api/kingdoms/me`.
 
 ## What Works Now
 
@@ -102,19 +107,23 @@ Phase 4 and Phase 5 backend files are still present as untracked working-tree fi
 - `cd frontend && npm run dev` starts the Vite development server.
 - `cd frontend && npm run typecheck` typechecks the frontend.
 - `cd frontend && npm run build` builds the frontend.
-- `/login`, `/register`, `/create-kingdom`, and `/app` render through React Router.
-- Tailwind styles are applied.
-- `make frontend-install` and `make frontend-dev` are available from the repository root.
+- Registering through `/register` calls `POST /api/auth/register` and stores the JWT.
+- Logging in through `/login` calls `POST /api/auth/login` and stores the JWT.
+- Refreshing the app restores the session through `GET /api/me` and fetches the kingdom through `GET /api/kingdoms/me`.
+- Authenticated users without a kingdom are sent to `/create-kingdom`.
+- Creating a kingdom calls `POST /api/kingdoms` and redirects to `/app`.
+- Authenticated users with a kingdom are redirected away from `/login`, `/register`, and `/create-kingdom` to `/app`.
+- Logout clears the local session and returns the user to `/login`.
 
 ## Known Limitations
 
-- Frontend forms are placeholders.
-- Auth is not connected to the backend yet.
-- Kingdom creation is not connected to the backend yet.
-- Dashboard uses placeholder data.
-- Frontend routes are not protected.
-- No real API calls are made from pages yet.
+- Dashboard still uses placeholder resources, ruler, buildings, army, and reports.
+- No resources system exists yet.
+- No gameplay systems exist yet.
+- No ruler integration was implemented in this phase.
+- `localStorage` token storage is MVP-only and should be revisited before production hardening.
+- The frontend assumes the existing backend error shape documented in `docs/API_CONTRACT.md`.
 
 ## Next Recommended Step
 
-Start the next frontend integration phase from the active execution order. If following `docs/MVP_PHASES.md`, reconcile the phase-order mismatch before starting more work.
+Start the next explicitly requested phase only. Before more phase work, reconcile the prompt-driven phase order with `docs/MVP_PHASES.md` or continue noting the mismatch in handoffs.
