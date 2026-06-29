@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 5: Kingdom Creation API.
+Phase 6: Frontend Shell.
 
-This phase adds authenticated kingdom creation and current-kingdom lookup. It does not include frontend code, resources, buildings, rulers, combat, events, patrons, or gameplay systems.
+This phase adds a React, TypeScript, Vite, and Tailwind frontend shell with public placeholder routes. It does not include auth integration, protected routes, backend API calls from pages, resources, buildings, rulers, combat, events, patrons, or gameplay systems.
 
 ## Documentation
 
@@ -134,6 +134,29 @@ Fetch current kingdom:
 ```sh
 curl http://localhost:8080/api/kingdoms/me \
   -H "Authorization: Bearer <TOKEN>"
+```
+
+## Frontend
+
+Run the frontend shell:
+
+```sh
+cd frontend
+npm install
+npm run dev
+```
+
+Expected local URL:
+
+```sh
+http://localhost:5173
+```
+
+Equivalent Makefile shortcuts are available:
+
+```sh
+make frontend-install
+make frontend-dev
 ```
 
 ## Database Migrations
