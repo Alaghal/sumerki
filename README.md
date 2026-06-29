@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 2: Backend Skeleton.
+Phase 3: Database Migration Foundation.
 
-This phase adds a minimal Go backend with health and readiness endpoints. It does not include auth, users, kingdoms, migrations, frontend code, or gameplay systems.
+This phase adds Goose SQL migrations for the initial `users` and `kingdoms` schema. It does not include auth APIs, kingdom APIs, frontend code, resources, rulers, combat, events, patrons, or gameplay systems.
 
 ## Documentation
 
@@ -91,6 +91,44 @@ Check database readiness:
 
 ```sh
 curl http://localhost:8080/ready
+```
+
+## Database Migrations
+
+Start PostgreSQL before running migrations:
+
+```sh
+docker compose up -d postgres
+```
+
+Apply migrations:
+
+```sh
+make migrate-up
+```
+
+Check migration status:
+
+```sh
+make migrate-status
+```
+
+Rollback the latest migration:
+
+```sh
+make migrate-down
+```
+
+Reset local development migrations:
+
+```sh
+make migrate-reset
+```
+
+The migration commands use this default local database URL unless `DATABASE_URL` is provided:
+
+```sh
+postgres://sumerki:sumerki@localhost:5432/sumerki?sslmode=disable
 ```
 
 ## Phase Discipline

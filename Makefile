@@ -1,8 +1,9 @@
 DATABASE_URL ?= postgres://sumerki:sumerki@localhost:5432/sumerki?sslmode=disable
 JWT_SECRET ?= dev-secret
 BACKEND_PORT ?= 8080
+GOOSE := go run github.com/pressly/goose/v3/cmd/goose@latest
 
-.PHONY: db-up db-down db-ps db-logs backend-run backend-tidy
+.PHONY: db-up db-down db-ps db-logs backend-run backend-tidy migrate-up migrate-down migrate-status migrate-reset
 
 db-up:
 	docker compose up -d postgres
@@ -21,3 +22,15 @@ backend-run:
 
 backend-tidy:
 	cd backend && go mod tidy
+
+migrate-up:
+	cd backend && $(GOOSE) -dir migrations postgres "$(DATABASE_URL)" up
+
+migrate-down:
+	cd backend && $(GOOSE) -dir migrations postgres "$(DATABASE_URL)" down
+
+migrate-status:
+	cd backend && $(GOOSE) -dir migrations postgres "$(DATABASE_URL)" status
+
+migrate-reset:
+	cd backend && $(GOOSE) -dir migrations postgres "$(DATABASE_URL)" reset
