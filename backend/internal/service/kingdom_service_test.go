@@ -18,9 +18,18 @@ type fakeRulerGenerator struct {
 	createdForKingdomID string
 }
 
-func (g *fakeRulerGenerator) GenerateForKingdom(_ context.Context, kingdom domain.Kingdom) (domain.Ruler, error) {
+func (g *fakeRulerGenerator) AfterKingdomCreated(_ context.Context, kingdom domain.Kingdom) error {
 	g.createdForKingdomID = kingdom.ID
-	return domain.Ruler{KingdomID: kingdom.ID}, nil
+	return nil
+}
+
+type fakeResourcesInitializer struct {
+	createdForKingdomID string
+}
+
+func (i *fakeResourcesInitializer) AfterKingdomCreated(_ context.Context, kingdom domain.Kingdom) error {
+	i.createdForKingdomID = kingdom.ID
+	return nil
 }
 
 func newFakeKingdomRepository() *fakeKingdomRepository {
@@ -116,6 +125,20 @@ func TestCreateKingdomCreatesRuler(t *testing.T) {
 
 	if rulers.createdForKingdomID != kingdom.ID {
 		t.Fatalf("expected ruler for kingdom %q, got %q", kingdom.ID, rulers.createdForKingdomID)
+	}
+}
+
+func TestCreateKingdomCreatesResources(t *testing.T) {
+	resources := &fakeResourcesInitializer{}
+	service := NewKingdomService(newFakeKingdomRepository(), resources)
+
+	kingdom, err := service.Create(context.Background(), "user-1", "Blackwater", CultureNorthernPrincipality)
+	if err != nil {
+		t.Fatalf("create kingdom failed: %v", err)
+	}
+
+	if resources.createdForKingdomID != kingdom.ID {
+		t.Fatalf("expected resources for kingdom %q, got %q", kingdom.ID, resources.createdForKingdomID)
 	}
 }
 

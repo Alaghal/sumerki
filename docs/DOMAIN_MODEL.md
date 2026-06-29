@@ -39,6 +39,7 @@ Rules:
 
 - One kingdom per user.
 - Every kingdom has one ruler.
+- Every kingdom has one resource row.
 - Name length is 3 to 32 characters.
 - Culture must be one of the supported culture values.
 - Patron can be null until selected, then must be one of the supported patron values.
@@ -97,15 +98,36 @@ Values:
 
 Represents stored kingdom materials.
 
-Initial likely resources:
+MVP resources:
 
+- gold
 - food
 - wood
 - stone
-- iron
-- silver
+- population
 
-Exact resource names and production rules should be finalized before implementation.
+Post-MVP resources may add other materials such as iron or silver, but they are out of scope for the Phase 9 MVP resource system.
+
+Fields:
+
+- `kingdomId`: kingdom UUID
+- `gold`: stored gold
+- `food`: stored food
+- `wood`: stored wood
+- `stone`: stored stone
+- `population`: stored population
+- `lastCalculatedAt`: timestamp used for lazy production
+- `createdAt`: resource row creation timestamp
+- `updatedAt`: last update timestamp
+
+Rules:
+
+- Resources are integer values and cannot be negative.
+- Resource production is calculated lazily when resources are read or later commands need current resources.
+- Phase 9 uses simple base production per hour only.
+- Phase 9 has no resource caps.
+- Phase 9 has no resource spending.
+- No background workers, cron jobs, or real-time server ticking are used for resources.
 
 ## Building
 

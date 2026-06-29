@@ -33,10 +33,13 @@ func New(database *sql.DB, jwtSecret string) *echo.Echo {
 	meHandler := handlers.NewMeHandler(auth)
 	kingdoms := repository.NewKingdomRepository(database)
 	rulers := repository.NewRulerRepository(database)
+	resources := repository.NewResourcesRepository(database)
 	rulerService := service.NewRulerService(kingdoms, rulers)
-	kingdomService := service.NewKingdomService(kingdoms, rulerService)
+	resourcesService := service.NewResourcesService(kingdoms, resources)
+	kingdomService := service.NewKingdomService(kingdoms, rulerService, resourcesService)
 	kingdomHandler := handlers.NewKingdomHandler(kingdomService)
 	rulerHandler := handlers.NewRulerHandler(rulerService)
+	resourcesHandler := handlers.NewResourcesHandler(resourcesService)
 
 	e.POST("/api/auth/register", authHandler.Register)
 	e.POST("/api/auth/login", authHandler.Login)
@@ -44,6 +47,7 @@ func New(database *sql.DB, jwtSecret string) *echo.Echo {
 	e.POST("/api/kingdoms", kingdomHandler.Create, appmiddleware.Auth(auth))
 	e.GET("/api/kingdoms/me", kingdomHandler.Me, appmiddleware.Auth(auth))
 	e.GET("/api/ruler/me", rulerHandler.Me, appmiddleware.Auth(auth))
+	e.GET("/api/resources/me", resourcesHandler.Me, appmiddleware.Auth(auth))
 
 	return e
 }

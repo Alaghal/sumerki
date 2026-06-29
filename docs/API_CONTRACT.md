@@ -293,6 +293,55 @@ HTTP 404
 }
 ```
 
+## Resources
+
+### `GET /api/resources/me`
+
+Returns the current authenticated user's resources after applying lazy production.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "resources": {
+    "kingdomId": "uuid",
+    "gold": 520,
+    "food": 330,
+    "wood": 325,
+    "stone": 215,
+    "population": 101,
+    "productionPerHour": {
+      "gold": 20,
+      "food": 30,
+      "wood": 25,
+      "stone": 15,
+      "population": 1
+    },
+    "lastCalculatedAt": "2026-06-29T00:00:00Z",
+    "updatedAt": "2026-06-29T00:00:00Z"
+  }
+}
+```
+
+Response when the current user has no kingdom:
+
+HTTP 404
+
+```json
+{
+  "error": {
+    "code": "kingdom_not_found",
+    "message": "Create a kingdom before requesting resources"
+  }
+}
+```
+
 ## Enumerations
 
 Cultures:
@@ -312,3 +361,11 @@ Ruler health statuses:
 - `healthy`
 - `wounded`
 - `sick`
+
+Resources:
+
+- `gold`
+- `food`
+- `wood`
+- `stone`
+- `population`
