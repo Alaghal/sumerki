@@ -342,6 +342,129 @@ HTTP 404
 }
 ```
 
+## Buildings
+
+### `GET /api/buildings/me`
+
+Returns all buildings for the current authenticated user's kingdom after applying lazy upgrade completion.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "buildings": [
+    {
+      "id": "uuid",
+      "kingdomId": "uuid",
+      "type": "town_hall",
+      "label": "Ратуша",
+      "level": 1,
+      "maxLevel": 5,
+      "isUpgrading": false,
+      "upgradeStartedAt": null,
+      "upgradeFinishesAt": null,
+      "nextUpgrade": {
+        "targetLevel": 2,
+        "cost": {
+          "gold": 300,
+          "food": 0,
+          "wood": 240,
+          "stone": 200,
+          "population": 0
+        },
+        "durationSeconds": 120,
+        "canUpgrade": true,
+        "blockedReason": null
+      },
+      "effects": [
+        "Нет эффекта в текущей версии"
+      ],
+      "createdAt": "2026-06-29T00:00:00Z",
+      "updatedAt": "2026-06-29T00:00:00Z"
+    }
+  ]
+}
+```
+
+Response when the current user has no kingdom:
+
+HTTP 404
+
+```json
+{
+  "error": {
+    "code": "kingdom_not_found",
+    "message": "Create a kingdom before requesting buildings"
+  }
+}
+```
+
+### `POST /api/buildings/{type}/upgrade`
+
+Starts an upgrade for one building and spends resources immediately.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "building": {
+    "id": "uuid",
+    "kingdomId": "uuid",
+    "type": "farm",
+    "label": "Ферма",
+    "level": 1,
+    "maxLevel": 5,
+    "isUpgrading": true,
+    "upgradeStartedAt": "2026-06-29T00:00:00Z",
+    "upgradeFinishesAt": "2026-06-29T00:02:00Z",
+    "nextUpgrade": null,
+    "effects": [
+      "+15 еды/час за уровень"
+    ],
+    "createdAt": "2026-06-29T00:00:00Z",
+    "updatedAt": "2026-06-29T00:00:00Z"
+  },
+  "resources": {
+    "kingdomId": "uuid",
+    "gold": 420,
+    "food": 300,
+    "wood": 220,
+    "stone": 180,
+    "population": 100,
+    "productionPerHour": {
+      "gold": 30,
+      "food": 45,
+      "wood": 37,
+      "stone": 25,
+      "population": 1
+    },
+    "lastCalculatedAt": "2026-06-29T00:00:00Z",
+    "updatedAt": "2026-06-29T00:00:00Z"
+  }
+}
+```
+
+Errors:
+
+- `kingdom_not_found`
+- `invalid_building_type`
+- `building_not_found`
+- `building_already_upgrading`
+- `building_max_level`
+- `insufficient_resources`
+
 ## Enumerations
 
 Cultures:
@@ -369,3 +492,14 @@ Resources:
 - `wood`
 - `stone`
 - `population`
+
+Building types:
+
+- `town_hall`
+- `farm`
+- `lumberyard`
+- `quarry`
+- `barracks`
+- `market`
+- `walls`
+- `shrine`

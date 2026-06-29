@@ -16,6 +16,14 @@ type fakeResourcesRepository struct {
 	now                  func() time.Time
 }
 
+type fakeProductionProvider struct {
+	bonus gameconfig.ResourceValues
+}
+
+func (p fakeProductionProvider) ProductionBonus(_ context.Context, _ string) (gameconfig.ResourceValues, error) {
+	return p.bonus, nil
+}
+
 func newFakeResourcesRepository() *fakeResourcesRepository {
 	return &fakeResourcesRepository{
 		resourcesByKingdomID: map[string]domain.Resources{},
@@ -124,6 +132,26 @@ func TestResourcesCurrentAppliesLazyProduction(t *testing.T) {
 	}
 	if result.Resources.Population < 0 {
 		t.Fatalf("population must never be negative")
+	}
+}
+
+func TestResourcesCurrentIncludesProductionBonus(t *testing.T) {
+	kingdoms := newFakeKingdomRepository()
+	if _, err := kingdoms.Create(context.Background(), "user-1", "Blackwater", CultureNorthernPrincipality); err != nil {
+		t.Fatalf("create kingdom fixture failed: %v", err)
+	}
+
+	service := NewResourcesService(kingdoms, newFakeResourcesRepository())
+	service.SetProductionProvider(fakeProductionProvider{bonus: gameconfig.ResourceValues{Food: 15}})
+
+	result, err := service.Current(context.Background(), "user-1")
+	if err != nil {
+		t.Fatalf("current resources failed: %v", err)
+	}
+
+	expected := gameconfig.BaseProductionPerHour.Food + 15
+	if result.ProductionPerHour.Food != expected {
+		t.Fatalf("expected food production %d, got %d", expected, result.ProductionPerHour.Food)
 	}
 }
 

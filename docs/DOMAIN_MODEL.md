@@ -40,6 +40,7 @@ Rules:
 - One kingdom per user.
 - Every kingdom has one ruler.
 - Every kingdom has one resource row.
+- Every kingdom has all MVP building rows.
 - Name length is 3 to 32 characters.
 - Culture must be one of the supported culture values.
 - Patron can be null until selected, then must be one of the supported patron values.
@@ -133,15 +134,38 @@ Rules:
 
 Represents an upgradeable structure in a kingdom.
 
-Possible MVP examples:
+MVP buildings:
 
-- town hall
-- lumber camp
-- quarry
-- barracks
-- shrine
+- `town_hall`: starts at level 1, no gameplay effect in Phase 10
+- `farm`: starts at level 1, increases food production
+- `lumberyard`: starts at level 1, increases wood production
+- `quarry`: starts at level 1, increases stone production
+- `market`: starts at level 1, increases gold production
+- `barracks`: starts at level 0, future unit training
+- `walls`: starts at level 0, future raid defense
+- `shrine`: starts at level 0, future events and patrons
 
-Buildings should have levels and resource costs.
+Fields:
+
+- `id`: UUID
+- `kingdomId`: kingdom UUID
+- `type`: building type
+- `level`: current building level, 0 to 5
+- `upgradeStartedAt`: nullable upgrade start timestamp
+- `upgradeFinishesAt`: nullable upgrade finish timestamp
+- `createdAt`: building row creation timestamp
+- `updatedAt`: last update timestamp
+
+Rules:
+
+- Each kingdom has one row for each MVP building type.
+- Max level is 5.
+- Upgrade costs are deterministic and use gold, wood, and stone only in Phase 10.
+- Upgrade duration is `60 * target_level` seconds.
+- Upgrade completion is resolved lazily when buildings or resources are read, or when an upgrade command is issued.
+- Farm, lumberyard, quarry, and market modify resource production in Phase 10.
+- Town hall, barracks, walls, and shrine have no gameplay effect yet or only placeholder future purpose.
+- No building destruction, cancellation, premium queues, speedups, or multiple construction queues are included in Phase 10.
 
 ## Unit
 

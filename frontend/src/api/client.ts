@@ -54,6 +54,40 @@ export type Resources = ResourceValues & {
   updatedAt: string;
 };
 
+export type BuildingType =
+  | 'town_hall'
+  | 'farm'
+  | 'lumberyard'
+  | 'quarry'
+  | 'barracks'
+  | 'market'
+  | 'walls'
+  | 'shrine';
+
+export type BuildingNextUpgrade = {
+  targetLevel: number;
+  cost: ResourceValues;
+  durationSeconds: number;
+  canUpgrade: boolean;
+  blockedReason: string | null;
+};
+
+export type Building = {
+  id: string;
+  kingdomId: string;
+  type: BuildingType;
+  label: string;
+  level: number;
+  maxLevel: number;
+  isUpgrading: boolean;
+  upgradeStartedAt: string | null;
+  upgradeFinishesAt: string | null;
+  nextUpgrade: BuildingNextUpgrade | null;
+  effects: string[];
+  createdAt: string;
+  updatedAt: string;
+};
+
 type AuthResponse = {
   user: User;
   token: string;
@@ -72,6 +106,15 @@ type RulerResponse = {
 };
 
 type ResourcesResponse = {
+  resources: Resources;
+};
+
+type BuildingsResponse = {
+  buildings: Building[];
+};
+
+type BuildingUpgradeResponse = {
+  building: Building;
   resources: Resources;
 };
 
@@ -183,6 +226,17 @@ export function getMyRuler(token?: string) {
 
 export function getMyResources(token?: string) {
   return request<ResourcesResponse>('/api/resources/me', { token });
+}
+
+export function getMyBuildings(token?: string) {
+  return request<BuildingsResponse>('/api/buildings/me', { token });
+}
+
+export function upgradeBuilding(type: BuildingType, token?: string) {
+  return request<BuildingUpgradeResponse>(`/api/buildings/${type}/upgrade`, {
+    method: 'POST',
+    token,
+  });
 }
 
 export { API_BASE_URL, AUTH_TOKEN_KEY, clearStoredToken, readStoredToken, storeToken };

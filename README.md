@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 9: Resources API + UI.
+Phase 10: Buildings API + UI.
 
-This phase adds stored kingdom resources, lazy base production, `GET /api/resources/me`, and real resource values on the dashboard. It does not include buildings, armies, missions, combat, spending, resource caps, or background workers.
+This phase adds kingdom buildings, resource spending for upgrades, lazy upgrade completion, and building production effects. It does not include armies, missions, combat, events, patrons, premium queues, or background workers.
 
 ## Documentation
 
@@ -154,6 +154,22 @@ curl http://localhost:8080/api/resources/me \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
+## Buildings API
+
+Fetch current buildings:
+
+```sh
+curl http://localhost:8080/api/buildings/me \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+Upgrade a farm:
+
+```sh
+curl -X POST http://localhost:8080/api/buildings/farm/upgrade \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
 ## Frontend
 
 The frontend reads `VITE_API_BASE_URL` and defaults to `http://localhost:8080`.
@@ -192,12 +208,12 @@ Expected flow:
 1. Register a new account.
 2. Create a kingdom.
 3. Call `GET /api/resources/me` with the returned token if you want to inspect the resources API directly.
-4. Wait a short time.
-5. Call `GET /api/resources/me` again to see lazy production apply once whole units have accrued.
-6. Open `/app` and see the real kingdom, ruler, and resource cards.
-7. Logout.
-8. Login again with the same account.
-9. Return to the dashboard.
+4. Call `GET /api/buildings/me` to inspect the starting buildings.
+5. Start an upgrade with `POST /api/buildings/farm/upgrade`.
+6. Call `GET /api/resources/me` again to see spent resources.
+7. Wait for the upgrade timer.
+8. Call `GET /api/buildings/me` again to resolve lazy completion and confirm the farm level increased.
+9. Open `/app` and see the real kingdom, ruler, resource, and building cards.
 
 The frontend stores the MVP JWT in `localStorage` under `sumerki.auth.token`. Refreshing the page restores the session through `GET /api/me`.
 
