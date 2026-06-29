@@ -17,6 +17,10 @@ const errorMessages: Record<string, string> = {
   invalid_unit_type: 'Неверный тип войск.',
   invalid_training_amount: 'Количество должно быть от 1 до 50.',
   barracks_level_too_low: 'Недостаточный уровень казармы.',
+  invalid_mission_key: 'Неверный поход.',
+  invalid_unit_amount: 'Количество войск должно быть целым и неотрицательным.',
+  insufficient_units: 'Недостаточно доступных войск.',
+  mission_requirements_not_met: 'Требования похода не выполнены.',
 };
 
 export function toUserMessage(error: unknown): string {

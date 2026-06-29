@@ -142,6 +142,30 @@ func (s *ResourcesService) Spend(ctx context.Context, kingdomID string, cost gam
 	}, nil
 }
 
+func (s *ResourcesService) Grant(ctx context.Context, kingdomID string, reward gameconfig.ResourceValues) (ResourcesResult, error) {
+	result, err := s.CurrentForKingdom(ctx, kingdomID)
+	if err != nil {
+		return ResourcesResult{}, err
+	}
+
+	resources := result.Resources
+	resources.Gold += reward.Gold
+	resources.Food += reward.Food
+	resources.Wood += reward.Wood
+	resources.Stone += reward.Stone
+	resources.Population += reward.Population
+
+	updated, err := s.resources.UpdateCalculated(ctx, resources)
+	if err != nil {
+		return ResourcesResult{}, err
+	}
+
+	return ResourcesResult{
+		Resources:         updated,
+		ProductionPerHour: result.ProductionPerHour,
+	}, nil
+}
+
 func (s *ResourcesService) productionForKingdom(ctx context.Context, kingdomID string) (gameconfig.ResourceValues, error) {
 	production := gameconfig.BaseProductionPerHour
 	if s.productionProvider == nil {

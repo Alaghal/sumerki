@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 11: Army API + UI.
+Phase 12: PvE Missions with Basic Reports.
 
-This phase adds trainable units, resource spending for training, lazy training completion, and a basic army dashboard. It does not include missions, combat, raids, reports, events, patrons, queues, or background workers.
+This phase adds asynchronous PvE missions, basic mission reports, resource rewards, unit losses, and lazy mission completion. It does not include PvP raids, real-time combat, patrons, events, markets, or background workers.
 
 ## Documentation
 
@@ -188,6 +188,38 @@ curl -X POST http://localhost:8080/api/army/train \
   -d '{"unitType":"militia","amount":5}'
 ```
 
+## Missions API
+
+Fetch available missions:
+
+```sh
+curl http://localhost:8080/api/missions/available \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+Start a mission:
+
+```sh
+curl -X POST http://localhost:8080/api/missions/start \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -d '{"missionKey":"black_forest_expedition","units":[{"unitType":"militia","amount":5},{"unitType":"scouts","amount":1}]}'
+```
+
+Fetch current missions:
+
+```sh
+curl http://localhost:8080/api/missions/me \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+Fetch reports:
+
+```sh
+curl http://localhost:8080/api/reports/me \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
 ## Frontend
 
 The frontend reads `VITE_API_BASE_URL` and defaults to `http://localhost:8080`.
@@ -234,7 +266,14 @@ Expected flow:
 9. Call `GET /api/resources/me` again to see spent resources.
 10. Wait for the training timer.
 11. Call `GET /api/army/me` again to resolve lazy completion and confirm the militia amount increased.
-12. Open `/app` and see the real kingdom, ruler, resource, building, and army cards.
+12. Call `GET /api/missions/available` to inspect PvE mission options.
+13. Start a mission with `POST /api/missions/start`.
+14. Call `GET /api/army/me` again and confirm sent units are unavailable.
+15. Wait for the mission timer.
+16. Call `GET /api/missions/me` again to resolve lazy completion.
+17. Call `GET /api/reports/me` to read the mission report.
+18. Call `GET /api/resources/me` and `GET /api/army/me` to confirm rewards, losses, and returned survivors.
+19. Open `/app` and see the real kingdom, ruler, resource, building, army, missions, and reports cards.
 
 The frontend stores the MVP JWT in `localStorage` under `sumerki.auth.token`. Refreshing the page restores the session through `GET /api/me`.
 

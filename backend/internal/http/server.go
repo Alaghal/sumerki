@@ -36,10 +36,13 @@ func New(database *sql.DB, jwtSecret string) *echo.Echo {
 	resources := repository.NewResourcesRepository(database)
 	buildings := repository.NewBuildingRepository(database)
 	army := repository.NewArmyRepository(database)
+	missions := repository.NewMissionRepository(database)
+	reports := repository.NewReportRepository(database)
 	rulerService := service.NewRulerService(kingdoms, rulers)
 	resourcesService := service.NewResourcesService(kingdoms, resources)
 	buildingService := service.NewBuildingService(kingdoms, buildings, resourcesService)
 	armyService := service.NewArmyService(kingdoms, army, resourcesService, buildingService)
+	missionService := service.NewMissionService(kingdoms, missions, reports, armyService, resourcesService)
 	resourcesService.SetProductionProvider(buildingService)
 	kingdomService := service.NewKingdomService(kingdoms, rulerService, resourcesService, buildingService, armyService)
 	kingdomHandler := handlers.NewKingdomHandler(kingdomService)
@@ -47,6 +50,8 @@ func New(database *sql.DB, jwtSecret string) *echo.Echo {
 	resourcesHandler := handlers.NewResourcesHandler(resourcesService)
 	buildingHandler := handlers.NewBuildingHandler(buildingService)
 	armyHandler := handlers.NewArmyHandler(armyService)
+	missionHandler := handlers.NewMissionHandler(missionService)
+	reportHandler := handlers.NewReportHandler(missionService)
 
 	e.POST("/api/auth/register", authHandler.Register)
 	e.POST("/api/auth/login", authHandler.Login)
@@ -59,6 +64,10 @@ func New(database *sql.DB, jwtSecret string) *echo.Echo {
 	e.POST("/api/buildings/:type/upgrade", buildingHandler.Upgrade, appmiddleware.Auth(auth))
 	e.GET("/api/army/me", armyHandler.Me, appmiddleware.Auth(auth))
 	e.POST("/api/army/train", armyHandler.Train, appmiddleware.Auth(auth))
+	e.GET("/api/missions/available", missionHandler.Available, appmiddleware.Auth(auth))
+	e.GET("/api/missions/me", missionHandler.Me, appmiddleware.Auth(auth))
+	e.POST("/api/missions/start", missionHandler.Start, appmiddleware.Auth(auth))
+	e.GET("/api/reports/me", reportHandler.Me, appmiddleware.Auth(auth))
 
 	return e
 }

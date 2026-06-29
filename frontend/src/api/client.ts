@@ -137,6 +137,65 @@ export type Army = {
   summary: ArmySummary;
 };
 
+export type MissionType = 'expedition' | 'scouting';
+export type MissionStatus = 'active' | 'completed';
+export type MissionResultStatus = 'success' | 'partial_success' | 'failure';
+
+export type MissionRequirements = {
+  totalUnits: number;
+  scouts: number;
+};
+
+export type AvailableMission = {
+  key: string;
+  label: string;
+  type: MissionType;
+  description: string;
+  durationSeconds: number;
+  minimumRequirements: MissionRequirements;
+  baseRewards: ResourceValues;
+  risk: string;
+};
+
+export type MissionUnit = {
+  unitType: UnitType;
+  unitLabel: string;
+  amountSent: number;
+  amountLost: number;
+  amountReturned: number;
+};
+
+export type MissionResult = {
+  result: MissionResultStatus;
+  rewards: ResourceValues;
+  losses: Partial<Record<UnitType, number>>;
+};
+
+export type Mission = {
+  id: string;
+  missionKey: string;
+  missionLabel: string;
+  missionType: MissionType;
+  status: MissionStatus;
+  startedAt: string;
+  finishesAt: string;
+  completedAt: string | null;
+  units: MissionUnit[];
+  result: MissionResult | null;
+};
+
+export type MissionReport = {
+  id: string;
+  type: 'pve_mission';
+  title: string;
+  body: string;
+  result: MissionResultStatus;
+  rewards: ResourceValues;
+  losses: Partial<Record<UnitType, number>>;
+  isRead: boolean;
+  createdAt: string;
+};
+
 type AuthResponse = {
   user: User;
   token: string;
@@ -179,6 +238,31 @@ type TrainUnitsRequest = {
 type TrainUnitsResponse = {
   trainingOrder: TrainingOrder;
   resources: Resources;
+};
+
+type AvailableMissionsResponse = {
+  missions: AvailableMission[];
+};
+
+type MissionsResponse = {
+  missions: Mission[];
+};
+
+type StartMissionRequest = {
+  missionKey: string;
+  units: Array<{
+    unitType: UnitType;
+    amount: number;
+  }>;
+};
+
+type StartMissionResponse = {
+  mission: Mission;
+  army: Army;
+};
+
+type ReportsResponse = {
+  reports: MissionReport[];
 };
 
 type ApiErrorResponse = {
@@ -312,6 +396,26 @@ export function trainUnits(unitType: UnitType, amount: number, token?: string) {
     body: { unitType, amount } satisfies TrainUnitsRequest,
     token,
   });
+}
+
+export function getAvailableMissions(token?: string) {
+  return request<AvailableMissionsResponse>('/api/missions/available', { token });
+}
+
+export function getMyMissions(token?: string) {
+  return request<MissionsResponse>('/api/missions/me', { token });
+}
+
+export function startMission(missionKey: string, units: StartMissionRequest['units'], token?: string) {
+  return request<StartMissionResponse>('/api/missions/start', {
+    method: 'POST',
+    body: { missionKey, units } satisfies StartMissionRequest,
+    token,
+  });
+}
+
+export function getMyReports(token?: string) {
+  return request<ReportsResponse>('/api/reports/me', { token });
 }
 
 export { API_BASE_URL, AUTH_TOKEN_KEY, clearStoredToken, readStoredToken, storeToken };
