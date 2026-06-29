@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 12: PvE Missions with Basic Reports.
+Phase 13: Report Polish and Narrative Templates.
 
-This phase adds asynchronous PvE missions, basic mission reports, resource rewards, unit losses, and lazy mission completion. It does not include PvP raids, real-time combat, patrons, events, markets, or background workers.
+This phase adds richer PvE mission report text, report phases, unread counts, report detail, and mark-as-read support. It does not include PvP raids, real-time combat, patrons, events, markets, notifications, or background workers.
 
 ## Documentation
 
@@ -216,7 +216,21 @@ curl http://localhost:8080/api/missions/me \
 Fetch reports:
 
 ```sh
-curl http://localhost:8080/api/reports/me \
+curl "http://localhost:8080/api/reports/me?limit=20&offset=0" \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+Fetch one report:
+
+```sh
+curl http://localhost:8080/api/reports/<REPORT_ID> \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+Mark a report as read:
+
+```sh
+curl -X POST http://localhost:8080/api/reports/<REPORT_ID>/read \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
@@ -271,9 +285,11 @@ Expected flow:
 14. Call `GET /api/army/me` again and confirm sent units are unavailable.
 15. Wait for the mission timer.
 16. Call `GET /api/missions/me` again to resolve lazy completion.
-17. Call `GET /api/reports/me` to read the mission report.
-18. Call `GET /api/resources/me` and `GET /api/army/me` to confirm rewards, losses, and returned survivors.
-19. Open `/app` and see the real kingdom, ruler, resource, building, army, missions, and reports cards.
+17. Call `GET /api/reports/me` to read the mission report list with unread count.
+18. Call `GET /api/reports/{id}` to read narrative phases.
+19. Call `POST /api/reports/{id}/read` to mark it read.
+20. Call `GET /api/resources/me` and `GET /api/army/me` to confirm rewards, losses, and returned survivors.
+21. Open `/app` and see the real kingdom, ruler, resource, building, army, missions, and polished reports cards.
 
 The frontend stores the MVP JWT in `localStorage` under `sumerki.auth.token`. Refreshing the page restores the session through `GET /api/me`.
 

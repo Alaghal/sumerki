@@ -764,6 +764,11 @@ Errors:
 
 Returns the current authenticated user's mission reports after applying lazy mission completion.
 
+Query parameters:
+
+- `limit`: optional, defaults to 20, maximum 50
+- `offset`: optional, defaults to 0
+
 Requires:
 
 ```http
@@ -778,8 +783,14 @@ Response:
     {
       "id": "uuid",
       "type": "pve_mission",
-      "title": "Экспедиция в Чёрный Лес",
-      "body": "Отряд вернулся из Чёрный Лес с добычей и вестями.",
+      "title": "Чёрный лес уступил дорогу",
+      "body": "Отряд вышел из чащи до заката. За спинами пахло смолой, сырой землёй и чужим страхом.",
+      "phases": [
+        {
+          "title": "На опушке",
+          "body": "Разведчики нашли старую звериную тропу и повели людей мимо топей."
+        }
+      ],
       "result": "success",
       "rewards": {
         "gold": 40,
@@ -795,9 +806,94 @@ Response:
       "isRead": false,
       "createdAt": "2026-06-29T00:02:00Z"
     }
-  ]
+  ],
+  "pagination": {
+    "limit": 20,
+    "offset": 0
+  },
+  "unreadCount": 1
 }
 ```
+
+### `GET /api/reports/{id}`
+
+Returns one report owned by the current authenticated user's kingdom.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "report": {
+    "id": "uuid",
+    "type": "pve_mission",
+    "title": "Чёрный лес уступил дорогу",
+    "body": "Отряд вышел из чащи до заката. За спинами пахло смолой, сырой землёй и чужим страхом.",
+    "phases": [],
+    "result": "success",
+    "rewards": {
+      "gold": 40,
+      "food": 80,
+      "wood": 120,
+      "stone": 0,
+      "population": 0
+    },
+    "losses": {},
+    "isRead": false,
+    "createdAt": "2026-06-29T00:02:00Z"
+  }
+}
+```
+
+Errors:
+
+- `kingdom_not_found`
+- `report_not_found`
+
+### `POST /api/reports/{id}/read`
+
+Marks one report owned by the current authenticated user's kingdom as read. The operation is idempotent.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "report": {
+    "id": "uuid",
+    "type": "pve_mission",
+    "title": "Чёрный лес уступил дорогу",
+    "body": "Отряд вышел из чащи до заката. За спинами пахло смолой, сырой землёй и чужим страхом.",
+    "phases": [],
+    "result": "success",
+    "rewards": {
+      "gold": 40,
+      "food": 80,
+      "wood": 120,
+      "stone": 0,
+      "population": 0
+    },
+    "losses": {},
+    "isRead": true,
+    "createdAt": "2026-06-29T00:02:00Z"
+  }
+}
+```
+
+Errors:
+
+- `kingdom_not_found`
+- `report_not_found`
 
 ## Enumerations
 
