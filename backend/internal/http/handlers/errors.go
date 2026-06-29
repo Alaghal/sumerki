@@ -1,21 +1,11 @@
 package handlers
 
-import "github.com/labstack/echo/v4"
+import (
+	"sumerki/backend/internal/http/apierror"
 
-type ErrorResponse struct {
-	Error ErrorBody `json:"error"`
-}
-
-type ErrorBody struct {
-	Code    string `json:"code"`
-	Message string `json:"message"`
-}
+	"github.com/labstack/echo/v4"
+)
 
 func JSONError(c echo.Context, status int, code string, message string) error {
-	return c.JSON(status, ErrorResponse{
-		Error: ErrorBody{
-			Code:    code,
-			Message: message,
-		},
-	})
+	return apierror.JSON(c, status, code, message)
 }

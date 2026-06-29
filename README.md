@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 3: Database Migration Foundation.
+Phase 4: Auth API.
 
-This phase adds Goose SQL migrations for the initial `users` and `kingdoms` schema. It does not include auth APIs, kingdom APIs, frontend code, resources, rulers, combat, events, patrons, or gameplay systems.
+This phase adds user registration, login, JWT authentication, and the current-user endpoint. It does not include kingdom APIs, frontend code, resources, rulers, combat, events, patrons, or gameplay systems.
 
 ## Documentation
 
@@ -64,7 +64,7 @@ make db-down
 
 ## Backend
 
-The backend requires `DATABASE_URL`. `BACKEND_PORT` defaults to `8080` when unset. `JWT_SECRET` is loaded for future auth work but is not used yet.
+The backend requires `DATABASE_URL` and `JWT_SECRET`. `BACKEND_PORT` defaults to `8080` when unset.
 
 Run the backend:
 
@@ -91,6 +91,31 @@ Check database readiness:
 
 ```sh
 curl http://localhost:8080/ready
+```
+
+## Auth API
+
+Register:
+
+```sh
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"player@example.com","password":"password123"}'
+```
+
+Login:
+
+```sh
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"player@example.com","password":"password123"}'
+```
+
+Fetch current user:
+
+```sh
+curl http://localhost:8080/api/me \
+  -H "Authorization: Bearer <token>"
 ```
 
 ## Database Migrations

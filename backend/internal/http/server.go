@@ -7,12 +7,14 @@ import (
 
 	"sumerki/backend/internal/http/handlers"
 	appmiddleware "sumerki/backend/internal/http/middleware"
+	"sumerki/backend/internal/repository"
+	"sumerki/backend/internal/service"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func New(database *sql.DB) *echo.Echo {
+func New(database *sql.DB, jwtSecret string) *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
 	e.HTTPErrorHandler = errorHandler
@@ -24,6 +26,15 @@ func New(database *sql.DB) *echo.Echo {
 	health := handlers.NewHealth(database)
 	e.GET("/health", health.Health)
 	e.GET("/ready", health.Ready)
+
+	users := repository.NewUserRepository(database)
+	auth := service.NewAuthService(users, jwtSecret)
+	authHandler := handlers.NewAuthHandler(auth)
+	meHandler := handlers.NewMeHandler(auth)
+
+	e.POST("/api/auth/register", authHandler.Register)
+	e.POST("/api/auth/login", authHandler.Login)
+	e.GET("/api/me", meHandler.Me, appmiddleware.Auth(auth))
 
 	return e
 }

@@ -77,7 +77,9 @@ Request:
 }
 ```
 
-Response:
+Success response:
+
+HTTP 201
 
 ```json
 {
@@ -88,6 +90,12 @@ Response:
   "token": "jwt"
 }
 ```
+
+Validation errors:
+
+- `invalid_email`
+- `password_too_short`
+- `email_already_exists`
 
 ### `POST /api/auth/login`
 
@@ -102,7 +110,9 @@ Request:
 }
 ```
 
-Response:
+Success response:
+
+HTTP 200
 
 ```json
 {
@@ -114,9 +124,26 @@ Response:
 }
 ```
 
+Login errors use the generic invalid credentials response and do not reveal whether the email exists:
+
+```json
+{
+  "error": {
+    "code": "invalid_credentials",
+    "message": "Invalid email or password"
+  }
+}
+```
+
 ### `GET /api/me`
 
 Returns the current authenticated user.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
 
 Response:
 
@@ -128,6 +155,14 @@ Response:
   }
 }
 ```
+
+Auth errors:
+
+- `missing_authorization_header`
+- `invalid_authorization_header`
+- `invalid_token`
+- `expired_token`
+- `user_not_found`
 
 ## Kingdoms
 
