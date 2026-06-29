@@ -19,6 +19,26 @@ export type Kingdom = {
   updatedAt: string;
 };
 
+export type HealthStatus = 'healthy' | 'wounded' | 'sick';
+
+export type Ruler = {
+  id: string;
+  kingdomId: string;
+  name: string;
+  age: number;
+  culture: Culture;
+  authority: number;
+  courage: number;
+  cunning: number;
+  honor: number;
+  cruelty: number;
+  ambition: number;
+  paranoia: number;
+  healthStatus: HealthStatus;
+  createdAt: string;
+  updatedAt: string;
+};
+
 type AuthResponse = {
   user: User;
   token: string;
@@ -30,6 +50,10 @@ type MeResponse = {
 
 type KingdomResponse = {
   kingdom: Kingdom | null;
+};
+
+type RulerResponse = {
+  ruler: Ruler;
 };
 
 type ApiErrorResponse = {
@@ -132,6 +156,10 @@ export function createKingdom(name: string, culture: Culture, token?: string) {
     body: { name, culture },
     token,
   });
+}
+
+export function getMyRuler(token?: string) {
+  return request<RulerResponse>('/api/ruler/me', { token });
 }
 
 export { API_BASE_URL, AUTH_TOKEN_KEY, clearStoredToken, readStoredToken, storeToken };

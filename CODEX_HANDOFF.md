@@ -2,11 +2,11 @@
 
 ## Current Phase
 
-Phase 7: Frontend Auth + Kingdom Flow.
+Phase 8: Ruler System v1.
 
 ## Status
 
-Phase 7 is complete according to the attached prompt: the frontend now connects to the existing backend auth and kingdom APIs for the first account flow.
+Phase 8 is complete according to the attached prompt: every kingdom now has a simple ruler, the backend exposes `GET /api/ruler/me`, and the dashboard displays real ruler data.
 
 ## Completed
 
@@ -16,114 +16,108 @@ Phase 7 is complete according to the attached prompt: the frontend now connects 
 - Documented MVP scope in `docs/MVP_SCOPE.md`.
 - Preserved and aligned phase plan in `docs/MVP_PHASES.md`.
 - Created decision log in `docs/DECISIONS.md`.
-- Drafted initial API contract in `docs/API_CONTRACT.md`.
-- Drafted initial domain model in `docs/DOMAIN_MODEL.md`.
+- Drafted and updated API contract in `docs/API_CONTRACT.md`.
+- Drafted and updated domain model in `docs/DOMAIN_MODEL.md`.
 - Created phase documentation directory at `docs/phases/`.
-- Added Phase 0 detail page at `docs/phases/phase-00-repository-bootstrap.md`.
 - Added Docker Compose configuration for local PostgreSQL.
 - Added `.env.example` with local PostgreSQL defaults.
 - Added basic Makefile commands for local database management.
-- Added backend skeleton, health/readiness endpoints, auth API, and kingdom creation API in earlier phases.
-- Added frontend app structure under `frontend/`.
-- Added Vite, React, TypeScript, Tailwind, and React Router setup.
-- Connected register and login forms to the backend.
-- Added typed frontend API functions for auth, session, and kingdom calls.
-- Added MVP JWT storage in `localStorage` under `sumerki.auth.token`.
-- Added React session context for token, user, kingdom, loading, and error state.
-- Added protected route behavior for `/app` and `/create-kingdom`.
-- Added public route redirects for authenticated users.
-- Connected the create kingdom form to the backend.
-- Added logout from the top bar.
-- Updated the dashboard to show the real kingdom name, culture, patron state, and user email.
-- Kept resources, ruler, buildings, army, and reports as placeholders.
-- Updated README with the full local account flow.
+- Added backend skeleton, health/readiness endpoints, auth API, kingdom creation API, and frontend auth/kingdom flow in earlier phases.
+- Added reversible Goose migration `00003_create_rulers.sql`.
+- Added `rulers` table with UUID primary key, one ruler per kingdom, stat constraints, culture constraints, health status constraints, timestamps, and safe backfill for existing kingdoms.
+- Added ruler domain, repository, service, and HTTP handler layers.
+- Added simple culture-specific ruler generation.
+- Added safe lazy ruler creation when an existing kingdom is missing a ruler.
+- Integrated ruler creation into kingdom creation.
+- Added `GET /api/ruler/me`.
+- Added frontend `Ruler` type and `getMyRuler()` API call.
+- Replaced the dashboard placeholder ruler card with real ruler data, loading state, and error state.
+- Updated README with the ruler curl example and local manual flow.
+- Added minimal service tests for ruler generation and kingdom creation integration.
 
 ## Phase Order Note
 
-- The attached prompt defines Phase 7 as `Frontend Auth + Kingdom Flow`.
-- `docs/MVP_PHASES.md` currently defines Phase 7 as `Frontend Skeleton` and Phase 8 as `Frontend Auth, Kingdom, and Ruler Integration`.
+- The attached prompt defines Phase 8 as `Ruler System v1`.
+- `docs/MVP_PHASES.md` currently defines Phase 8 as `Frontend Auth, Kingdom, and Ruler Integration`, while its older Phase 6 is `Ruler System`.
 - This session followed the attached prompt and did not modify `docs/MVP_PHASES.md`.
-- Ruler integration was not implemented because the attached prompt explicitly excludes it.
 
 ## Changed Files
 
 - `README.md`
 - `CODEX_HANDOFF.md`
-- `frontend/src/App.tsx`
+- `docs/API_CONTRACT.md`
+- `docs/DOMAIN_MODEL.md`
+- `backend/migrations/00003_create_rulers.sql`
+- `backend/internal/domain/ruler.go`
+- `backend/internal/repository/ruler_repository.go`
+- `backend/internal/service/ruler_service.go`
+- `backend/internal/service/ruler_service_test.go`
+- `backend/internal/service/kingdom_service.go`
+- `backend/internal/service/kingdom_service_test.go`
+- `backend/internal/http/handlers/ruler_handler.go`
+- `backend/internal/http/server.go`
 - `frontend/src/api/client.ts`
-- `frontend/src/api/errors.ts`
-- `frontend/src/context/SessionContext.tsx`
-- `frontend/src/components/layout/TopBar.tsx`
-- `frontend/src/pages/CreateKingdomPage.tsx`
 - `frontend/src/pages/DashboardPage.tsx`
-- `frontend/src/pages/LoginPage.tsx`
-- `frontend/src/pages/RegisterPage.tsx`
-- `frontend/src/routes/AppRoutes.tsx`
-
-No backend files, migrations, Docker Compose files, or project docs outside README and this handoff were modified.
 
 ## Commands Run
 
+- `gofmt -w backend/internal/domain/ruler.go backend/internal/repository/ruler_repository.go backend/internal/service/ruler_service.go backend/internal/service/kingdom_service.go backend/internal/http/handlers/ruler_handler.go backend/internal/http/server.go backend/internal/service/kingdom_service_test.go backend/internal/service/ruler_service_test.go`
 - `npm run typecheck`
 - `npm run build`
-- `docker compose up -d postgres`
-- `POSTGRES_PORT=15432 docker compose up -d postgres`
+- `GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build GOMODCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-mod go test ./...`
 - `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make migrate-up`
-- `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' JWT_SECRET='dev-secret' BACKEND_PORT=18080 go run ./cmd/server`
-- `curl -sS http://localhost:18080/health`
+- `GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build GOMODCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-mod DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' JWT_SECRET='dev-secret' BACKEND_PORT=18080 go run ./cmd/server`
 - `curl -sS -i http://localhost:18080/ready`
-- `VITE_API_BASE_URL=http://localhost:18080 npm run dev -- --host 127.0.0.1 --port 5173`
-- `npm install`
+- HTTP smoke test covering unauthenticated `GET /api/ruler/me`, authenticated no-kingdom `GET /api/ruler/me`, `POST /api/kingdoms`, and successful `GET /api/ruler/me`
+- Browser flow covering register, create kingdom, dashboard ruler card, and dashboard refresh
+- `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make migrate-status`
+- `git diff --check`
 
 ## Verification
 
-- `npm install` completed successfully.
 - `npm run typecheck` completed successfully.
 - `npm run build` completed successfully.
-- Verified backend health returned `{"status":"ok"}`.
+- `go test ./...` completed successfully.
+- Goose applied `00003_create_rulers.sql` successfully.
+- Goose status shows migrations `00001`, `00002`, and `00003` applied.
 - Verified backend readiness returned HTTP 200 with `{"status":"ready","database":"ok"}`.
-- Verified in the browser:
-  - register redirects to `/create-kingdom`
-  - create kingdom redirects to `/app`
-  - dashboard displays the real kingdom name
-  - dashboard displays the real culture label
-  - dashboard displays the user email
-  - dashboard displays `Без покровителя` when patron is null
-  - logout redirects to `/login`
-  - `/app` without a session redirects to `/login`
-  - login redirects to `/app`
-  - page refresh restores the session and dashboard
-- Verified no forbidden paths were changed with `git diff --name-only -- backend backend/migrations docker-compose.yml docs/MVP_SCOPE.md docs/MVP_PHASES.md docs/API_CONTRACT.md docs/DOMAIN_MODEL.md`.
+- Verified `GET /api/ruler/me` without auth returns HTTP 401.
+- Verified authenticated `GET /api/ruler/me` without a kingdom returns HTTP 404 with `kingdom_not_found`.
+- Verified creating a new kingdom creates a ruler.
+- Verified `GET /api/ruler/me` returns the current user's ruler with kingdom id, name, age, culture, stats, health status, and timestamps.
+- Verified ruler age and stat generation ranges through service tests.
+- Verified dashboard shows the real ruler card with Russian stat labels.
+- Verified dashboard still shows ruler data after page refresh.
+- Verified `git diff --check` has no whitespace errors.
 
 Notes:
 
-- Port `5432` was already in use locally, so live verification used `POSTGRES_PORT=15432`.
-- The backend was run on `18080` for verification, and the frontend used `VITE_API_BASE_URL=http://localhost:18080`.
-- Browser policy blocked setting an intentionally invalid token through a `javascript:` URL, so invalid-token behavior was not browser-forced. The frontend code clears session state for `invalid_token`, `expired_token`, and related auth errors from `/api/me` or `/api/kingdoms/me`.
+- Port `5432` was already in use locally, so live verification used `POSTGRES_PORT=15432` and `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable'`.
+- The backend was run on `18080` for verification, and the frontend was already running on `5173` with `VITE_API_BASE_URL=http://localhost:18080`.
+- Kingdom creation and ruler creation are not wrapped in one database transaction. The service creates the kingdom first and then creates the ruler immediately after; missing rulers are safely created lazily by `GET /api/ruler/me`.
 
 ## What Works Now
 
-- `cd frontend && npm install` installs frontend dependencies.
-- `cd frontend && npm run dev` starts the Vite development server.
-- `cd frontend && npm run typecheck` typechecks the frontend.
-- `cd frontend && npm run build` builds the frontend.
-- Registering through `/register` calls `POST /api/auth/register` and stores the JWT.
-- Logging in through `/login` calls `POST /api/auth/login` and stores the JWT.
-- Refreshing the app restores the session through `GET /api/me` and fetches the kingdom through `GET /api/kingdoms/me`.
-- Authenticated users without a kingdom are sent to `/create-kingdom`.
-- Creating a kingdom calls `POST /api/kingdoms` and redirects to `/app`.
-- Authenticated users with a kingdom are redirected away from `/login`, `/register`, and `/create-kingdom` to `/app`.
-- Logout clears the local session and returns the user to `/login`.
+- New migrations create and backfill `rulers`.
+- Existing kingdoms receive rulers through migration backfill or lazy creation.
+- New kingdoms get a generated ruler during creation.
+- `GET /api/ruler/me` requires authentication.
+- `GET /api/ruler/me` returns only the authenticated user's ruler.
+- Users without kingdoms receive the standard `kingdom_not_found` JSON error.
+- Dashboard loads and displays real ruler data after session and kingdom load.
+- Dashboard keeps working after refresh.
 
 ## Known Limitations
 
-- Dashboard still uses placeholder resources, ruler, buildings, army, and reports.
-- No resources system exists yet.
-- No gameplay systems exist yet.
-- No ruler integration was implemented in this phase.
-- `localStorage` token storage is MVP-only and should be revisited before production hardening.
-- The frontend assumes the existing backend error shape documented in `docs/API_CONTRACT.md`.
+- Ruler stats are flavor only for now.
+- No ruler traits yet.
+- No ruler actions yet.
+- No ruler death, heirs, or dynasties yet.
+- No intrigue system yet.
+- No gameplay modifiers from ruler stats yet.
+- No resources, buildings, army, missions, combat, events, patrons, tribute, alliances, or map systems were implemented.
+- Kingdom and ruler creation are not transactional in this phase.
 
 ## Next Recommended Step
 
-Start the next explicitly requested phase only. Before more phase work, reconcile the prompt-driven phase order with `docs/MVP_PHASES.md` or continue noting the mismatch in handoffs.
+Start Phase 9 only when explicitly requested. Based on the prompt-driven order, the next likely phase is the resources system.

@@ -38,9 +38,40 @@ Fields:
 Rules:
 
 - One kingdom per user.
+- Every kingdom has one ruler.
 - Name length is 3 to 32 characters.
 - Culture must be one of the supported culture values.
 - Patron can be null until selected, then must be one of the supported patron values.
+
+## Ruler
+
+Represents the current leader of a kingdom.
+
+Fields:
+
+- `id`: UUID
+- `kingdomId`: kingdom UUID
+- `name`: generated ruler name
+- `age`: ruler age, 18 to 80
+- `culture`: inherited from the kingdom culture
+- `authority`: flavor stat, 1 to 100
+- `courage`: flavor stat, 1 to 100
+- `cunning`: flavor stat, 1 to 100
+- `honor`: flavor stat, 1 to 100
+- `cruelty`: flavor stat, 1 to 100
+- `ambition`: flavor stat, 1 to 100
+- `paranoia`: flavor stat, 1 to 100
+- `healthStatus`: ruler health state
+- `createdAt`: ruler creation timestamp
+- `updatedAt`: last update timestamp
+
+Rules:
+
+- Each kingdom has exactly one ruler.
+- A ruler is generated when a kingdom is created.
+- Existing kingdoms can receive a default or lazily generated ruler.
+- Ruler stats are flavor only in v1 and do not modify gameplay.
+- No heirs, dynasties, intrigue, ruler death, ruler actions, or gameplay modifiers are included in Phase 8.
 
 ## Culture
 

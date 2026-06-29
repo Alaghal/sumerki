@@ -32,14 +32,18 @@ func New(database *sql.DB, jwtSecret string) *echo.Echo {
 	authHandler := handlers.NewAuthHandler(auth)
 	meHandler := handlers.NewMeHandler(auth)
 	kingdoms := repository.NewKingdomRepository(database)
-	kingdomService := service.NewKingdomService(kingdoms)
+	rulers := repository.NewRulerRepository(database)
+	rulerService := service.NewRulerService(kingdoms, rulers)
+	kingdomService := service.NewKingdomService(kingdoms, rulerService)
 	kingdomHandler := handlers.NewKingdomHandler(kingdomService)
+	rulerHandler := handlers.NewRulerHandler(rulerService)
 
 	e.POST("/api/auth/register", authHandler.Register)
 	e.POST("/api/auth/login", authHandler.Login)
 	e.GET("/api/me", meHandler.Me, appmiddleware.Auth(auth))
 	e.POST("/api/kingdoms", kingdomHandler.Create, appmiddleware.Auth(auth))
 	e.GET("/api/kingdoms/me", kingdomHandler.Me, appmiddleware.Auth(auth))
+	e.GET("/api/ruler/me", rulerHandler.Me, appmiddleware.Auth(auth))
 
 	return e
 }
