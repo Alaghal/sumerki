@@ -2,14 +2,21 @@ import { useEffect, useState } from 'react';
 
 import {
   Army,
+  AvailableMission,
   Building,
   BuildingType,
+  getAvailableMissions,
   getMyArmy,
   getMyBuildings,
+  getMyMissions,
+  getMyReports,
   getMyResources,
   getMyRuler,
+  Mission,
+  MissionReport,
   Resources,
   Ruler,
+  startMission,
   trainUnits,
   UnitType,
   upgradeBuilding,
@@ -77,6 +84,24 @@ const unitStatRows = [
   ['Снабжение', 'supply'],
 ] as const;
 
+const unitTypes: UnitType[] = ['militia', 'spearmen', 'archers', 'cavalry', 'scouts'];
+
+const missionTypeLabels = {
+  expedition: 'Экспедиция',
+  scouting: 'Разведка',
+};
+
+const missionStatusLabels = {
+  active: 'В пути',
+  completed: 'Завершено',
+};
+
+const missionResultLabels = {
+  success: 'Успех',
+  partial_success: 'Частичный успех',
+  failure: 'Провал',
+};
+
 export function DashboardPage() {
   const { token, user, kingdom } = useSession();
   const [ruler, setRuler] = useState<Ruler | null>(null);
@@ -95,6 +120,15 @@ export function DashboardPage() {
   const [trainingType, setTrainingType] = useState<UnitType>('militia');
   const [trainingAmount, setTrainingAmount] = useState(5);
   const [isTraining, setIsTraining] = useState(false);
+  const [availableMissions, setAvailableMissions] = useState<AvailableMission[]>([]);
+  const [missions, setMissions] = useState<Mission[]>([]);
+  const [missionsLoading, setMissionsLoading] = useState(true);
+  const [missionsError, setMissionsError] = useState('');
+  const [missionInputs, setMissionInputs] = useState<Record<string, Partial<Record<UnitType, number>>>>({});
+  const [startingMissionKey, setStartingMissionKey] = useState<string | null>(null);
+  const [reports, setReports] = useState<MissionReport[]>([]);
+  const [reportsLoading, setReportsLoading] = useState(true);
+  const [reportsError, setReportsError] = useState('');
 
   async function loadRuler() {
     if (!token || !kingdom) {
@@ -168,8 +202,45 @@ export function DashboardPage() {
     }
   }
 
+  async function loadMissions() {
+    if (!token || !kingdom) {
+      return;
+    }
+
+    setMissionsLoading(true);
+    setMissionsError('');
+
+    try {
+      const [availableResponse, currentResponse] = await Promise.all([getAvailableMissions(token), getMyMissions(token)]);
+      setAvailableMissions(availableResponse.missions);
+      setMissions(currentResponse.missions);
+    } catch {
+      setMissionsError('Не удалось загрузить походы.');
+    } finally {
+      setMissionsLoading(false);
+    }
+  }
+
+  async function loadReports() {
+    if (!token || !kingdom) {
+      return;
+    }
+
+    setReportsLoading(true);
+    setReportsError('');
+
+    try {
+      const response = await getMyReports(token);
+      setReports(response.reports);
+    } catch {
+      setReportsError('Не удалось загрузить отчёты.');
+    } finally {
+      setReportsLoading(false);
+    }
+  }
+
   async function refreshCity() {
-    await Promise.all([loadRuler(), loadResources(), loadBuildings(), loadArmy()]);
+    await Promise.all([loadRuler(), loadResources(), loadBuildings(), loadArmy(), loadMissions(), loadReports()]);
   }
 
   async function handleUpgrade(buildingType: BuildingType) {
@@ -209,6 +280,51 @@ export function DashboardPage() {
       setArmyError(toUserMessage(caughtError));
     } finally {
       setIsTraining(false);
+    }
+  }
+
+  async function refreshMissions() {
+    await Promise.all([loadMissions(), loadArmy(), loadResources(), loadReports()]);
+  }
+
+  function setMissionUnitAmount(missionKey: string, unitType: UnitType, amount: number) {
+    setMissionInputs((current) => ({
+      ...current,
+      [missionKey]: {
+        ...current[missionKey],
+        [unitType]: amount,
+      },
+    }));
+  }
+
+  async function handleStartMission(missionKey: string) {
+    if (!token) {
+      return;
+    }
+
+    const units = unitTypes
+      .map((unitType) => ({
+        unitType,
+        amount: missionInputs[missionKey]?.[unitType] ?? 0,
+      }))
+      .filter((unit) => unit.amount > 0);
+
+    if (units.length === 0 || units.some((unit) => !Number.isInteger(unit.amount) || unit.amount < 0)) {
+      setMissionsError('Выберите целое неотрицательное количество войск.');
+      return;
+    }
+
+    setStartingMissionKey(missionKey);
+    setMissionsError('');
+
+    try {
+      const response = await startMission(missionKey, units, token);
+      setArmy(response.army);
+      await refreshMissions();
+    } catch (caughtError) {
+      setMissionsError(toUserMessage(caughtError));
+    } finally {
+      setStartingMissionKey(null);
     }
   }
 
@@ -342,6 +458,75 @@ export function DashboardPage() {
     }
 
     loadInitialArmy();
+
+    return () => {
+      isActive = false;
+    };
+  }, [kingdom, token]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadInitialMissions() {
+      if (!token || !kingdom) {
+        return;
+      }
+
+      setMissionsLoading(true);
+      setMissionsError('');
+
+      try {
+        const [availableResponse, currentResponse] = await Promise.all([getAvailableMissions(token), getMyMissions(token)]);
+        if (isActive) {
+          setAvailableMissions(availableResponse.missions);
+          setMissions(currentResponse.missions);
+        }
+      } catch {
+        if (isActive) {
+          setMissionsError('Не удалось загрузить походы.');
+        }
+      } finally {
+        if (isActive) {
+          setMissionsLoading(false);
+        }
+      }
+    }
+
+    loadInitialMissions();
+
+    return () => {
+      isActive = false;
+    };
+  }, [kingdom, token]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadInitialReports() {
+      if (!token || !kingdom) {
+        return;
+      }
+
+      setReportsLoading(true);
+      setReportsError('');
+
+      try {
+        const response = await getMyReports(token);
+        if (isActive) {
+          setReports(response.reports);
+        }
+      } catch {
+        if (isActive) {
+          setReportsError('Не удалось загрузить отчёты.');
+        }
+      } finally {
+        if (isActive) {
+          setReportsLoading(false);
+        }
+      }
+    }
+
+    loadInitialReports();
 
     return () => {
       isActive = false;
@@ -626,7 +811,124 @@ export function DashboardPage() {
               ) : null}
             </div>
           </Card>
-          <Card title="Reports">Mission and raid reports will be listed here.</Card>
+          <Card title="Missions">
+            <div className="grid gap-4">
+              {missionsLoading ? <p>Загрузка походов...</p> : null}
+              {missionsError ? <p className="text-red-300">{missionsError}</p> : null}
+              <Button className="justify-self-start" disabled={missionsLoading} onClick={refreshMissions} type="button">
+                Обновить походы
+              </Button>
+              {!missionsLoading ? (
+                <>
+                  <div className="grid gap-3">
+                    {availableMissions.map((mission) => (
+                      <div className="rounded border border-stone-800 bg-dusk-950 p-3" data-mission-key={mission.key} key={mission.key}>
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <h3 className="font-semibold text-stone-100">{mission.label}</h3>
+                            <p className="text-xs text-stone-500">{missionTypeLabels[mission.type]}</p>
+                          </div>
+                          <div className="text-right text-sm text-stone-300">{mission.durationSeconds} sec</div>
+                        </div>
+                        <p className="mt-2 text-sm text-stone-400">{mission.description}</p>
+                        <p className="mt-2 text-sm text-stone-400">
+                          Risk: {mission.risk}. Minimum: total {mission.minimumRequirements.totalUnits}, scouts{' '}
+                          {mission.minimumRequirements.scouts}
+                        </p>
+                        <p className="mt-1 text-sm text-stone-400">
+                          Rewards:{' '}
+                          {resourceRows.map(([label, key]) => `${label}: ${mission.baseRewards[key]}`).join(', ')}
+                        </p>
+                        <div className="mt-3 grid gap-2 sm:grid-cols-5">
+                          {unitTypes.map((unitType) => (
+                            <label className="grid gap-1 text-xs text-stone-400" key={unitType}>
+                              {army?.units.find((unit) => unit.type === unitType)?.label ?? unitType}
+                              <input
+                                className="rounded border border-stone-700 bg-dusk-900 px-2 py-2 text-stone-100"
+                                min={0}
+                                onChange={(event) => setMissionUnitAmount(mission.key, unitType, Number(event.target.value))}
+                                type="number"
+                                value={missionInputs[mission.key]?.[unitType] ?? 0}
+                              />
+                            </label>
+                          ))}
+                        </div>
+                        <Button
+                          className="mt-3 justify-self-start"
+                          disabled={startingMissionKey === mission.key}
+                          onClick={() => handleStartMission(mission.key)}
+                          type="button"
+                        >
+                          {startingMissionKey === mission.key ? 'Отправка...' : 'Отправить'}
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="grid gap-2">
+                    <h3 className="font-semibold text-stone-100">Текущие походы</h3>
+                    {missions.length === 0 ? <p className="text-sm text-stone-400">Нет походов.</p> : null}
+                    {missions.map((mission) => (
+                      <div className="rounded border border-stone-800 bg-dusk-950 p-3" key={mission.id}>
+                        <div className="flex flex-wrap justify-between gap-3">
+                          <div>
+                            <p className="font-semibold text-stone-100">{mission.missionLabel}</p>
+                            <p className="text-sm text-stone-400">{missionStatusLabels[mission.status]}</p>
+                          </div>
+                          <div className="text-right text-sm text-dusk-gold">
+                            {mission.completedAt
+                              ? `Завершено ${new Date(mission.completedAt).toLocaleString('ru-RU')}`
+                              : `Завершится ${new Date(mission.finishesAt).toLocaleString('ru-RU')}`}
+                          </div>
+                        </div>
+                        <p className="mt-2 text-sm text-stone-400">
+                          Units:{' '}
+                          {mission.units
+                            .map((unit) => `${unit.unitLabel}: ${unit.amountSent} sent, ${unit.amountLost} lost, ${unit.amountReturned} returned`)
+                            .join(', ')}
+                        </p>
+                        {mission.result ? (
+                          <p className="mt-1 text-sm text-stone-400">
+                            Result: {missionResultLabels[mission.result.result]}
+                          </p>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : null}
+            </div>
+          </Card>
+          <Card title="Reports">
+            <div className="grid gap-3">
+              {reportsLoading ? <p>Загрузка отчётов...</p> : null}
+              {reportsError ? <p className="text-red-300">{reportsError}</p> : null}
+              {!reportsLoading && reports.length === 0 ? <p className="text-sm text-stone-400">Отчётов пока нет.</p> : null}
+              {!reportsLoading
+                ? reports.map((report) => (
+                    <div className="rounded border border-stone-800 bg-dusk-950 p-3" key={report.id}>
+                      <div className="flex flex-wrap justify-between gap-3">
+                        <div>
+                          <h3 className="font-semibold text-stone-100">{report.title}</h3>
+                          <p className="text-sm text-dusk-gold">{missionResultLabels[report.result]}</p>
+                        </div>
+                        <div className="text-right text-sm text-stone-400">{new Date(report.createdAt).toLocaleString('ru-RU')}</div>
+                      </div>
+                      <p className="mt-2 text-sm text-stone-400">{report.body}</p>
+                      <p className="mt-2 text-sm text-stone-400">
+                        Rewards: {resourceRows.map(([label, key]) => `${label}: ${report.rewards[key]}`).join(', ')}
+                      </p>
+                      <p className="mt-1 text-sm text-stone-400">
+                        Losses:{' '}
+                        {unitTypes
+                          .map((unitType) => `${army?.units.find((unit) => unit.type === unitType)?.label ?? unitType}: ${report.losses[unitType] ?? 0}`)
+                          .join(', ')}
+                      </p>
+                    </div>
+                  ))
+                : null}
+            </div>
+          </Card>
         </div>
       </div>
     </AppShell>

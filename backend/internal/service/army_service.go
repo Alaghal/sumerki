@@ -21,6 +21,7 @@ type ArmyRepository interface {
 	CreateInitial(ctx context.Context, kingdomID string) error
 	ListUnitsByKingdomID(ctx context.Context, kingdomID string) ([]domain.Unit, error)
 	FindUnitByKingdomIDAndType(ctx context.Context, kingdomID string, unitType string) (domain.Unit, error)
+	AdjustUnitAmount(ctx context.Context, kingdomID string, unitType string, delta int64) error
 	ListTrainingOrdersByKingdomID(ctx context.Context, kingdomID string) ([]domain.UnitTrainingOrder, error)
 	CreateTrainingOrder(ctx context.Context, kingdomID string, unitType string, amount int64, startedAt time.Time, finishesAt time.Time) (domain.UnitTrainingOrder, error)
 	CompleteFinishedTraining(ctx context.Context, kingdomID string, now time.Time) error
@@ -189,6 +190,43 @@ func (s *ArmyService) Train(ctx context.Context, userID string, unitType string,
 		Order:     s.trainingOrderView(order),
 		Resources: resources,
 	}, nil
+}
+
+func (s *ArmyService) PrepareForMission(ctx context.Context, kingdomID string) (ArmyView, error) {
+	return s.CurrentForKingdom(ctx, kingdomID)
+}
+
+func (s *ArmyService) SubtractForMission(ctx context.Context, kingdomID string, units map[string]int64) error {
+	for unitType, amount := range units {
+		if amount <= 0 {
+			continue
+		}
+		if !gameconfig.IsUnitType(unitType) {
+			return ErrInvalidUnitType
+		}
+		if err := s.army.AdjustUnitAmount(ctx, kingdomID, unitType, -amount); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *ArmyService) ReturnFromMission(ctx context.Context, kingdomID string, units map[string]int64) error {
+	if err := s.EnsureForKingdom(ctx, kingdomID); err != nil {
+		return err
+	}
+	for unitType, amount := range units {
+		if amount <= 0 {
+			continue
+		}
+		if !gameconfig.IsUnitType(unitType) {
+			return ErrInvalidUnitType
+		}
+		if err := s.army.AdjustUnitAmount(ctx, kingdomID, unitType, amount); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (s *ArmyService) completeFinished(ctx context.Context, kingdomID string) error {

@@ -226,13 +226,60 @@ Rules:
 
 ## Mission
 
-Represents PvE activity.
+Represents asynchronous PvE activity.
+
+MVP missions:
+
+- `black_forest_expedition`
+- `old_kurgan_expedition`
+- `dry_ford_scouting`
+
+Fields:
+
+- `id`: UUID
+- `kingdomId`: kingdom UUID
+- `missionKey`: configured mission key
+- `missionType`: `expedition` or `scouting`
+- `status`: `active` or `completed`
+- `startedAt`: mission start timestamp
+- `finishesAt`: mission finish timestamp
+- `completedAt`: nullable completion timestamp
+- `resultJson`: stored result payload with rewards and losses
+- `createdAt`: row creation timestamp
+- `updatedAt`: last update timestamp
 
 Rules:
 
-- A kingdom sends units to a mission.
-- The mission resolves into rewards, losses, and a report.
-- MVP resolution can be simple and deterministic if needed.
+- A kingdom sends available units to a PvE mission.
+- Sent units are subtracted from available `kingdom_units` immediately.
+- Sent units are unavailable until the mission resolves.
+- Mission completion is resolved lazily when missions or reports are read, or when mission start needs current state.
+- Completed missions return surviving units, permanently lose killed units, grant resource rewards, and create a basic report.
+- Mission outcome and losses use simple deterministic MVP rules.
+- No background workers, cron jobs, Redis, queues, or real-time ticking are used.
+- PvP raids, player-vs-player combat, route/pathfinding, heroes, equipment, unit XP, events, patrons, tribute, and advanced battle simulation are not implemented in Phase 12.
+
+## MissionUnit
+
+Represents units allocated to a PvE mission.
+
+Fields:
+
+- `id`: UUID
+- `missionId`: mission UUID
+- `unitType`: unit type sent
+- `amountSent`: number of units sent
+- `amountLost`: number of units lost after completion
+- `amountReturned`: number of units returned after completion
+- `createdAt`: row creation timestamp
+- `updatedAt`: last update timestamp
+
+Rules:
+
+- `amountSent` must be positive.
+- `amountLost` and `amountReturned` cannot be negative.
+- `amountLost + amountReturned` cannot exceed `amountSent`.
+- Mission unit rows do not represent a separate locked-unit system; they are the mission allocation record.
 
 ## Raid
 
@@ -248,15 +295,29 @@ Rules:
 
 Represents the result of a mission, raid, battle, or event.
 
-Fields should include:
+Phase 12 report type:
 
-- report type
-- title
-- body
-- rewards
-- losses
-- created timestamp
-- read/unread state
+- `pve_mission`
+
+Fields:
+
+- `id`: UUID
+- `kingdomId`: kingdom UUID
+- `missionId`: nullable mission UUID
+- `type`: report type
+- `title`: report title
+- `body`: readable report body
+- `result`: `success`, `partial_success`, or `failure`
+- `rewardsJson`: resource rewards payload
+- `lossesJson`: unit losses payload
+- `isRead`: read/unread flag
+- `createdAt`: report creation timestamp
+
+Rules:
+
+- Basic mission reports are created when PvE missions resolve.
+- Reports remain unread in Phase 12; no mark-as-read endpoint exists yet.
+- Report polish, richer narrative structure, raid reports, and event reports are later phases.
 
 ## Event
 

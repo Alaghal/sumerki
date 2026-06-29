@@ -604,6 +604,201 @@ Errors:
 - `insufficient_resources`
 - `barracks_level_too_low`
 
+## Missions
+
+### `GET /api/missions/available`
+
+Returns configured PvE missions for the current authenticated user's kingdom.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "missions": [
+    {
+      "key": "black_forest_expedition",
+      "label": "Чёрный Лес",
+      "type": "expedition",
+      "description": "Охотники шепчут, что в Чёрном Лесу пропадают тропы, но старые склады всё ещё можно найти.",
+      "durationSeconds": 120,
+      "minimumRequirements": {
+        "totalUnits": 5,
+        "scouts": 0
+      },
+      "baseRewards": {
+        "gold": 40,
+        "food": 80,
+        "wood": 120,
+        "stone": 0,
+        "population": 0
+      },
+      "risk": "medium"
+    }
+  ]
+}
+```
+
+### `GET /api/missions/me`
+
+Returns the current authenticated user's missions after applying lazy mission completion.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "missions": [
+    {
+      "id": "uuid",
+      "missionKey": "black_forest_expedition",
+      "missionLabel": "Чёрный Лес",
+      "missionType": "expedition",
+      "status": "active",
+      "startedAt": "2026-06-29T00:00:00Z",
+      "finishesAt": "2026-06-29T00:02:00Z",
+      "completedAt": null,
+      "units": [
+        {
+          "unitType": "militia",
+          "unitLabel": "Ополчение",
+          "amountSent": 5,
+          "amountLost": 0,
+          "amountReturned": 0
+        }
+      ],
+      "result": null
+    }
+  ]
+}
+```
+
+### `POST /api/missions/start`
+
+Starts a PvE mission and immediately removes sent units from the available army.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Request:
+
+```json
+{
+  "missionKey": "black_forest_expedition",
+  "units": [
+    {
+      "unitType": "militia",
+      "amount": 5
+    },
+    {
+      "unitType": "scouts",
+      "amount": 1
+    }
+  ]
+}
+```
+
+Response:
+
+```json
+{
+  "mission": {
+    "id": "uuid",
+    "missionKey": "black_forest_expedition",
+    "missionLabel": "Чёрный Лес",
+    "missionType": "expedition",
+    "status": "active",
+    "startedAt": "2026-06-29T00:00:00Z",
+    "finishesAt": "2026-06-29T00:02:00Z",
+    "completedAt": null,
+    "units": [
+      {
+        "unitType": "militia",
+        "unitLabel": "Ополчение",
+        "amountSent": 5,
+        "amountLost": 0,
+        "amountReturned": 0
+      }
+    ],
+    "result": null
+  },
+  "army": {
+    "kingdomId": "uuid",
+    "units": [],
+    "trainingOrders": [],
+    "summary": {
+      "totalUnits": 7,
+      "totalAttack": 14,
+      "totalDefense": 21,
+      "totalSupply": 7
+    }
+  }
+}
+```
+
+Errors:
+
+- `kingdom_not_found`
+- `invalid_mission_key`
+- `invalid_unit_type`
+- `invalid_unit_amount`
+- `insufficient_units`
+- `mission_requirements_not_met`
+
+## Reports
+
+### `GET /api/reports/me`
+
+Returns the current authenticated user's mission reports after applying lazy mission completion.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "reports": [
+    {
+      "id": "uuid",
+      "type": "pve_mission",
+      "title": "Экспедиция в Чёрный Лес",
+      "body": "Отряд вернулся из Чёрный Лес с добычей и вестями.",
+      "result": "success",
+      "rewards": {
+        "gold": 40,
+        "food": 80,
+        "wood": 120,
+        "stone": 0,
+        "population": 0
+      },
+      "losses": {
+        "militia": 1,
+        "scouts": 0
+      },
+      "isRead": false,
+      "createdAt": "2026-06-29T00:02:00Z"
+    }
+  ]
+}
+```
+
 ## Enumerations
 
 Cultures:
@@ -650,3 +845,23 @@ Unit types:
 - `archers`
 - `cavalry`
 - `scouts`
+
+Mission types:
+
+- `expedition`
+- `scouting`
+
+Mission statuses:
+
+- `active`
+- `completed`
+
+Mission results:
+
+- `success`
+- `partial_success`
+- `failure`
+
+Report types:
+
+- `pve_mission`

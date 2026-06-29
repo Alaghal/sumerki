@@ -2,57 +2,50 @@
 
 ## Current Phase
 
-Phase 11: Army API + UI.
+Phase 12: PvE Missions with Basic Reports.
 
 ## Status
 
-Phase 11 is complete according to the attached prompt: kingdoms now have MVP unit rows, the backend exposes authenticated army list and training endpoints, unit training spends resources and completes through lazy resolution, barracks requirements are enforced through the buildings service, and the dashboard can display units and start training orders.
+Phase 12 is complete according to the attached prompt: players can view configured PvE missions, send available units, have those units removed while the mission is active, resolve missions lazily, receive resource rewards, lose or recover units, and read basic mission reports in the dashboard.
 
 ## Completed
 
-- Created initial repository guidance in `AGENTS.md`.
-- Added `.gitignore` for future Go and TypeScript development artifacts.
-- Created project overview in `README.md`.
-- Documented MVP scope in `docs/MVP_SCOPE.md`.
-- Preserved and aligned phase plan in `docs/MVP_PHASES.md`.
-- Created decision log in `docs/DECISIONS.md`.
-- Drafted and updated API contract in `docs/API_CONTRACT.md`.
-- Drafted and updated domain model in `docs/DOMAIN_MODEL.md`.
-- Created phase documentation directory at `docs/phases/`.
-- Added Docker Compose configuration for local PostgreSQL.
-- Added `.env.example` with local PostgreSQL defaults.
-- Added basic Makefile commands for local database management and migrations.
-- Added backend skeleton, health/readiness endpoints, auth API, kingdom creation API, frontend auth/kingdom flow, ruler system, resources system, and buildings system in earlier phases.
-- Added reversible Goose migration `00006_create_army.sql`.
-- Added `kingdom_units` table with one row per kingdom/unit type, nonnegative amount constraints, and safe backfill for existing kingdoms.
-- Added `unit_training_orders` table with training/completed status, finish timestamps, and indexes by kingdom, status, and finish time.
-- Added MVP unit configuration for:
-  - `militia`
-  - `spearmen`
-  - `archers`
-  - `cavalry`
-  - `scouts`
-- Added army domain, repository, service, and HTTP handler layers.
-- Added lazy unit training completion when army endpoints are read or training starts.
-- Added resource spending support for unit training, including population spending.
-- Added barracks requirement checks through the buildings service:
-  - militia: no barracks requirement
-  - scouts: no barracks requirement
-  - spearmen: barracks level 1
-  - archers: barracks level 1
-  - cavalry: barracks level 2
-- Integrated initial unit creation into kingdom creation.
-- Added `GET /api/army/me`.
-- Added `POST /api/army/train`.
-- Added frontend army API types and calls.
-- Replaced the dashboard army placeholder with real unit cards, stats, costs, requirements, training form, active training orders, loading state, and error state.
-- Updated README with army API curl examples and the manual Phase 11 flow.
-- Added service tests for initial army rows, training resource spending, barracks requirements, invalid amount rejection, and lazy completion.
+- Added reversible Goose migration `00007_create_missions_and_reports.sql`.
+- Added `missions`, `mission_units`, and `mission_reports` tables with status/type/result constraints and indexes.
+- Added mission configuration for:
+  - `black_forest_expedition`
+  - `old_kurgan_expedition`
+  - `dry_ford_scouting`
+- Added mission and report domain models.
+- Added mission and report repositories.
+- Added mission service with:
+  - available mission listing
+  - mission start validation
+  - unit requirement checks
+  - available-unit checks
+  - sent-unit removal
+  - lazy mission completion
+  - survivor returns
+  - deterministic MVP losses
+  - resource rewards
+  - basic report creation
+- Added small army service/repository methods for mission unit subtraction and return.
+- Added resource reward grant support after lazy recalculation.
+- Added `GET /api/missions/available`.
+- Added `GET /api/missions/me`.
+- Added `POST /api/missions/start`.
+- Added `GET /api/reports/me`.
+- Added frontend API types and calls for missions and reports.
+- Added dashboard Missions section with available mission cards, unit amount inputs, start action, current mission display, and refresh button.
+- Added dashboard Reports section with latest mission reports.
+- Updated README with mission/report curl examples and Phase 12 local flow.
+- Updated API contract and domain model docs.
+- Added mission service tests for invalid mission key, insufficient units, successful unit subtraction, lazy completion, rewards, unit return, and report creation.
 
 ## Phase Order Note
 
-- The attached prompt defines Phase 11 as `Army API + UI`.
-- `docs/MVP_PHASES.md` currently defines Phase 11 as `Army System`, which is aligned in substance.
+- The attached prompt defines Phase 12 as `PvE Missions with Basic Reports`.
+- `docs/MVP_PHASES.md` currently defines Phase 12 as `PvE Missions`, which is aligned in substance.
 - This session followed the attached prompt and did not modify `docs/MVP_PHASES.md`.
 
 ## Changed Files
@@ -61,14 +54,20 @@ Phase 11 is complete according to the attached prompt: kingdoms now have MVP uni
 - `CODEX_HANDOFF.md`
 - `docs/API_CONTRACT.md`
 - `docs/DOMAIN_MODEL.md`
-- `backend/migrations/00006_create_army.sql`
-- `backend/internal/gameconfig/units.go`
-- `backend/internal/domain/army.go`
+- `backend/migrations/00007_create_missions_and_reports.sql`
+- `backend/internal/gameconfig/missions.go`
+- `backend/internal/domain/mission.go`
+- `backend/internal/domain/report.go`
 - `backend/internal/repository/army_repository.go`
+- `backend/internal/repository/mission_repository.go`
+- `backend/internal/repository/report_repository.go`
 - `backend/internal/service/army_service.go`
 - `backend/internal/service/army_service_test.go`
-- `backend/internal/service/building_service.go`
-- `backend/internal/http/handlers/army_handler.go`
+- `backend/internal/service/resources_service.go`
+- `backend/internal/service/mission_service.go`
+- `backend/internal/service/mission_service_test.go`
+- `backend/internal/http/handlers/mission_handler.go`
+- `backend/internal/http/handlers/report_handler.go`
 - `backend/internal/http/server.go`
 - `frontend/src/api/client.ts`
 - `frontend/src/api/errors.ts`
@@ -76,71 +75,70 @@ Phase 11 is complete according to the attached prompt: kingdoms now have MVP uni
 
 ## Commands Run
 
-- `gofmt -w backend/internal/domain/army.go backend/internal/gameconfig/units.go backend/internal/repository/army_repository.go backend/internal/service/army_service.go backend/internal/service/building_service.go backend/internal/http/handlers/army_handler.go backend/internal/http/server.go`
-- `gofmt -w backend/internal/service/army_service_test.go`
+- `gofmt -w backend/internal/domain/mission.go backend/internal/domain/report.go backend/internal/gameconfig/missions.go backend/internal/repository/army_repository.go backend/internal/repository/mission_repository.go backend/internal/repository/report_repository.go backend/internal/service/army_service.go backend/internal/service/resources_service.go backend/internal/service/mission_service.go backend/internal/http/handlers/mission_handler.go backend/internal/http/handlers/report_handler.go backend/internal/http/server.go`
+- `gofmt -w backend/internal/service/army_service_test.go backend/internal/service/mission_service_test.go`
+- `cd backend && GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build GOMODCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-mod go test ./...`
 - `cd frontend && npm run typecheck`
 - `cd frontend && npm run build`
-- `cd backend && GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build GOMODCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-mod go test ./...`
 - `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make migrate-up`
 - `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make migrate-status`
 - `cd backend && GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build GOMODCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-mod DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' JWT_SECRET='dev-secret' BACKEND_PORT=18080 go run ./cmd/server`
 - `curl -i http://127.0.0.1:18080/ready`
-- HTTP smoke test covering `POST /api/auth/register`, `POST /api/kingdoms`, successful `GET /api/army/me`, successful `POST /api/army/train`, and successful `GET /api/resources/me`
-- Local DB timestamp adjustment to verify lazy unit training completion
-- Browser flow covering dashboard army cards and starting militia training from the UI
+- HTTP smoke test covering register, create kingdom, `GET /api/missions/available`, `POST /api/missions/start`, `GET /api/missions/me`, and `GET /api/army/me`
+- Local DB timestamp adjustment to verify lazy mission completion
+- HTTP smoke test covering `GET /api/reports/me`, completed mission state, returned units, and resource rewards
+- Browser flow covering Missions/Reports dashboard rendering and starting a Black Forest mission from the UI
 - `git diff --check`
 
 ## Verification
 
+- `go test ./...` completed successfully.
 - `npm run typecheck` completed successfully.
 - `npm run build` completed successfully.
-- `go test ./...` completed successfully.
-- Goose applied `00006_create_army.sql` successfully.
-- Goose status shows migrations `00001`, `00002`, `00003`, `00004`, `00005`, and `00006` applied.
+- Goose applied `00007_create_missions_and_reports.sql` successfully.
+- Goose status shows migrations `00001` through `00007` applied.
 - Verified backend readiness returned HTTP 200 with `{"status":"ready","database":"ok"}`.
-- Verified creating a new kingdom creates all 5 MVP unit rows.
-- Verified `GET /api/army/me` returns all 5 units, stats, costs, barracks requirements, active training orders, and army summary.
-- Verified `POST /api/army/train` for 5 militia spends gold, food, and population, then creates a training order.
-- Verified `GET /api/resources/me` returns the reduced resources after training starts.
-- Verified lazy training completion by moving `finishes_at` into the past and confirming militia increased from 10 to 15 and active training orders became empty.
-- Verified the dashboard shows the Army section with all 5 unit cards.
-- Verified the dashboard can start militia training and displays a `Завершится` training order.
+- Verified `GET /api/missions/available` returns all 3 configured MVP missions.
+- Verified `POST /api/missions/start` starts `black_forest_expedition` and immediately removes sent militia/scouts from available army.
+- Verified `GET /api/missions/me` returns the active mission and sent unit allocation.
+- Verified lazy mission completion by moving `finishes_at` into the past and reading reports.
+- Verified completed mission has `completed` status, result payload, returned units, and reward data.
+- Verified `GET /api/reports/me` creates and returns a basic `pve_mission` report after lazy completion.
+- Verified resources increased by mission rewards.
+- Verified army returned surviving units after completion.
+- Verified the dashboard renders 3 mission cards and the reports section.
+- Verified the dashboard can start a Black Forest mission and displays it as `В пути` with a finish time.
 - Verified `git diff --check` has no whitespace errors.
 
 Notes:
 
 - Port `5432` was already in use locally, so live verification used `POSTGRES_PORT=15432` and `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable'`.
 - The backend was run on `18080` for verification, and the frontend was already running on `5173` with `VITE_API_BASE_URL=http://localhost:18080`.
-- Combined shell-based HTTP smoke commands needed approved local-network execution; individual `curl` readiness checks worked against `127.0.0.1`.
+- Combined shell-based HTTP smoke commands needed approved local-network execution.
 
 ## What Works Now
 
-- New migrations create and backfill `kingdom_units`.
-- New migrations create `unit_training_orders`.
-- Existing kingdoms receive units through migration backfill or lazy creation.
-- New kingdoms get initial units during creation.
-- `GET /api/army/me` requires authentication.
-- `GET /api/army/me` returns only the authenticated user's kingdom army.
-- Users without kingdoms receive the standard `kingdom_not_found` JSON error.
-- Unit training validates type, amount, barracks level, and resource affordability.
-- Unit training spends resources immediately and creates a training order.
-- Finished training orders are resolved lazily by army reads and training commands.
-- Dashboard loads and displays real army data after session and kingdom load.
-- Dashboard can start unit training and refresh affected resources.
+- Players can view available PvE missions.
+- Players can start PvE missions with available units.
+- Sent units are unavailable while a mission is active.
+- Mission completion is resolved lazily by mission reads, report reads, or mission start.
+- Completed missions return surviving units.
+- Completed missions can permanently lose units according to simple MVP loss rules.
+- Completed missions grant resource rewards after lazy resource recalculation.
+- Completed missions create basic unread mission reports.
+- Dashboard shows available missions, active/completed missions, and reports.
 
 ## Known Limitations
 
-- Unit training and resource spending are not wrapped in one database transaction yet; a failure after spending but before creating the training order could leave resources spent without an order.
-- Kingdom, ruler, resource, building, and unit initialization are not transactional in this phase.
-- Unit costs, stats, and training durations are simple MVP constants.
-- Training orders cannot be cancelled.
-- There are no premium speedups, queues, or formation systems.
-- There is no unit upkeep.
-- There is no unit death, healing, equipment, or heroes leading armies.
-- Armies cannot be sent anywhere yet.
-- No missions, PvE expeditions, combat, raids, reports, events, patrons, tribute, alliances, map, market, trading, payments, chat, or real-time systems were implemented.
-- No background workers by design; resources, buildings, and unit training use lazy resolution.
+- Mission start, unit subtraction, mission row creation, mission unit creation, reward grants, report creation, and mission completion are not wrapped in one cross-repository database transaction.
+- Mission outcomes use simple deterministic MVP rules; there is no advanced battle simulation.
+- Failure is rare because mission start rejects below-minimum allocations.
+- Reports are basic and cannot be marked read yet.
+- Report text is intentionally simple; richer report polish is deferred.
+- There is no separate locked-unit system beyond mission unit allocation records.
+- No PvP raids, player-vs-player combat, route/pathfinding, heroes, equipment, unit XP, events, patrons, tribute, alliances, map, market, trading, payments, chat, or real-time systems were implemented.
+- No background workers by design; resources, buildings, unit training, and missions use lazy resolution.
 
 ## Next Recommended Step
 
-Start Phase 12 only when explicitly requested. Based on `docs/MVP_PHASES.md`, the next likely phase is PvE Missions.
+Start Phase 13 only when explicitly requested. Based on `docs/MVP_PHASES.md`, the next likely phase is Report Polish.

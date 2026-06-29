@@ -73,6 +73,17 @@ func (r *fakeArmyRepository) FindUnitByKingdomIDAndType(_ context.Context, kingd
 	return unit, nil
 }
 
+func (r *fakeArmyRepository) AdjustUnitAmount(_ context.Context, kingdomID string, unitType string, delta int64) error {
+	unit, ok := r.unitsByKingdomID[kingdomID][unitType]
+	if !ok || unit.Amount+delta < 0 {
+		return repository.ErrUnitNotFound
+	}
+	unit.Amount += delta
+	unit.UpdatedAt = r.now()
+	r.unitsByKingdomID[kingdomID][unitType] = unit
+	return nil
+}
+
 func (r *fakeArmyRepository) ListTrainingOrdersByKingdomID(_ context.Context, kingdomID string) ([]domain.UnitTrainingOrder, error) {
 	orders := []domain.UnitTrainingOrder{}
 	for _, order := range r.ordersByKingdomID[kingdomID] {

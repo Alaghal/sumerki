@@ -89,6 +89,31 @@ func (r *ArmyRepository) FindUnitByKingdomIDAndType(ctx context.Context, kingdom
 	return unit, nil
 }
 
+func (r *ArmyRepository) AdjustUnitAmount(ctx context.Context, kingdomID string, unitType string, delta int64) error {
+	const query = `
+		UPDATE kingdom_units
+		SET amount = amount + $3,
+			updated_at = now()
+		WHERE kingdom_id = $1
+		  AND unit_type = $2
+		  AND amount + $3 >= 0
+	`
+
+	result, err := r.db.ExecContext(ctx, query, kingdomID, unitType, delta)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return ErrUnitNotFound
+	}
+
+	return nil
+}
+
 func (r *ArmyRepository) ListTrainingOrdersByKingdomID(ctx context.Context, kingdomID string) ([]domain.UnitTrainingOrder, error) {
 	const query = `
 		SELECT id::text, kingdom_id::text, unit_type, amount, status, started_at, finishes_at, completed_at, created_at, updated_at
