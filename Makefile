@@ -3,7 +3,7 @@ JWT_SECRET ?= dev-secret
 BACKEND_PORT ?= 8080
 GOOSE := go run github.com/pressly/goose/v3/cmd/goose@latest
 
-.PHONY: db-up db-down db-ps db-logs backend-run backend-tidy migrate-up migrate-down migrate-status migrate-reset
+.PHONY: db-up db-down db-ps db-logs backend-run backend-tidy migrate-up migrate-down migrate-status migrate-reset frontend-install frontend-dev
 
 db-up:
 	docker compose up -d postgres
@@ -34,3 +34,9 @@ migrate-status:
 
 migrate-reset:
 	cd backend && $(GOOSE) -dir migrations postgres "$(DATABASE_URL)" reset
+
+frontend-install:
+	cd frontend && npm install
+
+frontend-dev:
+	cd frontend && npm run dev
