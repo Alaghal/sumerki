@@ -31,10 +31,15 @@ func New(database *sql.DB, jwtSecret string) *echo.Echo {
 	auth := service.NewAuthService(users, jwtSecret)
 	authHandler := handlers.NewAuthHandler(auth)
 	meHandler := handlers.NewMeHandler(auth)
+	kingdoms := repository.NewKingdomRepository(database)
+	kingdomService := service.NewKingdomService(kingdoms)
+	kingdomHandler := handlers.NewKingdomHandler(kingdomService)
 
 	e.POST("/api/auth/register", authHandler.Register)
 	e.POST("/api/auth/login", authHandler.Login)
 	e.GET("/api/me", meHandler.Me, appmiddleware.Auth(auth))
+	e.POST("/api/kingdoms", kingdomHandler.Create, appmiddleware.Auth(auth))
+	e.GET("/api/kingdoms/me", kingdomHandler.Me, appmiddleware.Auth(auth))
 
 	return e
 }
