@@ -2,11 +2,11 @@
 
 ## Current Phase
 
-Phase 8: Ruler System v1.
+Phase 9: Resources API + UI.
 
 ## Status
 
-Phase 8 is complete according to the attached prompt: every kingdom now has a simple ruler, the backend exposes `GET /api/ruler/me`, and the dashboard displays real ruler data.
+Phase 9 is complete according to the attached prompt: kingdoms now have stored resources, resources grow through lazy calculation, the backend exposes `GET /api/resources/me`, and the dashboard displays real resource data with manual refresh.
 
 ## Completed
 
@@ -22,23 +22,30 @@ Phase 8 is complete according to the attached prompt: every kingdom now has a si
 - Added Docker Compose configuration for local PostgreSQL.
 - Added `.env.example` with local PostgreSQL defaults.
 - Added basic Makefile commands for local database management.
-- Added backend skeleton, health/readiness endpoints, auth API, kingdom creation API, and frontend auth/kingdom flow in earlier phases.
-- Added reversible Goose migration `00003_create_rulers.sql`.
-- Added `rulers` table with UUID primary key, one ruler per kingdom, stat constraints, culture constraints, health status constraints, timestamps, and safe backfill for existing kingdoms.
-- Added ruler domain, repository, service, and HTTP handler layers.
-- Added simple culture-specific ruler generation.
-- Added safe lazy ruler creation when an existing kingdom is missing a ruler.
-- Integrated ruler creation into kingdom creation.
-- Added `GET /api/ruler/me`.
-- Added frontend `Ruler` type and `getMyRuler()` API call.
-- Replaced the dashboard placeholder ruler card with real ruler data, loading state, and error state.
-- Updated README with the ruler curl example and local manual flow.
-- Added minimal service tests for ruler generation and kingdom creation integration.
+- Added backend skeleton, health/readiness endpoints, auth API, kingdom creation API, frontend auth/kingdom flow, and ruler system in earlier phases.
+- Added reversible Goose migration `00004_create_kingdom_resources.sql`.
+- Added `kingdom_resources` table with one row per kingdom, nonnegative constraints, timestamps, and safe backfill for existing kingdoms.
+- Added resource configuration in `backend/internal/gameconfig/resources.go`.
+- Added resources domain, repository, service, and HTTP handler layers.
+- Added simple base production per hour:
+  - gold: 20
+  - food: 30
+  - wood: 25
+  - stone: 15
+  - population: 1
+- Added lazy resource calculation from `last_calculated_at`.
+- Added safe lazy resource row creation when an existing kingdom is missing resources.
+- Integrated initial resource creation into kingdom creation.
+- Added `GET /api/resources/me`.
+- Added frontend `Resources` type and `getMyResources()` API call.
+- Replaced the dashboard placeholder resources card with real resource data, loading state, error state, production text, and manual refresh button.
+- Updated README with the resources curl example and local manual flow.
+- Added minimal service tests for resource creation, lazy production, missing kingdom behavior, and kingdom creation integration.
 
 ## Phase Order Note
 
-- The attached prompt defines Phase 8 as `Ruler System v1`.
-- `docs/MVP_PHASES.md` currently defines Phase 8 as `Frontend Auth, Kingdom, and Ruler Integration`, while its older Phase 6 is `Ruler System`.
+- The attached prompt defines Phase 9 as `Resources API + UI`.
+- `docs/MVP_PHASES.md` currently defines Phase 9 as `Resources System`, which is aligned in substance.
 - This session followed the attached prompt and did not modify `docs/MVP_PHASES.md`.
 
 ## Changed Files
@@ -47,29 +54,32 @@ Phase 8 is complete according to the attached prompt: every kingdom now has a si
 - `CODEX_HANDOFF.md`
 - `docs/API_CONTRACT.md`
 - `docs/DOMAIN_MODEL.md`
-- `backend/migrations/00003_create_rulers.sql`
-- `backend/internal/domain/ruler.go`
-- `backend/internal/repository/ruler_repository.go`
-- `backend/internal/service/ruler_service.go`
-- `backend/internal/service/ruler_service_test.go`
+- `backend/migrations/00004_create_kingdom_resources.sql`
+- `backend/internal/gameconfig/resources.go`
+- `backend/internal/domain/resources.go`
+- `backend/internal/repository/resources_repository.go`
+- `backend/internal/service/resources_service.go`
+- `backend/internal/service/resources_service_test.go`
 - `backend/internal/service/kingdom_service.go`
 - `backend/internal/service/kingdom_service_test.go`
-- `backend/internal/http/handlers/ruler_handler.go`
+- `backend/internal/service/ruler_service.go`
+- `backend/internal/http/handlers/resources_handler.go`
 - `backend/internal/http/server.go`
 - `frontend/src/api/client.ts`
 - `frontend/src/pages/DashboardPage.tsx`
 
 ## Commands Run
 
-- `gofmt -w backend/internal/domain/ruler.go backend/internal/repository/ruler_repository.go backend/internal/service/ruler_service.go backend/internal/service/kingdom_service.go backend/internal/http/handlers/ruler_handler.go backend/internal/http/server.go backend/internal/service/kingdom_service_test.go backend/internal/service/ruler_service_test.go`
+- `gofmt -w backend/internal/gameconfig/resources.go backend/internal/domain/resources.go backend/internal/repository/resources_repository.go backend/internal/service/resources_service.go backend/internal/service/ruler_service.go backend/internal/service/kingdom_service.go backend/internal/http/handlers/resources_handler.go backend/internal/http/server.go backend/internal/service/kingdom_service_test.go backend/internal/service/resources_service_test.go`
 - `npm run typecheck`
 - `npm run build`
 - `GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build GOMODCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-mod go test ./...`
 - `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make migrate-up`
 - `GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build GOMODCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-mod DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' JWT_SECRET='dev-secret' BACKEND_PORT=18080 go run ./cmd/server`
 - `curl -sS -i http://localhost:18080/ready`
-- HTTP smoke test covering unauthenticated `GET /api/ruler/me`, authenticated no-kingdom `GET /api/ruler/me`, `POST /api/kingdoms`, and successful `GET /api/ruler/me`
-- Browser flow covering register, create kingdom, dashboard ruler card, and dashboard refresh
+- HTTP smoke test covering unauthenticated `GET /api/resources/me`, authenticated no-kingdom `GET /api/resources/me`, `POST /api/kingdoms`, and successful `GET /api/resources/me`
+- Local DB timestamp adjustment to verify lazy one-hour production
+- Browser flow covering register, create kingdom, dashboard resource card, manual refresh, and dashboard refresh
 - `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make migrate-status`
 - `git diff --check`
 
@@ -78,46 +88,49 @@ Phase 8 is complete according to the attached prompt: every kingdom now has a si
 - `npm run typecheck` completed successfully.
 - `npm run build` completed successfully.
 - `go test ./...` completed successfully.
-- Goose applied `00003_create_rulers.sql` successfully.
-- Goose status shows migrations `00001`, `00002`, and `00003` applied.
+- Goose applied `00004_create_kingdom_resources.sql` successfully.
+- Goose status shows migrations `00001`, `00002`, `00003`, and `00004` applied.
 - Verified backend readiness returned HTTP 200 with `{"status":"ready","database":"ok"}`.
-- Verified `GET /api/ruler/me` without auth returns HTTP 401.
-- Verified authenticated `GET /api/ruler/me` without a kingdom returns HTTP 404 with `kingdom_not_found`.
-- Verified creating a new kingdom creates a ruler.
-- Verified `GET /api/ruler/me` returns the current user's ruler with kingdom id, name, age, culture, stats, health status, and timestamps.
-- Verified ruler age and stat generation ranges through service tests.
-- Verified dashboard shows the real ruler card with Russian stat labels.
-- Verified dashboard still shows ruler data after page refresh.
+- Verified `GET /api/resources/me` without auth returns HTTP 401.
+- Verified authenticated `GET /api/resources/me` without a kingdom returns HTTP 404 with `kingdom_not_found`.
+- Verified creating a new kingdom creates initial resources.
+- Verified `GET /api/resources/me` returns the current user's resources with production per hour.
+- Verified lazy production by moving a test row's `last_calculated_at` one hour back and confirming resources increased by one hour of production.
+- Verified the dashboard shows real resource labels, values, and `+N / час` production text.
+- Verified the manual `Обновить ресурсы` button calls the resources endpoint successfully.
+- Verified dashboard still shows resources after page refresh.
 - Verified `git diff --check` has no whitespace errors.
 
 Notes:
 
 - Port `5432` was already in use locally, so live verification used `POSTGRES_PORT=15432` and `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable'`.
 - The backend was run on `18080` for verification, and the frontend was already running on `5173` with `VITE_API_BASE_URL=http://localhost:18080`.
-- Kingdom creation and ruler creation are not wrapped in one database transaction. The service creates the kingdom first and then creates the ruler immediately after; missing rulers are safely created lazily by `GET /api/ruler/me`.
+- Kingdom creation, ruler creation, and resource creation are not wrapped in one database transaction. The service creates them sequentially; missing rulers and resources are safely created lazily by their read endpoints.
 
 ## What Works Now
 
-- New migrations create and backfill `rulers`.
-- Existing kingdoms receive rulers through migration backfill or lazy creation.
-- New kingdoms get a generated ruler during creation.
-- `GET /api/ruler/me` requires authentication.
-- `GET /api/ruler/me` returns only the authenticated user's ruler.
+- New migrations create and backfill `kingdom_resources`.
+- Existing kingdoms receive resources through migration backfill or lazy creation.
+- New kingdoms get initial resources during creation.
+- `GET /api/resources/me` requires authentication.
+- `GET /api/resources/me` returns only the authenticated user's kingdom resources.
 - Users without kingdoms receive the standard `kingdom_not_found` JSON error.
-- Dashboard loads and displays real ruler data after session and kingdom load.
+- Resources are recalculated lazily from `last_calculated_at` when `GET /api/resources/me` is called.
+- Dashboard loads and displays real resources after session and kingdom load.
+- Dashboard resource card can be refreshed manually.
 - Dashboard keeps working after refresh.
 
 ## Known Limitations
 
-- Ruler stats are flavor only for now.
-- No ruler traits yet.
-- No ruler actions yet.
-- No ruler death, heirs, or dynasties yet.
-- No intrigue system yet.
-- No gameplay modifiers from ruler stats yet.
-- No resources, buildings, army, missions, combat, events, patrons, tribute, alliances, or map systems were implemented.
-- Kingdom and ruler creation are not transactional in this phase.
+- Resources use simple base production only.
+- No buildings modify production yet.
+- No resource caps yet.
+- No resource spending yet.
+- No background resource workers by design.
+- Resource calculation uses simple integer flooring for MVP and does not preserve fractional progress when any whole-unit resource gain is applied.
+- No buildings, army, missions, combat, raids, events, patrons, tribute, market, trading, payments, or gameplay spending systems were implemented.
+- Kingdom, ruler, and resource creation are not transactional in this phase.
 
 ## Next Recommended Step
 
-Start Phase 9 only when explicitly requested. Based on the prompt-driven order, the next likely phase is the resources system.
+Start Phase 10 only when explicitly requested. Based on the prompt-driven order, the next likely phase is the buildings system.

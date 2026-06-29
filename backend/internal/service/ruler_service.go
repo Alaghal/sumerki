@@ -68,6 +68,11 @@ func (s *RulerService) GenerateForKingdom(ctx context.Context, kingdom domain.Ki
 	return created, nil
 }
 
+func (s *RulerService) AfterKingdomCreated(ctx context.Context, kingdom domain.Kingdom) error {
+	_, err := s.GenerateForKingdom(ctx, kingdom)
+	return err
+}
+
 func (s *RulerService) generate(kingdom domain.Kingdom) domain.Ruler {
 	return domain.Ruler{
 		KingdomID:    kingdom.ID,

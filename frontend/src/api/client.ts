@@ -39,6 +39,21 @@ export type Ruler = {
   updatedAt: string;
 };
 
+export type ResourceValues = {
+  gold: number;
+  food: number;
+  wood: number;
+  stone: number;
+  population: number;
+};
+
+export type Resources = ResourceValues & {
+  kingdomId: string;
+  productionPerHour: ResourceValues;
+  lastCalculatedAt: string;
+  updatedAt: string;
+};
+
 type AuthResponse = {
   user: User;
   token: string;
@@ -54,6 +69,10 @@ type KingdomResponse = {
 
 type RulerResponse = {
   ruler: Ruler;
+};
+
+type ResourcesResponse = {
+  resources: Resources;
 };
 
 type ApiErrorResponse = {
@@ -160,6 +179,10 @@ export function createKingdom(name: string, culture: Culture, token?: string) {
 
 export function getMyRuler(token?: string) {
   return request<RulerResponse>('/api/ruler/me', { token });
+}
+
+export function getMyResources(token?: string) {
+  return request<ResourcesResponse>('/api/resources/me', { token });
 }
 
 export { API_BASE_URL, AUTH_TOKEN_KEY, clearStoredToken, readStoredToken, storeToken };

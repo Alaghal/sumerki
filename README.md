@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 8: Ruler System v1.
+Phase 9: Resources API + UI.
 
-This phase adds one generated ruler per kingdom and displays the current ruler on the dashboard. It does not include resources, buildings, armies, combat, events, patrons, ruler actions, heirs, dynasties, or gameplay modifiers.
+This phase adds stored kingdom resources, lazy base production, `GET /api/resources/me`, and real resource values on the dashboard. It does not include buildings, armies, missions, combat, spending, resource caps, or background workers.
 
 ## Documentation
 
@@ -145,6 +145,15 @@ curl http://localhost:8080/api/ruler/me \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
+## Resources API
+
+Fetch current resources:
+
+```sh
+curl http://localhost:8080/api/resources/me \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
 ## Frontend
 
 The frontend reads `VITE_API_BASE_URL` and defaults to `http://localhost:8080`.
@@ -182,11 +191,13 @@ Expected flow:
 
 1. Register a new account.
 2. Create a kingdom.
-3. Call `GET /api/ruler/me` with the returned token if you want to inspect the ruler API directly.
-4. Land on the dashboard with the real kingdom name, culture, and ruler card.
-5. Logout.
-6. Login again with the same account.
-7. Return to the dashboard.
+3. Call `GET /api/resources/me` with the returned token if you want to inspect the resources API directly.
+4. Wait a short time.
+5. Call `GET /api/resources/me` again to see lazy production apply once whole units have accrued.
+6. Open `/app` and see the real kingdom, ruler, and resource cards.
+7. Logout.
+8. Login again with the same account.
+9. Return to the dashboard.
 
 The frontend stores the MVP JWT in `localStorage` under `sumerki.auth.token`. Refreshing the page restores the session through `GET /api/me`.
 

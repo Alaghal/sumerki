@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { getMyRuler, Ruler } from '../api/client';
+import { getMyResources, getMyRuler, Resources, Ruler } from '../api/client';
 import { AppShell } from '../components/layout/AppShell';
+import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { useSession } from '../context/SessionContext';
 
@@ -33,11 +34,40 @@ const rulerStats = [
   ['Паранойя', 'paranoia'],
 ] as const;
 
+const resourceRows = [
+  ['Золото', 'gold'],
+  ['Еда', 'food'],
+  ['Дерево', 'wood'],
+  ['Камень', 'stone'],
+  ['Население', 'population'],
+] as const;
+
 export function DashboardPage() {
   const { token, user, kingdom } = useSession();
   const [ruler, setRuler] = useState<Ruler | null>(null);
   const [rulerLoading, setRulerLoading] = useState(true);
   const [rulerError, setRulerError] = useState('');
+  const [resources, setResources] = useState<Resources | null>(null);
+  const [resourcesLoading, setResourcesLoading] = useState(true);
+  const [resourcesError, setResourcesError] = useState('');
+
+  async function loadResources() {
+    if (!token || !kingdom) {
+      return;
+    }
+
+    setResourcesLoading(true);
+    setResourcesError('');
+
+    try {
+      const response = await getMyResources(token);
+      setResources(response.resources);
+    } catch {
+      setResourcesError('Не удалось загрузить ресурсы.');
+    } finally {
+      setResourcesLoading(false);
+    }
+  }
 
   useEffect(() => {
     let isActive = true;
@@ -67,6 +97,40 @@ export function DashboardPage() {
     }
 
     loadRuler();
+
+    return () => {
+      isActive = false;
+    };
+  }, [kingdom, token]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadInitialResources() {
+      if (!token || !kingdom) {
+        return;
+      }
+
+      setResourcesLoading(true);
+      setResourcesError('');
+
+      try {
+        const response = await getMyResources(token);
+        if (isActive) {
+          setResources(response.resources);
+        }
+      } catch {
+        if (isActive) {
+          setResourcesError('Не удалось загрузить ресурсы.');
+        }
+      } finally {
+        if (isActive) {
+          setResourcesLoading(false);
+        }
+      }
+    }
+
+    loadInitialResources();
 
     return () => {
       isActive = false;
@@ -104,7 +168,26 @@ export function DashboardPage() {
             </dl>
           </Card>
           <Card title="Resources">
-            Gold, food, wood, stone, and population will appear here when the resources system is implemented.
+            <div className="grid gap-4">
+              {resourcesLoading ? <p>Загрузка ресурсов...</p> : null}
+              {resourcesError ? <p className="text-red-300">{resourcesError}</p> : null}
+              {resources && !resourcesLoading && !resourcesError ? (
+                <dl className="grid gap-2">
+                  {resourceRows.map(([label, key]) => (
+                    <div className="flex items-center justify-between gap-4" key={key}>
+                      <dt className="text-stone-400">{label}</dt>
+                      <dd className="text-right">
+                        <div className="font-semibold text-stone-100">{resources[key]}</div>
+                        <div className="text-xs text-dusk-gold">+{resources.productionPerHour[key]} / час</div>
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              ) : null}
+              <Button className="justify-self-start" disabled={resourcesLoading} onClick={loadResources} type="button">
+                Обновить ресурсы
+              </Button>
+            </div>
           </Card>
           <Card title="Ruler">
             {rulerLoading ? <p>Загрузка правителя...</p> : null}
