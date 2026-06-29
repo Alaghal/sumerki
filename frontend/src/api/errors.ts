@@ -9,6 +9,11 @@ const errorMessages: Record<string, string> = {
   invalid_culture: 'Неверная культура.',
   kingdom_name_too_short: 'Название слишком короткое.',
   kingdom_name_too_long: 'Название слишком длинное.',
+  invalid_building_type: 'Неверный тип здания.',
+  building_not_found: 'Здание не найдено.',
+  building_already_upgrading: 'Здание уже улучшается.',
+  building_max_level: 'Здание уже максимального уровня.',
+  insufficient_resources: 'Недостаточно ресурсов.',
 };
 
 export function toUserMessage(error: unknown): string {

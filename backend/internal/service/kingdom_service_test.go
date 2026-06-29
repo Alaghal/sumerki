@@ -32,6 +32,15 @@ func (i *fakeResourcesInitializer) AfterKingdomCreated(_ context.Context, kingdo
 	return nil
 }
 
+type fakeBuildingsInitializer struct {
+	createdForKingdomID string
+}
+
+func (i *fakeBuildingsInitializer) AfterKingdomCreated(_ context.Context, kingdom domain.Kingdom) error {
+	i.createdForKingdomID = kingdom.ID
+	return nil
+}
+
 func newFakeKingdomRepository() *fakeKingdomRepository {
 	return &fakeKingdomRepository{kingdomByUserID: map[string]domain.Kingdom{}}
 }
@@ -139,6 +148,20 @@ func TestCreateKingdomCreatesResources(t *testing.T) {
 
 	if resources.createdForKingdomID != kingdom.ID {
 		t.Fatalf("expected resources for kingdom %q, got %q", kingdom.ID, resources.createdForKingdomID)
+	}
+}
+
+func TestCreateKingdomCreatesBuildings(t *testing.T) {
+	buildings := &fakeBuildingsInitializer{}
+	service := NewKingdomService(newFakeKingdomRepository(), buildings)
+
+	kingdom, err := service.Create(context.Background(), "user-1", "Blackwater", CultureNorthernPrincipality)
+	if err != nil {
+		t.Fatalf("create kingdom failed: %v", err)
+	}
+
+	if buildings.createdForKingdomID != kingdom.ID {
+		t.Fatalf("expected buildings for kingdom %q, got %q", kingdom.ID, buildings.createdForKingdomID)
 	}
 }
 

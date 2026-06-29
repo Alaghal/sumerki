@@ -1,6 +1,16 @@
 import { useEffect, useState } from 'react';
 
-import { getMyResources, getMyRuler, Resources, Ruler } from '../api/client';
+import {
+  Building,
+  BuildingType,
+  getMyBuildings,
+  getMyResources,
+  getMyRuler,
+  Resources,
+  Ruler,
+  upgradeBuilding,
+} from '../api/client';
+import { toUserMessage } from '../api/errors';
 import { AppShell } from '../components/layout/AppShell';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -42,6 +52,12 @@ const resourceRows = [
   ['Население', 'population'],
 ] as const;
 
+const costRows = [
+  ['Золото', 'gold'],
+  ['Дерево', 'wood'],
+  ['Камень', 'stone'],
+] as const;
+
 export function DashboardPage() {
   const { token, user, kingdom } = useSession();
   const [ruler, setRuler] = useState<Ruler | null>(null);
@@ -50,6 +66,28 @@ export function DashboardPage() {
   const [resources, setResources] = useState<Resources | null>(null);
   const [resourcesLoading, setResourcesLoading] = useState(true);
   const [resourcesError, setResourcesError] = useState('');
+  const [buildings, setBuildings] = useState<Building[]>([]);
+  const [buildingsLoading, setBuildingsLoading] = useState(true);
+  const [buildingsError, setBuildingsError] = useState('');
+  const [upgradingType, setUpgradingType] = useState<BuildingType | null>(null);
+
+  async function loadRuler() {
+    if (!token || !kingdom) {
+      return;
+    }
+
+    setRulerLoading(true);
+    setRulerError('');
+
+    try {
+      const response = await getMyRuler(token);
+      setRuler(response.ruler);
+    } catch {
+      setRulerError('Не удалось загрузить правителя.');
+    } finally {
+      setRulerLoading(false);
+    }
+  }
 
   async function loadResources() {
     if (!token || !kingdom) {
@@ -66,6 +104,48 @@ export function DashboardPage() {
       setResourcesError('Не удалось загрузить ресурсы.');
     } finally {
       setResourcesLoading(false);
+    }
+  }
+
+  async function loadBuildings() {
+    if (!token || !kingdom) {
+      return;
+    }
+
+    setBuildingsLoading(true);
+    setBuildingsError('');
+
+    try {
+      const response = await getMyBuildings(token);
+      setBuildings(response.buildings);
+    } catch {
+      setBuildingsError('Не удалось загрузить здания.');
+    } finally {
+      setBuildingsLoading(false);
+    }
+  }
+
+  async function refreshCity() {
+    await Promise.all([loadRuler(), loadResources(), loadBuildings()]);
+  }
+
+  async function handleUpgrade(buildingType: BuildingType) {
+    if (!token) {
+      return;
+    }
+
+    setUpgradingType(buildingType);
+    setBuildingsError('');
+
+    try {
+      const response = await upgradeBuilding(buildingType, token);
+      setResources(response.resources);
+      await loadBuildings();
+      await loadResources();
+    } catch (caughtError) {
+      setBuildingsError(toUserMessage(caughtError));
+    } finally {
+      setUpgradingType(null);
     }
   }
 
@@ -137,6 +217,40 @@ export function DashboardPage() {
     };
   }, [kingdom, token]);
 
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadInitialBuildings() {
+      if (!token || !kingdom) {
+        return;
+      }
+
+      setBuildingsLoading(true);
+      setBuildingsError('');
+
+      try {
+        const response = await getMyBuildings(token);
+        if (isActive) {
+          setBuildings(response.buildings);
+        }
+      } catch {
+        if (isActive) {
+          setBuildingsError('Не удалось загрузить здания.');
+        }
+      } finally {
+        if (isActive) {
+          setBuildingsLoading(false);
+        }
+      }
+    }
+
+    loadInitialBuildings();
+
+    return () => {
+      isActive = false;
+    };
+  }, [kingdom, token]);
+
   if (!user || !kingdom) {
     return null;
   }
@@ -148,6 +262,9 @@ export function DashboardPage() {
           <h1 className="text-2xl font-semibold text-stone-100">{kingdom.name}</h1>
           <p className="mt-1 text-sm text-stone-400">Settlement dashboard for {user.email}</p>
         </div>
+        <Button className="justify-self-start" onClick={refreshCity} type="button">
+          Обновить город
+        </Button>
         <div className="grid gap-4 lg:grid-cols-2">
           <Card title="Kingdom">
             <dl className="grid gap-2">
@@ -223,7 +340,79 @@ export function DashboardPage() {
               </div>
             ) : null}
           </Card>
-          <Card title="Buildings">Town hall, farms, walls, and other structures are placeholders.</Card>
+          <Card title="Buildings">
+            <div className="grid gap-4">
+              {buildingsLoading ? <p>Загрузка зданий...</p> : null}
+              {buildingsError ? <p className="text-red-300">{buildingsError}</p> : null}
+              {!buildingsLoading && !buildingsError ? (
+                <div className="grid gap-3">
+                  {buildings.map((building) => (
+                    <div
+                      className="rounded border border-stone-800 bg-dusk-950 p-3"
+                      data-building-type={building.type}
+                      key={building.id}
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <h3 className="font-semibold text-stone-100">{building.label}</h3>
+                          <p className="text-xs text-stone-500">{building.type}</p>
+                        </div>
+                        <div className="text-right text-sm text-stone-300">
+                          Level {building.level}/{building.maxLevel}
+                        </div>
+                      </div>
+                      <div className="mt-3 grid gap-2">
+                        {building.effects.map((effect) => (
+                          <p className="text-sm text-stone-400" key={effect}>
+                            {effect}
+                          </p>
+                        ))}
+                        {building.isUpgrading ? (
+                          <p className="text-dusk-gold">
+                            Улучшается до{' '}
+                            {building.upgradeFinishesAt
+                              ? new Date(building.upgradeFinishesAt).toLocaleString('ru-RU')
+                              : 'завершения'}
+                          </p>
+                        ) : null}
+                        {!building.isUpgrading && building.nextUpgrade ? (
+                          <div className="grid gap-2">
+                            {building.nextUpgrade.blockedReason === 'max_level' ? (
+                              <p className="text-dusk-gold">Максимальный уровень</p>
+                            ) : (
+                              <>
+                                <div className="grid gap-1">
+                                  <p className="text-stone-400">
+                                    Upgrade to level {building.nextUpgrade.targetLevel},{' '}
+                                    {building.nextUpgrade.durationSeconds} sec
+                                  </p>
+                                  <p className="text-stone-400">
+                                    Cost:{' '}
+                                    {costRows
+                                      .map(([label, key]) => `${label}: ${building.nextUpgrade?.cost[key] ?? 0}`)
+                                      .join(', ')}
+                                  </p>
+                                </div>
+                                <Button
+                                  className="justify-self-start"
+                                  data-building-upgrade={building.type}
+                                  disabled={upgradingType === building.type}
+                                  onClick={() => handleUpgrade(building.type)}
+                                  type="button"
+                                >
+                                  {upgradingType === building.type ? 'Запуск...' : 'Улучшить'}
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </Card>
           <Card title="Army">Militia and scouts are not trained yet.</Card>
           <Card title="Reports">Mission and raid reports will be listed here.</Card>
         </div>
