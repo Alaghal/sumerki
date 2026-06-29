@@ -465,6 +465,145 @@ Errors:
 - `building_max_level`
 - `insufficient_resources`
 
+## Army
+
+### `GET /api/army/me`
+
+Returns the current authenticated user's units after applying lazy training completion.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "army": {
+    "kingdomId": "uuid",
+    "units": [
+      {
+        "type": "militia",
+        "label": "Ополчение",
+        "amount": 10,
+        "stats": {
+          "attack": 2,
+          "defense": 3,
+          "speed": 2,
+          "supply": 1
+        },
+        "cost": {
+          "gold": 15,
+          "food": 10,
+          "wood": 0,
+          "stone": 0,
+          "population": 1
+        },
+        "secondsPerUnit": 5,
+        "requirements": {
+          "barracksLevel": 0,
+          "isMet": true
+        }
+      }
+    ],
+    "trainingOrders": [
+      {
+        "id": "uuid",
+        "unitType": "spearmen",
+        "unitLabel": "Копейщики",
+        "amount": 5,
+        "status": "training",
+        "startedAt": "2026-06-29T00:00:00Z",
+        "finishesAt": "2026-06-29T00:01:00Z",
+        "completedAt": null
+      }
+    ],
+    "summary": {
+      "totalUnits": 12,
+      "totalAttack": 24,
+      "totalDefense": 34,
+      "totalSupply": 12
+    }
+  }
+}
+```
+
+Response when the current user has no kingdom:
+
+HTTP 404
+
+```json
+{
+  "error": {
+    "code": "kingdom_not_found",
+    "message": "Create a kingdom before requesting army"
+  }
+}
+```
+
+### `POST /api/army/train`
+
+Starts a unit training order and spends resources immediately.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Request:
+
+```json
+{
+  "unitType": "militia",
+  "amount": 5
+}
+```
+
+Response:
+
+```json
+{
+  "trainingOrder": {
+    "id": "uuid",
+    "unitType": "militia",
+    "unitLabel": "Ополчение",
+    "amount": 5,
+    "status": "training",
+    "startedAt": "2026-06-29T00:00:00Z",
+    "finishesAt": "2026-06-29T00:00:25Z",
+    "completedAt": null
+  },
+  "resources": {
+    "kingdomId": "uuid",
+    "gold": 425,
+    "food": 250,
+    "wood": 300,
+    "stone": 200,
+    "population": 95,
+    "productionPerHour": {
+      "gold": 30,
+      "food": 45,
+      "wood": 37,
+      "stone": 25,
+      "population": 1
+    },
+    "lastCalculatedAt": "2026-06-29T00:00:00Z",
+    "updatedAt": "2026-06-29T00:00:00Z"
+  }
+}
+```
+
+Errors:
+
+- `kingdom_not_found`
+- `invalid_unit_type`
+- `invalid_training_amount`
+- `insufficient_resources`
+- `barracks_level_too_low`
+
 ## Enumerations
 
 Cultures:
@@ -503,3 +642,11 @@ Building types:
 - `market`
 - `walls`
 - `shrine`
+
+Unit types:
+
+- `militia`
+- `spearmen`
+- `archers`
+- `cavalry`
+- `scouts`

@@ -41,6 +41,7 @@ Rules:
 - Every kingdom has one ruler.
 - Every kingdom has one resource row.
 - Every kingdom has all MVP building rows.
+- Every kingdom has all MVP unit rows.
 - Name length is 3 to 32 characters.
 - Culture must be one of the supported culture values.
 - Patron can be null until selected, then must be one of the supported patron values.
@@ -127,7 +128,7 @@ Rules:
 - Resource production is calculated lazily when resources are read or later commands need current resources.
 - Phase 9 uses simple base production per hour only.
 - Phase 9 has no resource caps.
-- Phase 9 has no resource spending.
+- Resource spending is performed by later feature commands such as building upgrades and unit training.
 - No background workers, cron jobs, or real-time server ticking are used for resources.
 
 ## Building
@@ -171,13 +172,57 @@ Rules:
 
 Represents trainable military forces.
 
-Possible MVP examples:
+MVP units:
 
-- militia
-- scout
-- spearman
+- `militia`: starts with 10, no barracks requirement
+- `scouts`: starts with 2, no barracks requirement
+- `spearmen`: starts with 0, requires barracks level 1
+- `archers`: starts with 0, requires barracks level 1
+- `cavalry`: starts with 0, requires barracks level 2
 
-Units should have training costs, training time or instant MVP creation rules, and combat stats.
+Fields:
+
+- `id`: UUID
+- `kingdomId`: kingdom UUID
+- `type`: unit type
+- `amount`: available trained units
+- `createdAt`: row creation timestamp
+- `updatedAt`: last update timestamp
+
+Rules:
+
+- Each kingdom has one row for each MVP unit type.
+- Unit amount cannot be negative.
+- Units have simple attack, defense, speed, and supply stats.
+- Units have deterministic per-unit training costs and seconds-per-unit values.
+- Training spends resources immediately, including population.
+- Training completion is resolved lazily when army is read or another army command needs current units.
+- No missions, combat, raids, unit death, healing, equipment, heroes, upkeep, cancellation, premium speedups, or multiple army formations are included in Phase 11.
+
+## UnitTrainingOrder
+
+Represents asynchronous unit training in progress.
+
+Fields:
+
+- `id`: UUID
+- `kingdomId`: kingdom UUID
+- `unitType`: unit type being trained
+- `amount`: number of units being trained
+- `status`: `training` or `completed`
+- `startedAt`: training start timestamp
+- `finishesAt`: training finish timestamp
+- `completedAt`: nullable completion timestamp
+- `createdAt`: row creation timestamp
+- `updatedAt`: last update timestamp
+
+Rules:
+
+- Training order amount must be 1 to 50 in the Phase 11 service.
+- Training duration is `seconds_per_unit * amount`.
+- Finished training orders add their amount to the matching unit row.
+- Finished training orders are marked completed with `completedAt`.
+- Completion uses lazy resolution only; no background workers, cron jobs, Redis, queues, or server ticking.
 
 ## Mission
 

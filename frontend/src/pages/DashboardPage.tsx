@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react';
 
 import {
+  Army,
   Building,
   BuildingType,
+  getMyArmy,
   getMyBuildings,
   getMyResources,
   getMyRuler,
   Resources,
   Ruler,
+  trainUnits,
+  UnitType,
   upgradeBuilding,
 } from '../api/client';
 import { toUserMessage } from '../api/errors';
@@ -58,6 +62,21 @@ const costRows = [
   ['Камень', 'stone'],
 ] as const;
 
+const armyCostRows = [
+  ['Золото', 'gold'],
+  ['Еда', 'food'],
+  ['Дерево', 'wood'],
+  ['Камень', 'stone'],
+  ['Население', 'population'],
+] as const;
+
+const unitStatRows = [
+  ['Атака', 'attack'],
+  ['Защита', 'defense'],
+  ['Скорость', 'speed'],
+  ['Снабжение', 'supply'],
+] as const;
+
 export function DashboardPage() {
   const { token, user, kingdom } = useSession();
   const [ruler, setRuler] = useState<Ruler | null>(null);
@@ -70,6 +89,12 @@ export function DashboardPage() {
   const [buildingsLoading, setBuildingsLoading] = useState(true);
   const [buildingsError, setBuildingsError] = useState('');
   const [upgradingType, setUpgradingType] = useState<BuildingType | null>(null);
+  const [army, setArmy] = useState<Army | null>(null);
+  const [armyLoading, setArmyLoading] = useState(true);
+  const [armyError, setArmyError] = useState('');
+  const [trainingType, setTrainingType] = useState<UnitType>('militia');
+  const [trainingAmount, setTrainingAmount] = useState(5);
+  const [isTraining, setIsTraining] = useState(false);
 
   async function loadRuler() {
     if (!token || !kingdom) {
@@ -125,8 +150,26 @@ export function DashboardPage() {
     }
   }
 
+  async function loadArmy() {
+    if (!token || !kingdom) {
+      return;
+    }
+
+    setArmyLoading(true);
+    setArmyError('');
+
+    try {
+      const response = await getMyArmy(token);
+      setArmy(response.army);
+    } catch {
+      setArmyError('Не удалось загрузить войско.');
+    } finally {
+      setArmyLoading(false);
+    }
+  }
+
   async function refreshCity() {
-    await Promise.all([loadRuler(), loadResources(), loadBuildings()]);
+    await Promise.all([loadRuler(), loadResources(), loadBuildings(), loadArmy()]);
   }
 
   async function handleUpgrade(buildingType: BuildingType) {
@@ -146,6 +189,26 @@ export function DashboardPage() {
       setBuildingsError(toUserMessage(caughtError));
     } finally {
       setUpgradingType(null);
+    }
+  }
+
+  async function handleTrain() {
+    if (!token) {
+      return;
+    }
+
+    setIsTraining(true);
+    setArmyError('');
+
+    try {
+      const response = await trainUnits(trainingType, trainingAmount, token);
+      setResources(response.resources);
+      await loadArmy();
+      await loadResources();
+    } catch (caughtError) {
+      setArmyError(toUserMessage(caughtError));
+    } finally {
+      setIsTraining(false);
     }
   }
 
@@ -245,6 +308,40 @@ export function DashboardPage() {
     }
 
     loadInitialBuildings();
+
+    return () => {
+      isActive = false;
+    };
+  }, [kingdom, token]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadInitialArmy() {
+      if (!token || !kingdom) {
+        return;
+      }
+
+      setArmyLoading(true);
+      setArmyError('');
+
+      try {
+        const response = await getMyArmy(token);
+        if (isActive) {
+          setArmy(response.army);
+        }
+      } catch {
+        if (isActive) {
+          setArmyError('Не удалось загрузить войско.');
+        }
+      } finally {
+        if (isActive) {
+          setArmyLoading(false);
+        }
+      }
+    }
+
+    loadInitialArmy();
 
     return () => {
       isActive = false;
@@ -413,7 +510,122 @@ export function DashboardPage() {
               ) : null}
             </div>
           </Card>
-          <Card title="Army">Militia and scouts are not trained yet.</Card>
+          <Card title="Army">
+            <div className="grid gap-4">
+              {armyLoading ? <p>Загрузка войска...</p> : null}
+              {armyError ? <p className="text-red-300">{armyError}</p> : null}
+              {army && !armyLoading ? (
+                <>
+                  <dl className="grid gap-2">
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-stone-400">Всего</dt>
+                      <dd className="text-right text-stone-100">{army.summary.totalUnits}</dd>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-stone-400">Атака</dt>
+                      <dd className="text-right text-stone-100">{army.summary.totalAttack}</dd>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-stone-400">Защита</dt>
+                      <dd className="text-right text-stone-100">{army.summary.totalDefense}</dd>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-stone-400">Снабжение</dt>
+                      <dd className="text-right text-stone-100">{army.summary.totalSupply}</dd>
+                    </div>
+                  </dl>
+
+                  <div className="grid gap-3">
+                    {army.units.map((unit) => (
+                      <div className="rounded border border-stone-800 bg-dusk-950 p-3" data-unit-type={unit.type} key={unit.type}>
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <h3 className="font-semibold text-stone-100">{unit.label}</h3>
+                            <p className="text-xs text-stone-500">{unit.type}</p>
+                          </div>
+                          <div className="text-right text-sm text-stone-300">{unit.amount}</div>
+                        </div>
+                        <dl className="mt-3 grid gap-1 text-sm">
+                          {unitStatRows.map(([label, key]) => (
+                            <div className="flex justify-between gap-4" key={key}>
+                              <dt className="text-stone-400">{label}</dt>
+                              <dd className="text-right text-stone-100">{unit.stats[key]}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                        <p className="mt-2 text-sm text-stone-400">
+                          Cost:{' '}
+                          {armyCostRows.map(([label, key]) => `${label}: ${unit.cost[key]}`).join(', ')}
+                        </p>
+                        <p className="mt-1 text-sm text-stone-400">{unit.secondsPerUnit} sec / unit</p>
+                        <p className={unit.requirements.isMet ? 'mt-1 text-sm text-dusk-gold' : 'mt-1 text-sm text-red-300'}>
+                          {unit.requirements.barracksLevel > 0
+                            ? `Требуется казарма уровня ${unit.requirements.barracksLevel}. ${
+                                unit.requirements.isMet ? 'Требование выполнено' : 'Требование не выполнено'
+                              }`
+                            : 'Требование выполнено'}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="grid gap-3 rounded border border-stone-800 bg-dusk-950 p-3">
+                    <div className="grid gap-2 sm:grid-cols-[1fr_8rem_auto]">
+                      <label className="grid gap-1 text-sm text-stone-400">
+                        Unit
+                        <select
+                          className="rounded border border-stone-700 bg-dusk-900 px-3 py-2 text-stone-100"
+                          disabled={isTraining}
+                          onChange={(event) => setTrainingType(event.target.value as UnitType)}
+                          value={trainingType}
+                        >
+                          {army.units.map((unit) => (
+                            <option key={unit.type} value={unit.type}>
+                              {unit.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="grid gap-1 text-sm text-stone-400">
+                        Amount
+                        <input
+                          className="rounded border border-stone-700 bg-dusk-900 px-3 py-2 text-stone-100"
+                          disabled={isTraining}
+                          max={50}
+                          min={1}
+                          onChange={(event) => setTrainingAmount(Number(event.target.value))}
+                          type="number"
+                          value={trainingAmount}
+                        />
+                      </label>
+                      <Button className="self-end" disabled={isTraining} onClick={handleTrain} type="button">
+                        {isTraining ? 'Обучается...' : 'Обучить'}
+                      </Button>
+                    </div>
+                    <p className="text-sm text-stone-400">Миссии и бои появятся позже.</p>
+                  </div>
+
+                  <div className="grid gap-2">
+                    <h3 className="font-semibold text-stone-100">Обучается</h3>
+                    {army.trainingOrders.length === 0 ? <p className="text-sm text-stone-400">Нет активного обучения.</p> : null}
+                    {army.trainingOrders.map((order) => (
+                      <div className="rounded border border-stone-800 bg-dusk-950 p-3" key={order.id}>
+                        <div className="flex flex-wrap justify-between gap-3">
+                          <div>
+                            <p className="font-semibold text-stone-100">{order.unitLabel}</p>
+                            <p className="text-sm text-stone-400">Amount: {order.amount}</p>
+                          </div>
+                          <div className="text-right text-sm text-dusk-gold">
+                            Завершится {new Date(order.finishesAt).toLocaleString('ru-RU')}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : null}
+            </div>
+          </Card>
           <Card title="Reports">Mission and raid reports will be listed here.</Card>
         </div>
       </div>

@@ -183,6 +183,25 @@ func (s *BuildingService) ProductionBonus(ctx context.Context, kingdomID string)
 	return bonus, nil
 }
 
+func (s *BuildingService) LevelForKingdom(ctx context.Context, kingdomID string, buildingType string) (int, error) {
+	if err := s.EnsureForKingdom(ctx, kingdomID); err != nil {
+		return 0, err
+	}
+	if err := s.completeFinished(ctx, kingdomID); err != nil {
+		return 0, err
+	}
+
+	building, err := s.buildings.FindByKingdomIDAndType(ctx, kingdomID, buildingType)
+	if errors.Is(err, repository.ErrBuildingNotFound) {
+		return 0, ErrBuildingNotFound
+	}
+	if err != nil {
+		return 0, err
+	}
+
+	return building.Level, nil
+}
+
 func (s *BuildingService) completeFinished(ctx context.Context, kingdomID string) error {
 	return s.buildings.CompleteFinished(ctx, kingdomID, s.now())
 }
