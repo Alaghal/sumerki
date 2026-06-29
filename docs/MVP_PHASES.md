@@ -37,6 +37,16 @@ Do not implement:
 * complex animations
 * Phaser/Pixi/Three.js
 
+## Cross-Phase Rules
+
+* Implement one phase at a time.
+* Keep each phase small enough for Codex to execute and verify independently.
+* Prefer earlier playable vertical slices over large late integration phases.
+* Use incremental UI requirements inside each feature phase instead of saving dashboard work for a large polish phase.
+* Resolve time-based resources, building upgrades, unit training, missions, raids, tribute, and events lazily during reads or commands.
+* Do not add background workers for the MVP unless a later phase explicitly changes this plan.
+* The resolved MVP resource list is: `gold`, `food`, `wood`, `stone`, `population`.
+
 ---
 
 # Phase 0: Repository Bootstrap
@@ -90,6 +100,32 @@ Developer can start PostgreSQL locally.
 
 ---
 
+# Phase 1b: Infrastructure Verification
+
+## Goal
+
+Confirm local PostgreSQL startup before backend work begins.
+
+## Scope
+
+Verify:
+
+* `docker compose up -d postgres`
+* `docker compose ps`
+* PostgreSQL container is running
+* PostgreSQL accepts connections with database `sumerki`, user `sumerki`, password `sumerki`, and port `5432`
+* `docker compose down`
+
+Update:
+
+* `CODEX_HANDOFF.md` with verification results
+
+## Result
+
+Infrastructure is proven locally and Phase 2 can rely on a working database.
+
+---
+
 # Phase 2: Backend Skeleton
 
 ## Goal
@@ -121,47 +157,15 @@ Backend starts locally and returns health status.
 
 ---
 
-# Phase 3: Frontend Skeleton
+# Phase 3: Database Migration Foundation
 
 ## Goal
 
-Create minimal frontend app.
+Create the first backend schema before frontend implementation.
 
 ## Scope
 
-Frontend stack:
-
-* React
-* TypeScript
-* Vite
-* Tailwind
-
-Create pages:
-
-* `/login`
-* `/register`
-* `/create-kingdom`
-* `/app`
-
-Create layout:
-
-* top bar
-* sidebar
-* main content area
-
-## Result
-
-Frontend starts locally and shows basic pages.
-
----
-
-# Phase 4: Database Migrations
-
-## Goal
-
-Create initial schema.
-
-## Scope
+Add migration tooling and initial reversible migrations.
 
 Tables:
 
@@ -173,14 +177,15 @@ Rules:
 * one user can have one kingdom
 * UUID primary keys
 * reversible migrations
+* local migration commands documented in README
 
 ## Result
 
-Database can store users and kingdoms.
+Database can store users and kingdoms, and the backend/auth/kingdom flow can be implemented against real schema.
 
 ---
 
-# Phase 5: Auth API
+# Phase 4: Auth API
 
 ## Goal
 
@@ -203,11 +208,11 @@ Features:
 
 ## Result
 
-Player can register, login, and fetch current user.
+Player can register, login, and fetch current user through the backend.
 
 ---
 
-# Phase 6: Kingdom Creation API
+# Phase 5: Kingdom Creation API
 
 ## Goal
 
@@ -234,15 +239,91 @@ Rules:
 
 ## Result
 
-Player can create and fetch their kingdom.
+Player can create and fetch their kingdom through the backend.
 
 ---
 
-# Phase 7: Frontend Auth Integration
+# Phase 6: Ruler System
 
 ## Goal
 
-Connect frontend auth to backend.
+Add ruler identity immediately after the account and kingdom loop.
+
+## Scope
+
+Add table:
+
+* `rulers`
+
+Ruler fields:
+
+* name
+* age
+* culture
+* authority
+* courage
+* cunning
+* honor
+* cruelty
+* ambition
+* paranoia
+* health_status
+
+Rules:
+
+* ruler is generated when kingdom is created
+* ruler belongs to exactly one kingdom
+* initial ruler generation can be deterministic or simple random MVP logic
+
+Endpoint:
+
+* `GET /api/ruler/me`
+
+## Result
+
+Player has a ruler attached to the first playable account and kingdom loop.
+
+---
+
+# Phase 7: Frontend Skeleton
+
+## Goal
+
+Create minimal frontend app after the backend account, kingdom, and ruler APIs exist.
+
+## Scope
+
+Frontend stack:
+
+* React
+* TypeScript
+* Vite
+* Tailwind
+
+Create pages:
+
+* `/login`
+* `/register`
+* `/create-kingdom`
+* `/app`
+
+Create layout:
+
+* top bar
+* sidebar
+* main content area
+
+## Result
+
+Frontend starts locally and shows basic pages ready to connect to backend APIs.
+
+---
+
+# Phase 8: Frontend Auth, Kingdom, and Ruler Integration
+
+## Goal
+
+Connect the first playable account and kingdom flow to the frontend.
 
 ## Scope
 
@@ -254,6 +335,9 @@ Implement:
 * JWT storage
 * protected routes
 * session restore via `GET /api/me`
+* kingdom creation form
+* culture select with short descriptions
+* ruler card on dashboard
 
 Routing rules:
 
@@ -261,42 +345,19 @@ Routing rules:
 * token but no kingdom -> `/create-kingdom`
 * token and kingdom exists -> `/app`
 
-## Result
-
-Player can register, login, refresh page, and stay logged in.
-
----
-
-# Phase 8: Frontend Kingdom Creation
-
-## Goal
-
-Connect kingdom creation UI to backend.
-
-## Scope
-
-Create kingdom form:
-
-* kingdom name
-* culture select
-* culture descriptions
-
-After creation:
-
-* redirect to `/app`
-
-Dashboard shows:
+Dashboard must show:
 
 * kingdom name
 * culture
-* placeholder resource cards
-* placeholder ruler card
+* ruler summary
+* placeholder resources area
+* clear loading, error, and empty states
 
 ## Result
 
-Full flow works:
+Playable vertical slice:
 
-register -> create kingdom -> app dashboard.
+register -> login -> create kingdom -> view dashboard with ruler.
 
 ---
 
@@ -320,20 +381,27 @@ Add table:
 
 * `kingdom_resources`
 
-Implement passive production calculation.
+Implement lazy passive production calculation.
 
-Important rule:
+Rules:
 
-Do not use real-time workers yet.
-Calculate resources based on `last_calculated_at`.
+* do not use background workers
+* calculate resource changes from `last_calculated_at`
+* resolve resources during resource reads and commands that spend or grant resources
+* population can grow or cap production, but must stay simple for MVP
 
-Endpoints:
+Endpoint:
 
 * `GET /api/resources/me`
 
+Frontend:
+
+* replace placeholder resources with live resource values
+* show enough timing or production context for resource growth to be understandable
+
 ## Result
 
-Player sees resources that grow over time.
+Player sees resources that grow over time through lazy resolution.
 
 ---
 
@@ -352,7 +420,6 @@ Buildings:
 * lumberyard
 * quarry
 * barracks
-* market
 * walls
 * shrine
 
@@ -368,55 +435,24 @@ Endpoints:
 Rules:
 
 * upgrades cost resources
-* upgrade takes time
+* upgrade completion is resolved lazily from start and finish timestamps
 * only one upgrade per building at a time
 * no premium queues
+* do not use background workers
+
+Frontend:
+
+* add a buildings view or dashboard section
+* show building level, cost, status, and upgrade action
+* refresh affected resources after upgrade commands
 
 ## Result
 
-Player can spend resources to upgrade buildings.
+Player can spend resources to upgrade buildings and see progress without background workers.
 
 ---
 
-# Phase 11: Ruler System
-
-## Goal
-
-Add ruler as flavor and light gameplay modifier.
-
-## Scope
-
-Add table:
-
-* `rulers`
-
-Ruler fields:
-
-* name
-* age
-* culture
-* authority
-* courage
-* cunning
-* honor
-* cruelty
-* ambition
-* paranoia
-* health_status
-
-Ruler is generated when kingdom is created.
-
-Endpoint:
-
-* `GET /api/ruler/me`
-
-## Result
-
-Player has a ruler card with stats and flavor.
-
----
-
-# Phase 12: Army System
+# Phase 11: Army System
 
 ## Goal
 
@@ -444,7 +480,8 @@ Endpoints:
 Rules:
 
 * units cost resources
-* training takes time
+* training completion is resolved lazily from start and finish timestamps
+* do not use background workers
 * units have simple stats:
 
     * attack
@@ -452,17 +489,23 @@ Rules:
     * speed
     * supply
 
+Frontend:
+
+* add an army view or dashboard section
+* show available unit counts, training costs, and training status
+* refresh affected resources after training commands
+
 ## Result
 
-Player can train basic army units.
+Player can train basic army units and see their force grow through lazy resolution.
 
 ---
 
-# Phase 13: PvE Missions
+# Phase 12: PvE Missions
 
 ## Goal
 
-Allow player to send army to PvE locations.
+Allow player to send army to PvE locations and receive basic reports.
 
 ## Scope
 
@@ -480,7 +523,7 @@ Mission types:
 Add tables:
 
 * `missions`
-* `mission_reports`
+* `reports`
 
 Endpoints:
 
@@ -491,24 +534,32 @@ Endpoints:
 Rules:
 
 * mission has start time and resolve time
-* result is calculated after timer ends
-* result may include resources, losses, and flavor text
+* mission completion is resolved lazily when missions or reports are read, or when a dependent command needs current state
+* result may include resources, losses, and short flavor text
+* do not use background workers
+* basic report creation happens in this phase
+
+Frontend:
+
+* add missions view or dashboard section
+* show available missions, sent units, mission status, and resolved report summaries
+* add a basic reports list that can display PvE mission outcomes
 
 ## Result
 
-Player can send units to PvE mission and receive report.
+Player can send units to PvE missions and receive basic reports in the UI.
 
 ---
 
-# Phase 14: Battle Report System
+# Phase 13: Report Polish
 
 ## Goal
 
-Make mission results readable and atmospheric.
+Make mission and later raid results readable and atmospheric.
 
 ## Scope
 
-Report includes:
+Improve report content:
 
 * title
 * result
@@ -521,53 +572,27 @@ Report includes:
 
 Report types:
 
-* pve_expedition
-* pvp_raid later
+* `pve_expedition`
+* `pvp_raid`
+* `event`
+
+Frontend:
+
+* improve report detail view or modal
+* distinguish unread and read reports
+* keep the reports UI simple and usable on the main dashboard flow
 
 ## Result
 
-Player receives readable mission reports, not just raw numbers.
+Player receives readable reports, not just raw numbers.
 
 ---
 
-# Phase 15: Simple PvP Raids
+# Phase 14: Patron System
 
 ## Goal
 
-Allow basic asynchronous PvP interaction.
-
-## Scope
-
-Endpoints:
-
-* `GET /api/neighbors`
-* `POST /api/raids/start`
-
-Rules:
-
-* player can raid another kingdom
-* raid has travel time
-* raid result is auto-calculated
-* defender cannot be destroyed
-* attacker can steal limited resources
-* walls reduce raid success
-* weak-player protection exists
-
-Add:
-
-* infamy/dread value for aggressive behavior
-
-## Result
-
-Player can raid another player, but cannot delete or fully cripple them.
-
----
-
-# Phase 16: Patron System
-
-## Goal
-
-Add first political layer.
+Add first political layer before PvP raids.
 
 ## Scope
 
@@ -607,13 +632,19 @@ Old Pact:
 * owes contribution later
 * gets oath/defense flavor
 
+Frontend:
+
+* add patron choice UI
+* show current patron status and basic effects
+* make patron state visible before raids are introduced
+
 ## Result
 
-Player can choose a political path.
+Player can choose a political path before interacting with PvP.
 
 ---
 
-# Phase 17: Tribute and Pressure
+# Phase 15: Tribute and Pressure
 
 ## Goal
 
@@ -626,8 +657,10 @@ Add tribute logic for Empire of Dusk.
 Rules:
 
 * tribute is based on surplus, not total income
+* tribute resolves lazily when patron state, resources, or events are read or changed
 * tribute cannot block all progress
 * if player cannot pay, create a crisis choice
+* do not use background workers
 
 Crisis choices:
 
@@ -637,17 +670,63 @@ Crisis choices:
 * break patron relation
 * request help from another side
 
+Frontend:
+
+* show tribute status and next pressure point in patron UI
+* show crisis choices when they exist
+
 ## Result
 
 Empire pressure exists, but does not create dead-end gameplay.
 
 ---
 
-# Phase 18: Event System
+# Phase 16: Simple PvP Raids
 
 ## Goal
 
-Add simple choice-based events.
+Allow basic asynchronous PvP interaction after patron choice exists.
+
+## Scope
+
+Endpoints:
+
+* `GET /api/neighbors`
+* `POST /api/raids/start`
+
+Rules:
+
+* player can raid another kingdom
+* raid has travel time
+* raid result is resolved lazily from timestamps
+* defender cannot be destroyed
+* attacker can steal limited resources
+* walls reduce raid success
+* patron state can influence simple protection or flavor
+* weak-player protection exists
+* do not use background workers
+
+Add:
+
+* infamy/dread value for aggressive behavior
+
+Frontend:
+
+* add simple neighbors and raid UI
+* show raid limits, travel status, and basic outcomes
+* show raid reports through the reports UI
+
+## Result
+
+Player can raid another player, but cannot delete or fully cripple them.
+
+---
+
+# Phase 17: Event Engine
+
+## Goal
+
+Add reusable choice-based event mechanics.
 
 ## Scope
 
@@ -670,9 +749,41 @@ Endpoints:
 * `GET /api/events/me`
 * `POST /api/events/{id}/choose`
 
-MVP event count:
+Rules:
+
+* event availability and expiry resolve lazily
+* event choices can grant resources, affect units, affect patron state, or create reports
+* do not use background workers
+
+Frontend:
+
+* add an events view or dashboard section
+* show available choices and results clearly
+
+## Result
+
+The game can present and resolve simple narrative choices.
+
+---
+
+# Phase 18: First Event Content Pack
+
+## Goal
+
+Add enough event content to make the MVP loop feel alive.
+
+## Scope
+
+Create first MVP events:
 
 * 20 to 30 events
+* at least one event per category
+* short, readable event text
+* clear mechanical effects
+
+Frontend:
+
+* verify event text, choices, and outcomes fit the existing UI
 
 ## Result
 
@@ -680,42 +791,7 @@ Player occasionally receives events and makes meaningful choices.
 
 ---
 
-# Phase 19: Basic Dashboard Polish
-
-## Goal
-
-Make the MVP playable as one coherent flow.
-
-## Scope
-
-Frontend pages:
-
-* city overview
-* resources
-* buildings
-* ruler
-* army
-* missions
-* reports
-* patron
-* events
-
-No advanced graphics.
-
-Use:
-
-* React
-* Tailwind
-* simple cards
-* simple SVG/icons if needed
-
-## Result
-
-Player can use the core MVP through the UI.
-
----
-
-# Phase 20: Balance Pass
+# Phase 19: Balance Pass
 
 ## Goal
 
@@ -738,13 +814,17 @@ Add config files if useful:
 
 * `backend/internal/gameconfig/`
 
+Frontend:
+
+* adjust labels, empty states, disabled states, and visible feedback where balance changes affect player understanding
+
 ## Result
 
 The game has a basic but playable economy loop.
 
 ---
 
-# Phase 21: Smoke Tests and Seed Data
+# Phase 20: Smoke Tests and Seed Data
 
 ## Goal
 
@@ -765,12 +845,14 @@ Required checks:
 * register
 * login
 * create kingdom
+* view ruler
 * view resources
 * upgrade building
 * train unit
 * start mission
 * receive report
 * choose patron
+* start raid
 * resolve event
 
 ## Result
@@ -779,7 +861,7 @@ Developer can verify MVP manually and with basic tests.
 
 ---
 
-# Phase 22: First Playtest Build
+# Phase 21: First Playtest Build
 
 ## Goal
 

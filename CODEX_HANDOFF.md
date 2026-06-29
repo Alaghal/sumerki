@@ -6,7 +6,7 @@ Phase 1: Infrastructure Foundation.
 
 ## Status
 
-Phase 1 files are in place. Live PostgreSQL startup still needs confirmation after the `postgres:16-alpine` image pull completes successfully.
+Phase 1 files are in place. The MVP phase plan has been updated to add Phase 1b for infrastructure verification before backend work. Live PostgreSQL startup still needs confirmation after the `postgres:16-alpine` image pull completes successfully.
 
 ## Completed
 
@@ -24,6 +24,7 @@ Phase 1 files are in place. Live PostgreSQL startup still needs confirmation aft
 - Added `.env.example` with local PostgreSQL defaults.
 - Added basic Makefile commands for local database management.
 - Updated `README.md` with local database start, status, and stop commands.
+- Updated `docs/MVP_PHASES.md` so the plan is easier to execute phase-by-phase and produces playable vertical slices earlier.
 
 ## Changed Files
 
@@ -32,6 +33,7 @@ Phase 1 files are in place. Live PostgreSQL startup still needs confirmation aft
 - `Makefile`
 - `README.md`
 - `CODEX_HANDOFF.md`
+- `docs/MVP_PHASES.md`
 
 ## Constraints
 
@@ -48,6 +50,7 @@ Phase 1 files are in place. Live PostgreSQL startup still needs confirmation aft
 - Ran `docker compose up -d postgres`; Docker started pulling `postgres:16-alpine`, but the pull did not complete during the session and was interrupted.
 - Ran `docker compose pull postgres`; it also started pulling `postgres:16-alpine`, did not complete during the session, and was interrupted.
 - Ran `docker compose ps`; no container was running because the image pull had not completed.
+- Reviewed `docs/MVP_PHASES.md` diff and confirmed Phase 1b, migration ordering, lazy resolution rules, resolved resources, earlier ruler and patron phases, split event phases, and incremental UI requirements are present.
 
 ## What Works Now
 
@@ -62,4 +65,4 @@ Phase 1 files are in place. Live PostgreSQL startup still needs confirmation aft
 
 ## Next Recommended Step
 
-Confirm `docker compose up -d postgres` and `docker compose ps` after the PostgreSQL image is available locally, then start Phase 2: Backend Skeleton.
+Start Phase 1b: Infrastructure Verification. Confirm `docker compose up -d postgres` and `docker compose ps` after the PostgreSQL image is available locally, then start Phase 2: Backend Skeleton.
