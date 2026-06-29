@@ -1,0 +1,47 @@
+# OS and editor files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Go
+bin/
+*.test
+*.out
+coverage.out
+coverage.html
+.cache/
+
+# Go workspace files
+go.work
+go.work.sum
+
+# Node / TypeScript / Vite
+node_modules/
+dist/
+build/
+.vite/
+*.tsbuildinfo
+
+# Package manager caches
+.npm/
+.pnpm-store/
+.yarn/
+!.yarn/releases/
+!.yarn/plugins/
+!.yarn/sdks/
+!.yarn/versions/
+
