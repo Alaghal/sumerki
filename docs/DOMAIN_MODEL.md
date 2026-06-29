@@ -12,11 +12,14 @@ Fields:
 - `email`: unique email address
 - `passwordHash`: hashed password
 - `createdAt`: account creation timestamp
+- `updatedAt`: last update timestamp
 
 Rules:
 
 - A user can have one kingdom in the MVP.
+- Email uniqueness is case-insensitive.
 - Passwords are never stored in plain text.
+- Password hash must not be empty.
 
 ## Kingdom
 
@@ -30,12 +33,14 @@ Fields:
 - `culture`: selected starting culture
 - `patron`: selected patron, nullable before patron choice
 - `createdAt`: kingdom creation timestamp
+- `updatedAt`: last update timestamp
 
 Rules:
 
 - One kingdom per user.
 - Name length is 3 to 32 characters.
 - Culture must be one of the supported culture values.
+- Patron can be null until selected, then must be one of the supported patron values.
 
 ## Culture
 
@@ -139,4 +144,3 @@ Rules:
 
 - Events offer a small set of choices.
 - Choices can grant resources, modify production, affect units, or influence patron alignment.
-

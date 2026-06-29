@@ -2,11 +2,11 @@
 
 ## Current Phase
 
-Phase 2: Backend Skeleton and Runtime Basics.
+Phase 3: Database Migration Foundation.
 
 ## Status
 
-Phase 2 is complete. A minimal Go/Echo backend starts locally, loads runtime config, opens a PostgreSQL handle, exposes health/readiness endpoints, and shuts down gracefully.
+Phase 3 is complete. Goose SQL migrations now create the initial `users` and `kingdoms` schema with database-level constraints and reversible down migrations.
 
 ## Completed
 
@@ -33,6 +33,10 @@ Phase 2 is complete. A minimal Go/Echo backend starts locally, loads runtime con
 - Added backend run/tidy Makefile commands.
 - Updated backend runtime instructions in `README.md`.
 - Updated `docs/API_CONTRACT.md` with readiness endpoint documentation.
+- Added Goose SQL migrations for `users` and `kingdoms`.
+- Added Makefile migration commands for up, down, status, and local reset.
+- Updated README migration instructions.
+- Updated domain model field documentation for `updatedAt`, case-insensitive email uniqueness, password hash checks, and nullable patron validation.
 
 ## Changed Files
 
@@ -40,27 +44,16 @@ Phase 2 is complete. A minimal Go/Echo backend starts locally, loads runtime con
 - `Makefile`
 - `README.md`
 - `CODEX_HANDOFF.md`
-- `docs/API_CONTRACT.md`
-- `backend/go.mod`
-- `backend/go.sum`
-- `backend/cmd/server/main.go`
-- `backend/internal/config/config.go`
-- `backend/internal/db/db.go`
-- `backend/internal/http/server.go`
-- `backend/internal/http/handlers/errors.go`
-- `backend/internal/http/handlers/health.go`
-- `backend/internal/http/middleware/cors.go`
-- `backend/internal/domain/doc.go`
-- `backend/internal/service/doc.go`
-- `backend/internal/repository/doc.go`
+- `docs/DOMAIN_MODEL.md`
+- `backend/migrations/00001_create_users.sql`
+- `backend/migrations/00002_create_kingdoms.sql`
 
 ## Constraints
 
 - Backend is a skeleton only.
 - Auth has not been implemented.
-- Users and kingdoms have not been implemented.
+- Users and kingdoms now have database tables only; no application APIs or repositories have been implemented.
 - Frontend code has not been implemented.
-- Database migrations have not been implemented.
 - Gameplay systems have not been implemented.
 - `.idea/` exists locally as an untracked editor directory and was left untouched.
   It is now ignored by `.gitignore`.
@@ -83,6 +76,21 @@ Phase 2 is complete. A minimal Go/Echo backend starts locally, loads runtime con
 - Ran backend with `DATABASE_URL=postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable`; `GET /ready` returned HTTP 200 with `{"status":"ready","database":"ok"}`.
 - Ran `POSTGRES_PORT=15432 docker compose down`.
 - Ran final `docker compose ps` and confirmed no Sumerki Compose service was left running.
+- Ran `POSTGRES_PORT=15432 docker compose up -d postgres` for Phase 3 migration verification because default port `5432` was still occupied by another Docker process.
+- Ran `DATABASE_URL=postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable make migrate-status`; both migrations were initially pending.
+- Ran `DATABASE_URL=postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable make migrate-up`; migrations `00001_create_users.sql` and `00002_create_kingdoms.sql` applied successfully.
+- Ran `DATABASE_URL=postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable make migrate-status`; both migrations were applied.
+- Verified `users` and `kingdoms` tables exist.
+- Verified `kingdoms.user_id` has a foreign key to `users.id`.
+- Verified case-insensitive duplicate email is rejected by `users_email_lower_unique_idx`.
+- Verified one user cannot have multiple kingdoms.
+- Verified invalid culture is rejected by `kingdoms_culture_valid`.
+- Verified invalid non-null patron is rejected by `kingdoms_patron_valid`.
+- Ran `DATABASE_URL=postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable make migrate-down`; latest migration rolled back and `kingdoms` was removed while `users` remained.
+- Ran `DATABASE_URL=postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable make migrate-reset`; local migrations rolled back successfully.
+- Re-ran `make migrate-up` against the temporary database and confirmed both migrations applied with zero test rows left behind.
+- Ran `POSTGRES_PORT=15432 docker compose down`.
+- Ran final `docker compose ps` and confirmed no Sumerki Compose service was left running.
 
 ## What Works Now
 
@@ -92,14 +100,19 @@ Phase 2 is complete. A minimal Go/Echo backend starts locally, loads runtime con
 - `GET /health` reports process health without requiring database connectivity.
 - `GET /ready` reports database readiness and returns a standard JSON 503 error when PostgreSQL is unavailable.
 - Backend supports request logging, panic recovery, local frontend CORS for `http://localhost:5173`, and graceful shutdown on SIGINT/SIGTERM.
+- `make migrate-up` applies initial database schema migrations.
+- `make migrate-status` shows Goose migration status.
+- `make migrate-down` rolls back the latest migration.
+- `make migrate-reset` resets local development migrations.
+- Database constraints enforce case-insensitive user email uniqueness, non-empty email/password hash, one kingdom per user, valid culture, and valid nullable patron.
 
 ## Known Limitations
 
-- No auth, user, kingdom, migration, frontend, or gameplay code exists yet.
-- No migrations or schema exist yet.
+- No auth, user API, kingdom API, frontend, or gameplay code exists yet.
 - `JWT_SECRET` is loaded but intentionally unused until the auth phase.
-- Default PostgreSQL port `5432` was occupied by another Docker process during verification, so the successful readiness check used temporary `POSTGRES_PORT=15432` without changing repository files.
+- Default PostgreSQL port `5432` was occupied by another Docker process during verification, so successful migration checks used temporary `POSTGRES_PORT=15432` without changing repository files.
+- Goose `@latest` currently switches to Go toolchain `go1.25.11` during command execution because the latest Goose release requires Go >= 1.25.7.
 
 ## Next Recommended Step
 
-Start Phase 3: Database Migration Foundation.
+Start Phase 4: Auth API.
