@@ -244,6 +244,55 @@ Response when the current user has no kingdom:
 }
 ```
 
+## Ruler
+
+### `GET /api/ruler/me`
+
+Returns the current authenticated user's ruler.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "ruler": {
+    "id": "uuid",
+    "kingdomId": "uuid",
+    "name": "Боривой",
+    "age": 42,
+    "culture": "northern_principality",
+    "authority": 61,
+    "courage": 74,
+    "cunning": 44,
+    "honor": 68,
+    "cruelty": 31,
+    "ambition": 55,
+    "paranoia": 29,
+    "healthStatus": "healthy",
+    "createdAt": "2026-06-29T00:00:00Z",
+    "updatedAt": "2026-06-29T00:00:00Z"
+  }
+}
+```
+
+Response when the current user has no kingdom:
+
+HTTP 404
+
+```json
+{
+  "error": {
+    "code": "kingdom_not_found",
+    "message": "Create a kingdom before requesting a ruler"
+  }
+}
+```
+
 ## Enumerations
 
 Cultures:
@@ -257,3 +306,9 @@ Patrons:
 - `independent`
 - `empire_of_dusk`
 - `old_pact`
+
+Ruler health statuses:
+
+- `healthy`
+- `wounded`
+- `sick`

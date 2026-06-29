@@ -29,10 +29,20 @@ type KingdomRepository interface {
 
 type KingdomService struct {
 	kingdoms KingdomRepository
+	rulers   RulerGenerator
 }
 
-func NewKingdomService(kingdoms KingdomRepository) *KingdomService {
-	return &KingdomService{kingdoms: kingdoms}
+type RulerGenerator interface {
+	GenerateForKingdom(ctx context.Context, kingdom domain.Kingdom) (domain.Ruler, error)
+}
+
+func NewKingdomService(kingdoms KingdomRepository, rulers ...RulerGenerator) *KingdomService {
+	var rulerGenerator RulerGenerator
+	if len(rulers) > 0 {
+		rulerGenerator = rulers[0]
+	}
+
+	return &KingdomService{kingdoms: kingdoms, rulers: rulerGenerator}
 }
 
 func (s *KingdomService) Create(ctx context.Context, userID string, name string, culture string) (domain.Kingdom, error) {
@@ -54,6 +64,12 @@ func (s *KingdomService) Create(ctx context.Context, userID string, name string,
 	}
 	if err != nil {
 		return domain.Kingdom{}, err
+	}
+
+	if s.rulers != nil {
+		if _, err := s.rulers.GenerateForKingdom(ctx, kingdom); err != nil {
+			return domain.Kingdom{}, err
+		}
 	}
 
 	return kingdom, nil

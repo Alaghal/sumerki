@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 7: Frontend Auth + Kingdom Flow.
+Phase 8: Ruler System v1.
 
-This phase connects the React frontend shell to the existing backend auth and kingdom APIs. It does not include resources, buildings, rulers, combat, events, patrons, or gameplay systems.
+This phase adds one generated ruler per kingdom and displays the current ruler on the dashboard. It does not include resources, buildings, armies, combat, events, patrons, ruler actions, heirs, dynasties, or gameplay modifiers.
 
 ## Documentation
 
@@ -136,6 +136,15 @@ curl http://localhost:8080/api/kingdoms/me \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
+## Ruler API
+
+Fetch current ruler:
+
+```sh
+curl http://localhost:8080/api/ruler/me \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
 ## Frontend
 
 The frontend reads `VITE_API_BASE_URL` and defaults to `http://localhost:8080`.
@@ -173,10 +182,11 @@ Expected flow:
 
 1. Register a new account.
 2. Create a kingdom.
-3. Land on the dashboard with the real kingdom name and culture.
-4. Logout.
-5. Login again with the same account.
-6. Return to the dashboard.
+3. Call `GET /api/ruler/me` with the returned token if you want to inspect the ruler API directly.
+4. Land on the dashboard with the real kingdom name, culture, and ruler card.
+5. Logout.
+6. Login again with the same account.
+7. Return to the dashboard.
 
 The frontend stores the MVP JWT in `localStorage` under `sumerki.auth.token`. Refreshing the page restores the session through `GET /api/me`.
 
