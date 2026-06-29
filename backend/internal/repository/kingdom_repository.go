@@ -57,6 +57,25 @@ func (r *KingdomRepository) FindByUserID(ctx context.Context, userID string) (do
 	return kingdom, nil
 }
 
+func (r *KingdomRepository) UpdatePatronByID(ctx context.Context, kingdomID string, patron *string) (domain.Kingdom, error) {
+	const query = `
+		UPDATE kingdoms
+		SET patron = $2,
+			updated_at = now()
+		WHERE id = $1
+		RETURNING id::text, user_id::text, name, culture, patron, created_at, updated_at
+	`
+
+	kingdom, err := scanKingdom(r.db.QueryRowContext(ctx, query, kingdomID, patron))
+	if errors.Is(err, sql.ErrNoRows) {
+		return domain.Kingdom{}, ErrKingdomNotFound
+	}
+	if err != nil {
+		return domain.Kingdom{}, err
+	}
+	return kingdom, nil
+}
+
 type scanner interface {
 	Scan(dest ...interface{}) error
 }

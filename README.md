@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 13: Report Polish and Narrative Templates.
+Phase 14: Patron System v1.
 
-This phase adds richer PvE mission report text, report phases, unread counts, report detail, and mark-as-read support. It does not include PvP raids, real-time combat, patrons, events, markets, notifications, or background workers.
+This phase adds patron options, patron status, joining, breaking, and dashboard patron visibility. It does not include tribute, debt, pressure, military help, PvP protection, events, payments, chat, or background workers.
 
 ## Documentation
 
@@ -133,6 +133,38 @@ Fetch current kingdom:
 
 ```sh
 curl http://localhost:8080/api/kingdoms/me \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+## Patron API
+
+Get patron options:
+
+```sh
+curl http://localhost:8080/api/patron/options \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+Get current patron:
+
+```sh
+curl http://localhost:8080/api/patron/me \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+Join Old Pact:
+
+```sh
+curl -X POST http://localhost:8080/api/patron/join \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -d '{"patron":"old_pact"}'
+```
+
+Break patron:
+
+```sh
+curl -X POST http://localhost:8080/api/patron/break \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
@@ -271,25 +303,26 @@ Expected flow:
 
 1. Register a new account.
 2. Create a kingdom.
-3. Call `GET /api/resources/me` with the returned token if you want to inspect the resources API directly.
-4. Call `GET /api/buildings/me` to inspect the starting buildings.
-5. Start an upgrade with `POST /api/buildings/farm/upgrade`.
-6. Call `GET /api/resources/me` again to see spent resources.
-7. Call `GET /api/army/me` to inspect starting units.
-8. Train militia with `POST /api/army/train`.
-9. Call `GET /api/resources/me` again to see spent resources.
-10. Wait for the training timer.
-11. Call `GET /api/army/me` again to resolve lazy completion and confirm the militia amount increased.
-12. Call `GET /api/missions/available` to inspect PvE mission options.
-13. Start a mission with `POST /api/missions/start`.
-14. Call `GET /api/army/me` again and confirm sent units are unavailable.
-15. Wait for the mission timer.
-16. Call `GET /api/missions/me` again to resolve lazy completion.
-17. Call `GET /api/reports/me` to read the mission report list with unread count.
-18. Call `GET /api/reports/{id}` to read narrative phases.
-19. Call `POST /api/reports/{id}/read` to mark it read.
-20. Call `GET /api/resources/me` and `GET /api/army/me` to confirm rewards, losses, and returned survivors.
-21. Open `/app` and see the real kingdom, ruler, resource, building, army, missions, and polished reports cards.
+3. Open `/app`.
+4. View patron options.
+5. Choose Empire of Dusk.
+6. Confirm the dashboard shows Empire of Dusk.
+7. Break patron relation.
+8. Confirm the dashboard shows no patron.
+9. Choose Old Pact.
+10. Call `GET /api/resources/me` with the returned token if you want to inspect the resources API directly.
+11. Call `GET /api/buildings/me` to inspect the starting buildings.
+12. Start an upgrade with `POST /api/buildings/farm/upgrade`.
+13. Call `GET /api/army/me` to inspect starting units.
+14. Train militia with `POST /api/army/train`.
+15. Call `GET /api/missions/available` to inspect PvE mission options.
+16. Start a mission with `POST /api/missions/start`.
+17. Wait for the mission timer.
+18. Call `GET /api/missions/me` again to resolve lazy completion.
+19. Call `GET /api/reports/me` to read the mission report list with unread count.
+20. Call `GET /api/reports/{id}` to read narrative phases.
+21. Call `POST /api/reports/{id}/read` to mark it read.
+22. Open `/app` and see the real kingdom, ruler, resource, building, army, patron, missions, and reports cards.
 
 The frontend stores the MVP JWT in `localStorage` under `sumerki.auth.token`. Refreshing the page restores the session through `GET /api/me`.
 

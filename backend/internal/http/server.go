@@ -38,11 +38,13 @@ func New(database *sql.DB, jwtSecret string) *echo.Echo {
 	army := repository.NewArmyRepository(database)
 	missions := repository.NewMissionRepository(database)
 	reports := repository.NewReportRepository(database)
+	patrons := repository.NewPatronRepository(database)
 	rulerService := service.NewRulerService(kingdoms, rulers)
 	resourcesService := service.NewResourcesService(kingdoms, resources)
 	buildingService := service.NewBuildingService(kingdoms, buildings, resourcesService)
 	armyService := service.NewArmyService(kingdoms, army, resourcesService, buildingService)
 	missionService := service.NewMissionService(kingdoms, missions, reports, armyService, resourcesService)
+	patronService := service.NewPatronService(kingdoms, patrons)
 	resourcesService.SetProductionProvider(buildingService)
 	kingdomService := service.NewKingdomService(kingdoms, rulerService, resourcesService, buildingService, armyService)
 	kingdomHandler := handlers.NewKingdomHandler(kingdomService)
@@ -52,6 +54,7 @@ func New(database *sql.DB, jwtSecret string) *echo.Echo {
 	armyHandler := handlers.NewArmyHandler(armyService)
 	missionHandler := handlers.NewMissionHandler(missionService)
 	reportHandler := handlers.NewReportHandler(missionService)
+	patronHandler := handlers.NewPatronHandler(patronService)
 
 	e.POST("/api/auth/register", authHandler.Register)
 	e.POST("/api/auth/login", authHandler.Login)
@@ -70,6 +73,10 @@ func New(database *sql.DB, jwtSecret string) *echo.Echo {
 	e.GET("/api/reports/me", reportHandler.Me, appmiddleware.Auth(auth))
 	e.GET("/api/reports/:id", reportHandler.Detail, appmiddleware.Auth(auth))
 	e.POST("/api/reports/:id/read", reportHandler.MarkRead, appmiddleware.Auth(auth))
+	e.GET("/api/patron/options", patronHandler.Options, appmiddleware.Auth(auth))
+	e.GET("/api/patron/me", patronHandler.Me, appmiddleware.Auth(auth))
+	e.POST("/api/patron/join", patronHandler.Join, appmiddleware.Auth(auth))
+	e.POST("/api/patron/break", patronHandler.Break, appmiddleware.Auth(auth))
 
 	return e
 }

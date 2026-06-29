@@ -96,6 +96,47 @@ Values:
 - `empire_of_dusk`
 - `old_pact`
 
+Phase 14 patron choices:
+
+- `independent`: no tribute, no protection, full freedom
+- `empire_of_dusk`: order and protection flavor only in v1
+- `old_pact`: oath and defensive-help flavor only in v1
+
+Rules:
+
+- Patron choice updates `kingdom.patron`.
+- `kingdom.patron` is null before first choice.
+- Choosing `independent` stores `independent`.
+- Breaking a patron relation clears `kingdom.patron` to null.
+- Phase 14 has no tribute, debt, pressure, military help, PvP protection, patron quests, patron orders, cooldowns, or switching penalties.
+- Tribute and pressure are future phases.
+
+## PatronRelation
+
+Represents the current MVP patron relation for one kingdom.
+
+Fields:
+
+- `id`: UUID
+- `kingdomId`: kingdom UUID
+- `patron`: patron key
+- `favor`: integer from -100 to 100, defaults to 0
+- `standing`: `hostile`, `cold`, `neutral`, `warm`, or `loyal`
+- `joinedAt`: relation join timestamp
+- `leftAt`: nullable timestamp set when the relation is broken
+- `createdAt`: row creation timestamp
+- `updatedAt`: last update timestamp
+
+Rules:
+
+- Each kingdom has at most one patron relation row in the MVP.
+- Joining a patron creates or updates the existing relation row.
+- Joining the current patron is idempotent.
+- Joining a different patron switches the relation without cooldown or penalty in Phase 14.
+- Breaking a relation sets `leftAt` and clears `kingdom.patron`.
+- Existing kingdoms with non-null `kingdom.patron` can be backfilled into a matching relation.
+- Patron state is owned by the authenticated user's kingdom; clients never submit `kingdomId`.
+
 ## Resource
 
 Represents stored kingdom materials.
