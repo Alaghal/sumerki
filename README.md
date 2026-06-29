@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 4: Auth API.
+Phase 5: Kingdom Creation API.
 
-This phase adds user registration, login, JWT authentication, and the current-user endpoint. It does not include kingdom APIs, frontend code, resources, rulers, combat, events, patrons, or gameplay systems.
+This phase adds authenticated kingdom creation and current-kingdom lookup. It does not include frontend code, resources, buildings, rulers, combat, events, patrons, or gameplay systems.
 
 ## Documentation
 
@@ -71,7 +71,7 @@ Run the backend:
 ```sh
 cd backend
 go mod tidy
-DATABASE_URL="postgres://sumerki:sumerki@localhost:5432/sumerki?sslmode=disable" go run ./cmd/server
+DATABASE_URL="postgres://sumerki:sumerki@localhost:5432/sumerki?sslmode=disable" JWT_SECRET="dev-secret" go run ./cmd/server
 ```
 
 Equivalent Makefile shortcuts are available:
@@ -116,6 +116,24 @@ Fetch current user:
 ```sh
 curl http://localhost:8080/api/me \
   -H "Authorization: Bearer <token>"
+```
+
+## Kingdom API
+
+Create a kingdom:
+
+```sh
+curl -X POST http://localhost:8080/api/kingdoms \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -d '{"name":"Воронья Сечь","culture":"northern_principality"}'
+```
+
+Fetch current kingdom:
+
+```sh
+curl http://localhost:8080/api/kingdoms/me \
+  -H "Authorization: Bearer <TOKEN>"
 ```
 
 ## Database Migrations

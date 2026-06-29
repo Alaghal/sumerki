@@ -2,11 +2,11 @@
 
 ## Current Phase
 
-Phase 4: Auth API.
+Phase 5: Kingdom Creation API.
 
 ## Status
 
-Phase 4 is complete. The backend now supports user registration, login, JWT authentication middleware, and the current-user endpoint.
+Phase 5 is complete. Authenticated users can create exactly one kingdom and fetch their current kingdom.
 
 ## Completed
 
@@ -37,65 +37,59 @@ Phase 4 is complete. The backend now supports user registration, login, JWT auth
 - Added Makefile migration commands for up, down, status, and local reset.
 - Updated README migration instructions.
 - Updated domain model field documentation for `updatedAt`, case-insensitive email uniqueness, password hash checks, and nullable patron validation.
-- Added user domain model.
-- Added user repository for creating users and finding users by normalized email or id.
-- Added auth service for email normalization, password hashing, login, JWT generation, JWT validation, and current-user lookup.
-- Added auth HTTP handlers for `POST /api/auth/register`, `POST /api/auth/login`, and `GET /api/me`.
-- Added auth middleware for Bearer token extraction and JWT validation.
+- Added user domain model, user repository, auth service, auth handlers, and auth middleware.
 - Made `JWT_SECRET` required at backend startup.
 - Added focused auth service and middleware tests.
-- Updated README auth curl examples.
-- Updated `docs/API_CONTRACT.md` with Phase 4 auth response and error details.
+- Added kingdom domain model.
+- Added kingdom repository for creating a kingdom and finding a kingdom by user id.
+- Added kingdom service with name trimming, name length validation, culture validation, and one-kingdom error mapping.
+- Added authenticated `POST /api/kingdoms` and `GET /api/kingdoms/me`.
+- Added focused kingdom service tests.
+- Updated README with kingdom curl examples and fixed the backend run example to include `JWT_SECRET`.
+- Updated `docs/API_CONTRACT.md` with exact kingdom API responses and errors.
 
 ## Changed Files
 
 - `README.md`
 - `CODEX_HANDOFF.md`
 - `docs/API_CONTRACT.md`
-- `backend/go.mod`
-- `backend/go.sum`
-- `backend/cmd/server/main.go`
-- `backend/internal/config/config.go`
-- `backend/internal/domain/user.go`
-- `backend/internal/repository/user_repository.go`
-- `backend/internal/service/auth_service.go`
-- `backend/internal/service/auth_service_test.go`
 - `backend/internal/http/server.go`
-- `backend/internal/http/apierror/apierror.go`
-- `backend/internal/http/handlers/errors.go`
-- `backend/internal/http/handlers/auth_handler.go`
-- `backend/internal/http/handlers/me_handler.go`
-- `backend/internal/http/middleware/auth_middleware.go`
-- `backend/internal/http/middleware/auth_middleware_test.go`
+- `backend/internal/domain/kingdom.go`
+- `backend/internal/repository/kingdom_repository.go`
+- `backend/internal/service/kingdom_service.go`
+- `backend/internal/service/kingdom_service_test.go`
+- `backend/internal/http/handlers/kingdom_handler.go`
+
+Phase 4 auth files are still present as untracked working-tree files in this checkout and were preserved while implementing Phase 5.
 
 ## Constraints
 
 - Auth API has been implemented.
-- Users now have registration, login, and current-user API support.
-- Kingdoms still have database tables only; no kingdom application APIs or repositories have been implemented.
+- Kingdom creation and current-kingdom lookup have been implemented.
+- Users can have only one kingdom.
+- Kingdom creation does not create resources, buildings, rulers, patron relations, armies, missions, events, tribute, or gameplay systems.
+- Client-provided `user_id` and `patron` are not accepted by the create-kingdom request shape; authenticated user id comes from JWT context and patron remains `null`.
 - Frontend code has not been implemented.
-- Gameplay systems have not been implemented.
 - `.idea/` exists locally as an untracked editor directory and was left untouched.
   It is now ignored by `.gitignore`.
 
 ## Verification
 
-- Ran `go mod tidy`.
 - Ran `GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build go test ./...`.
-- Ran backend without `JWT_SECRET`; startup failed with `config error: JWT_SECRET is required`.
-- Ran `POSTGRES_PORT=15432 docker compose up -d postgres` for Phase 4 verification because default port `5432` was still occupied by another Docker process.
+- Ran `POSTGRES_PORT=15432 docker compose up -d postgres` for Phase 5 verification because sandboxed curl could not reach the elevated backend process and default port `5432` may be occupied by another Docker process.
 - Ran `DATABASE_URL=postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable make migrate-up`; database was already at migration version 2.
 - Ran backend with `DATABASE_URL=postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable`, `JWT_SECRET=test-secret`, and `BACKEND_PORT=18080`.
-- Ran `curl -i http://localhost:18080/ready`; received HTTP 200 with `{"status":"ready","database":"ok"}`.
-- Ran `POST /api/auth/register`; received HTTP 201 with normalized user email and JWT token, without `password_hash`.
-- Re-ran register with the same email in different casing; received HTTP 409 with `email_already_exists`.
-- Ran `POST /api/auth/login` with valid credentials and mixed-case email; received HTTP 200 with normalized user email and JWT token.
-- Ran `POST /api/auth/login` with invalid credentials; received HTTP 401 with `invalid_credentials`.
-- Ran `GET /api/me` with a valid Bearer token; received HTTP 200 with the current user.
-- Ran `GET /api/me` without Authorization; received HTTP 401 with `missing_authorization_header`.
-- Ran `GET /api/me` with an invalid token; received HTTP 401 with `invalid_token`.
-- Covered expired token rejection with middleware unit test.
-- Removed the temporary verification user from PostgreSQL.
+- Ran elevated `curl -i http://localhost:18080/ready`; received HTTP 200 with `{"status":"ready","database":"ok"}`.
+- Registered temporary users through `POST /api/auth/register` and received JWT tokens.
+- Ran unauthenticated `POST /api/kingdoms`; received HTTP 401 with `missing_authorization_header`.
+- Ran authenticated `GET /api/kingdoms/me` before creation; received HTTP 200 with `{"kingdom":null}`.
+- Ran authenticated `POST /api/kingdoms` with trimmed name input plus extra `user_id` and `patron` fields; received HTTP 201, trimmed kingdom name, authenticated `userId`, and `patron:null`.
+- Ran second authenticated `POST /api/kingdoms`; received HTTP 409 with `kingdom_already_exists`.
+- Ran authenticated `POST /api/kingdoms` with invalid culture; received HTTP 400 with `invalid_culture`.
+- Ran authenticated `POST /api/kingdoms` with too-short name; received HTTP 400 with `kingdom_name_too_short`.
+- Ran authenticated `POST /api/kingdoms` with too-long name; received HTTP 400 with `kingdom_name_too_long`.
+- Ran authenticated `GET /api/kingdoms/me` after creation; received HTTP 200 with the created kingdom.
+- Removed temporary verification users from PostgreSQL; related kingdoms were removed by cascade.
 - Stopped the backend with SIGINT and ran `POSTGRES_PORT=15432 docker compose down`.
 - Ran final `docker compose ps` and confirmed no Sumerki Compose service was left running.
 
@@ -106,24 +100,20 @@ Phase 4 is complete. The backend now supports user registration, login, JWT auth
 - Backend can be started with `cd backend && DATABASE_URL="postgres://sumerki:sumerki@localhost:5432/sumerki?sslmode=disable" JWT_SECRET="dev-secret" go run ./cmd/server` when PostgreSQL is reachable.
 - `GET /health` reports process health without requiring database connectivity.
 - `GET /ready` reports database readiness and returns a standard JSON 503 error when PostgreSQL is unavailable.
-- Backend supports request logging, panic recovery, local frontend CORS for `http://localhost:5173`, and graceful shutdown on SIGINT/SIGTERM.
 - `make migrate-up` applies initial database schema migrations.
-- `make migrate-status` shows Goose migration status.
-- `make migrate-down` rolls back the latest migration.
-- `make migrate-reset` resets local development migrations.
-- Database constraints enforce case-insensitive user email uniqueness, non-empty email/password hash, one kingdom per user, valid culture, and valid nullable patron.
 - `POST /api/auth/register` creates a user with a bcrypt password hash and returns a JWT.
 - `POST /api/auth/login` authenticates normalized email and password and returns a JWT.
 - `GET /api/me` returns the current user when a valid Bearer token is provided.
-- Auth responses never expose `password_hash`.
-- Auth middleware rejects missing, malformed, invalid, expired, and user-not-found tokens with standard JSON errors.
+- `POST /api/kingdoms` creates one kingdom for the authenticated user.
+- `GET /api/kingdoms/me` returns `{"kingdom":null}` before creation and the user's kingdom after creation.
+- Kingdom responses do not expose `password_hash`.
 
 ## Known Limitations
 
-- No kingdom API, frontend, or gameplay code exists yet.
-- Default PostgreSQL port `5432` was occupied by another Docker process during verification, so successful auth checks used temporary `POSTGRES_PORT=15432` without changing repository files.
+- No frontend, resources, buildings, ruler generation, army, missions, combat, events, patrons logic, tribute, alliances, map, or payments exist yet.
+- Default PostgreSQL port `5432` may be occupied by another Docker process in this environment, so successful Phase 5 live checks used temporary `POSTGRES_PORT=15432` without changing repository files.
 - Goose `@latest` currently switches to Go toolchain `go1.25.11` during command execution because the latest Goose release requires Go >= 1.25.7.
 
 ## Next Recommended Step
 
-Start Phase 5: Kingdom Creation API.
+Start Phase 6: Ruler System.

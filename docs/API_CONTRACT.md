@@ -170,46 +170,77 @@ Auth errors:
 
 Creates the current user's kingdom.
 
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
 Request:
 
 ```json
 {
-  "name": "Blackwater",
+  "name": "Воронья Сечь",
   "culture": "northern_principality"
 }
 ```
 
-Response:
+Success response:
+
+HTTP 201
 
 ```json
 {
   "kingdom": {
     "id": "uuid",
     "userId": "uuid",
-    "name": "Blackwater",
+    "name": "Воронья Сечь",
     "culture": "northern_principality",
     "patron": null,
-    "createdAt": "2026-06-29T00:00:00Z"
+    "createdAt": "2026-06-29T00:00:00Z",
+    "updatedAt": "2026-06-29T00:00:00Z"
   }
 }
 ```
+
+Validation errors:
+
+- `kingdom_name_too_short`
+- `kingdom_name_too_long`
+- `invalid_culture`
+- `kingdom_already_exists`
 
 ### `GET /api/kingdoms/me`
 
 Returns the current user's kingdom.
 
-Response:
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Response when the current user has a kingdom:
 
 ```json
 {
   "kingdom": {
     "id": "uuid",
     "userId": "uuid",
-    "name": "Blackwater",
+    "name": "Воронья Сечь",
     "culture": "northern_principality",
     "patron": null,
-    "createdAt": "2026-06-29T00:00:00Z"
+    "createdAt": "2026-06-29T00:00:00Z",
+    "updatedAt": "2026-06-29T00:00:00Z"
   }
+}
+```
+
+Response when the current user has no kingdom:
+
+```json
+{
+  "kingdom": null
 }
 ```
 
