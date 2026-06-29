@@ -3,19 +3,26 @@ import { useEffect, useState } from 'react';
 import {
   Army,
   AvailableMission,
+  breakPatron,
   Building,
   BuildingType,
   getAvailableMissions,
   getMyArmy,
   getMyBuildings,
   getMyMissions,
+  getMyPatron,
   getMyReports,
   getMyResources,
   getMyRuler,
+  getPatronOptions,
   getReport,
+  joinPatron,
   markReportRead,
   Mission,
   MissionReport,
+  PatronKey,
+  PatronOption,
+  PatronStatus,
   Resources,
   Ruler,
   startMission,
@@ -36,9 +43,17 @@ const cultureLabels = {
 };
 
 const patronLabels = {
-  independent: 'Independent',
-  empire_of_dusk: 'Empire of Dusk',
-  old_pact: 'Old Pact',
+  independent: 'Независимость',
+  empire_of_dusk: 'Империя Заката',
+  old_pact: 'Старый Договор',
+};
+
+const standingLabels = {
+  hostile: 'Враждебно',
+  cold: 'Холодно',
+  neutral: 'Нейтрально',
+  warm: 'Тепло',
+  loyal: 'Верно',
 };
 
 const healthLabels = {
@@ -135,6 +150,12 @@ export function DashboardPage() {
   const [markingReportID, setMarkingReportID] = useState<string | null>(null);
   const [reportsLoading, setReportsLoading] = useState(true);
   const [reportsError, setReportsError] = useState('');
+  const [patronOptions, setPatronOptions] = useState<PatronOption[]>([]);
+  const [patronStatus, setPatronStatus] = useState<PatronStatus | null>(null);
+  const [patronLoading, setPatronLoading] = useState(true);
+  const [patronError, setPatronError] = useState('');
+  const [joiningPatron, setJoiningPatron] = useState<PatronKey | null>(null);
+  const [isBreakingPatron, setIsBreakingPatron] = useState(false);
 
   async function loadRuler() {
     if (!token || !kingdom) {
@@ -246,8 +267,27 @@ export function DashboardPage() {
     }
   }
 
+  async function loadPatron() {
+    if (!token || !kingdom) {
+      return;
+    }
+
+    setPatronLoading(true);
+    setPatronError('');
+
+    try {
+      const [optionsResponse, statusResponse] = await Promise.all([getPatronOptions(token), getMyPatron(token)]);
+      setPatronOptions(optionsResponse.patrons);
+      setPatronStatus(statusResponse);
+    } catch {
+      setPatronError('Не удалось загрузить покровителя.');
+    } finally {
+      setPatronLoading(false);
+    }
+  }
+
   async function refreshCity() {
-    await Promise.all([loadRuler(), loadResources(), loadBuildings(), loadArmy(), loadMissions(), loadReports()]);
+    await Promise.all([loadRuler(), loadResources(), loadBuildings(), loadArmy(), loadMissions(), loadReports(), loadPatron()]);
   }
 
   async function handleUpgrade(buildingType: BuildingType) {
@@ -292,6 +332,42 @@ export function DashboardPage() {
 
   async function refreshMissions() {
     await Promise.all([loadMissions(), loadArmy(), loadResources(), loadReports()]);
+  }
+
+  async function handleJoinPatron(patron: PatronKey) {
+    if (!token) {
+      return;
+    }
+
+    setJoiningPatron(patron);
+    setPatronError('');
+
+    try {
+      await joinPatron(patron, token);
+      await loadPatron();
+    } catch (caughtError) {
+      setPatronError(toUserMessage(caughtError));
+    } finally {
+      setJoiningPatron(null);
+    }
+  }
+
+  async function handleBreakPatron() {
+    if (!token) {
+      return;
+    }
+
+    setIsBreakingPatron(true);
+    setPatronError('');
+
+    try {
+      await breakPatron(token);
+      await loadPatron();
+    } catch (caughtError) {
+      setPatronError(toUserMessage(caughtError));
+    } finally {
+      setIsBreakingPatron(false);
+    }
   }
 
   async function toggleReportDetails(reportID: string) {
@@ -408,6 +484,41 @@ export function DashboardPage() {
     }
 
     loadRuler();
+
+    return () => {
+      isActive = false;
+    };
+  }, [kingdom, token]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadInitialPatron() {
+      if (!token || !kingdom) {
+        return;
+      }
+
+      setPatronLoading(true);
+      setPatronError('');
+
+      try {
+        const [optionsResponse, statusResponse] = await Promise.all([getPatronOptions(token), getMyPatron(token)]);
+        if (isActive) {
+          setPatronOptions(optionsResponse.patrons);
+          setPatronStatus(statusResponse);
+        }
+      } catch {
+        if (isActive) {
+          setPatronError('Не удалось загрузить покровителя.');
+        }
+      } finally {
+        if (isActive) {
+          setPatronLoading(false);
+        }
+      }
+    }
+
+    loadInitialPatron();
 
     return () => {
       isActive = false;
@@ -610,7 +721,7 @@ export function DashboardPage() {
               <div className="flex justify-between gap-4">
                 <dt className="text-stone-400">Patron</dt>
                 <dd className="text-right text-stone-100">
-                  {kingdom.patron ? patronLabels[kingdom.patron] : 'Без покровителя'}
+                  {patronStatus?.patron?.label ?? (kingdom.patron ? patronLabels[kingdom.patron] : 'Без покровителя')}
                 </dd>
               </div>
               <div className="flex justify-between gap-4">
@@ -618,6 +729,91 @@ export function DashboardPage() {
                 <dd className="max-w-[14rem] truncate text-right text-stone-100">{user.email}</dd>
               </div>
             </dl>
+          </Card>
+          <Card title="Patron">
+            <div className="grid gap-4">
+              {patronLoading ? <p>Загрузка покровителя...</p> : null}
+              {patronError ? <p className="text-red-300">{patronError}</p> : null}
+              {!patronLoading ? (
+                <>
+                  <div className="rounded border border-stone-800 bg-dusk-950 p-3">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <h3 className="font-semibold text-stone-100">
+                          {patronStatus?.patron ? patronStatus.patron.label : 'Покровитель не выбран'}
+                        </h3>
+                        <p className="mt-1 text-sm text-stone-400">
+                          Дань и военная помощь появятся в следующих версиях.
+                        </p>
+                        <p className="mt-1 text-sm text-stone-400">
+                          Сейчас выбор покровителя фиксирует политический путь, но ещё не запускает давление.
+                        </p>
+                      </div>
+                      {patronStatus?.patron ? (
+                        <div className="text-right text-sm text-stone-300">
+                          <div>Favor: {patronStatus.patron.favor}</div>
+                          <div>{standingLabels[patronStatus.patron.standing]}</div>
+                          <div>{new Date(patronStatus.patron.joinedAt).toLocaleString('ru-RU')}</div>
+                        </div>
+                      ) : null}
+                    </div>
+                    {patronStatus?.patron ? (
+                      <Button className="mt-3 justify-self-start" disabled={isBreakingPatron} onClick={handleBreakPatron} type="button">
+                        {isBreakingPatron ? 'Разрывается...' : 'Разорвать связь'}
+                      </Button>
+                    ) : null}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <Button disabled={patronLoading} onClick={loadPatron} type="button">
+                      Обновить покровителя
+                    </Button>
+                  </div>
+
+                  <div className="grid gap-3">
+                    {patronOptions.map((option) => {
+                      const isCurrent = patronStatus?.patron?.key === option.key;
+                      return (
+                        <div className="rounded border border-stone-800 bg-dusk-950 p-3" key={option.key}>
+                          <div className="flex flex-wrap items-start justify-between gap-3">
+                            <div>
+                              <h3 className="font-semibold text-stone-100">{option.label}</h3>
+                              <p className="mt-1 text-sm text-stone-400">{option.shortDescription}</p>
+                              <p className="mt-2 text-sm text-stone-500">{option.flavor}</p>
+                            </div>
+                            <Button
+                              disabled={joiningPatron === option.key || isCurrent}
+                              onClick={() => handleJoinPatron(option.key)}
+                              type="button"
+                            >
+                              {isCurrent ? 'Выбрано' : option.key === 'independent' ? 'Выбрать' : 'Присоединиться'}
+                            </Button>
+                          </div>
+                          <div className="mt-3 grid gap-2 text-sm text-stone-400">
+                            <div>
+                              <p className="font-semibold text-stone-300">Сейчас</p>
+                              <ul className="mt-1 list-disc pl-5">
+                                {option.currentEffects.map((effect) => (
+                                  <li key={effect}>{effect}</li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div>
+                              <p className="font-semibold text-stone-300">Позже</p>
+                              <ul className="mt-1 list-disc pl-5">
+                                {option.futureEffects.map((effect) => (
+                                  <li key={effect}>{effect}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : null}
+            </div>
           </Card>
           <Card title="Resources">
             <div className="grid gap-4">

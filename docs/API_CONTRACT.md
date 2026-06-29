@@ -895,6 +895,176 @@ Errors:
 - `kingdom_not_found`
 - `report_not_found`
 
+## Patron
+
+### `GET /api/patron/options`
+
+Returns all patron choices.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "patrons": [
+    {
+      "key": "independent",
+      "label": "Независимость",
+      "shortDescription": "Ты никому не служишь и никому не платишь. Свобода полная, защита только своя.",
+      "flavor": "Свободные владетели живут без печатей и клятв. Но когда приходит беда, никто не обязан идти им на помощь.",
+      "currentEffects": [
+        "Нет дани",
+        "Нет защиты",
+        "Полная свобода решений"
+      ],
+      "futureEffects": [
+        "Безопасность зависит только от собственных сил"
+      ]
+    }
+  ]
+}
+```
+
+### `GET /api/patron/me`
+
+Returns the current authenticated user's patron status.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Response when no patron is selected:
+
+```json
+{
+  "patron": null,
+  "availablePatrons": [
+    "independent",
+    "empire_of_dusk",
+    "old_pact"
+  ]
+}
+```
+
+Response when a patron is selected:
+
+```json
+{
+  "patron": {
+    "id": "uuid",
+    "kingdomId": "uuid",
+    "key": "empire_of_dusk",
+    "label": "Империя Заката",
+    "favor": 0,
+    "standing": "neutral",
+    "joinedAt": "2026-06-29T00:00:00Z",
+    "leftAt": null,
+    "currentEffects": [
+      "Дань ещё не активна в этой версии",
+      "Защита ещё не активна в этой версии"
+    ],
+    "futureEffects": [
+      "Позже Империя сможет требовать дань",
+      "Позже Империя сможет давать защиту"
+    ]
+  },
+  "availablePatrons": [
+    "independent",
+    "empire_of_dusk",
+    "old_pact"
+  ]
+}
+```
+
+Errors:
+
+- `kingdom_not_found`
+
+### `POST /api/patron/join`
+
+Joins or switches the current authenticated user's patron. Joining the current patron is idempotent.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Request:
+
+```json
+{
+  "patron": "old_pact"
+}
+```
+
+Response:
+
+```json
+{
+  "patron": {
+    "id": "uuid",
+    "kingdomId": "uuid",
+    "key": "old_pact",
+    "label": "Старый Договор",
+    "favor": 0,
+    "standing": "neutral",
+    "joinedAt": "2026-06-29T00:00:00Z",
+    "leftAt": null,
+    "currentEffects": [
+      "Обязательства ещё не активны в этой версии",
+      "Помощь ещё не активна в этой версии"
+    ],
+    "futureEffects": [
+      "Позже Старый Договор сможет требовать вклад",
+      "Позже Старый Договор сможет помогать в обороне"
+    ]
+  },
+  "kingdom": {
+    "id": "uuid",
+    "patron": "old_pact"
+  }
+}
+```
+
+Errors:
+
+- `kingdom_not_found`
+- `invalid_patron`
+
+### `POST /api/patron/break`
+
+Breaks the current patron relation if one exists. The operation is idempotent and clears `kingdom.patron`.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "patron": null,
+  "kingdom": {
+    "id": "uuid",
+    "patron": null
+  }
+}
+```
+
+Errors:
+
+- `kingdom_not_found`
+
 ## Enumerations
 
 Cultures:

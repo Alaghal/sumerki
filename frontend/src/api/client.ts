@@ -7,7 +7,8 @@ export type User = {
 };
 
 export type Culture = 'northern_principality' | 'lizard_grad' | 'free_posad';
-export type Patron = 'independent' | 'empire_of_dusk' | 'old_pact';
+export type PatronKey = 'independent' | 'empire_of_dusk' | 'old_pact';
+export type Patron = PatronKey;
 
 export type Kingdom = {
   id: string;
@@ -207,6 +208,33 @@ export type Pagination = {
   offset: number;
 };
 
+export type PatronOption = {
+  key: PatronKey;
+  label: string;
+  shortDescription: string;
+  flavor: string;
+  currentEffects: string[];
+  futureEffects: string[];
+};
+
+export type PatronRelation = {
+  id: string;
+  kingdomId: string;
+  key: PatronKey;
+  label: string;
+  favor: number;
+  standing: 'hostile' | 'cold' | 'neutral' | 'warm' | 'loyal';
+  joinedAt: string;
+  leftAt: string | null;
+  currentEffects: string[];
+  futureEffects: string[];
+};
+
+export type PatronStatus = {
+  patron: PatronRelation | null;
+  availablePatrons: PatronKey[];
+};
+
 type AuthResponse = {
   user: User;
   token: string;
@@ -280,6 +308,31 @@ type ReportsResponse = {
 
 type ReportResponse = {
   report: MissionReport;
+};
+
+type PatronOptionsResponse = {
+  patrons: PatronOption[];
+};
+
+type PatronStatusResponse = PatronStatus;
+
+type JoinPatronRequest = {
+  patron: PatronKey;
+};
+
+type PatronKingdomResponse = {
+  id: string;
+  patron: PatronKey | null;
+};
+
+type JoinPatronResponse = {
+  patron: PatronRelation;
+  kingdom: PatronKingdomResponse;
+};
+
+type BreakPatronResponse = {
+  patron: null;
+  kingdom: PatronKingdomResponse;
 };
 
 type ApiErrorResponse = {
@@ -449,6 +502,29 @@ export function getReport(id: string, token?: string) {
 
 export function markReportRead(id: string, token?: string) {
   return request<ReportResponse>(`/api/reports/${id}/read`, {
+    method: 'POST',
+    token,
+  });
+}
+
+export function getPatronOptions(token?: string) {
+  return request<PatronOptionsResponse>('/api/patron/options', { token });
+}
+
+export function getMyPatron(token?: string) {
+  return request<PatronStatusResponse>('/api/patron/me', { token });
+}
+
+export function joinPatron(patron: PatronKey, token?: string) {
+  return request<JoinPatronResponse>('/api/patron/join', {
+    method: 'POST',
+    body: { patron } satisfies JoinPatronRequest,
+    token,
+  });
+}
+
+export function breakPatron(token?: string) {
+  return request<BreakPatronResponse>('/api/patron/break', {
     method: 'POST',
     token,
   });

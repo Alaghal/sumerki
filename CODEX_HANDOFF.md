@@ -2,40 +2,42 @@
 
 ## Current Phase
 
-Phase 13: Report Polish and Narrative Templates.
+Phase 14: Patron System v1.
 
 ## Status
 
-Phase 13 is complete according to the attached prompt: PvE mission reports now have deterministic local narrative templates, ordered report phases, unread counts, report detail, and idempotent mark-as-read support.
+Phase 14 is complete according to the attached prompt: players can view patron options, view current patron status, join a patron, switch patron, break patron relation, and see patron state on the dashboard.
 
 ## Completed
 
-- Added reversible Goose migration `00008_add_report_phases.sql`.
-- Added `mission_reports.phases_json` with default empty JSON array for existing reports.
-- Added local deterministic report templates for:
-  - `black_forest_expedition`
-  - `old_kurgan_expedition`
-  - `dry_ford_scouting`
-- Added report templates for `success`, `partial_success`, and `failure`.
-- Added report phase data with title/body sections.
-- Extended mission report domain and repository access.
-- Added paginated report listing with unread count.
-- Added report detail lookup scoped to the authenticated user's kingdom.
-- Added idempotent mark-as-read support scoped to the authenticated user's kingdom.
-- Added `GET /api/reports/:id`.
-- Added `POST /api/reports/:id/read`.
-- Updated `GET /api/reports/me` response with `phases`, `pagination`, and `unreadCount`.
-- Updated frontend API types and helpers for report detail and mark-read.
-- Updated dashboard Reports UI with unread count, read/unread state, report detail expansion, phases, refresh, and mark-as-read action.
-- Updated README report curl examples and local flow.
+- Added reversible Goose migration `00009_create_patron_relations.sql`.
+- Added `patron_relations` table with patron, favor, standing, joined/left timestamps, and constraints.
+- Added migration backfill from non-null `kingdoms.patron`.
+- Added patron game config for:
+  - `independent`
+  - `empire_of_dusk`
+  - `old_pact`
+- Added patron domain model.
+- Added patron repository with find, upsert, break, and backfill support.
+- Added minimal kingdom repository update for `kingdoms.patron`.
+- Added patron service with options, current status, join, switch, break, ownership scoping, and validation.
+- Added patron HTTP handler.
+- Added `GET /api/patron/options`.
+- Added `GET /api/patron/me`.
+- Added `POST /api/patron/join`.
+- Added `POST /api/patron/break`.
+- Added frontend patron API types and calls.
+- Added dashboard Patron section with loading/error states, current patron status, available patron cards, join/select buttons, break relation button, and v1 wording.
+- Updated dashboard kingdom patron display to use the Russian patron label.
+- Updated README with patron curl examples and local manual flow.
 - Updated API contract and domain model docs.
-- Added service tests for report unread count, legacy empty phases, ownership scoping, idempotent read, and template phases.
+- Added patron service tests for options, no-kingdom handling, invalid patron, join, idempotent join, switching, kingdom patron updates, break idempotency, backfill, and ownership scoping.
 
 ## Phase Order Note
 
-- The attached prompt defines Phase 13 as `Report Polish and Narrative Templates`.
-- This session followed the attached prompt and did not start Phase 14.
-- No PvP raids, events, patrons, tribute, dark gods, payments, chat, comments, notifications, WebSocket, background jobs, alliances, or map systems were implemented.
+- The attached prompt defines Phase 14 as `Patron System v1`.
+- `docs/MVP_PHASES.md` includes `POST /api/patron/request-help` in Phase 14, but the attached prompt explicitly excludes military help and patron requests. This session followed the prompt and did not implement request-help.
+- This session did not start Phase 15.
 
 ## Changed Files
 
@@ -43,74 +45,79 @@ Phase 13 is complete according to the attached prompt: PvE mission reports now h
 - `CODEX_HANDOFF.md`
 - `docs/API_CONTRACT.md`
 - `docs/DOMAIN_MODEL.md`
-- `backend/migrations/00008_add_report_phases.sql`
-- `backend/internal/domain/report.go`
-- `backend/internal/gameconfig/report_templates.go`
-- `backend/internal/repository/report_repository.go`
-- `backend/internal/service/mission_service.go`
-- `backend/internal/service/mission_service_test.go`
-- `backend/internal/http/handlers/report_handler.go`
+- `backend/migrations/00009_create_patron_relations.sql`
+- `backend/internal/domain/patron.go`
+- `backend/internal/gameconfig/patrons.go`
+- `backend/internal/repository/kingdom_repository.go`
+- `backend/internal/repository/patron_repository.go`
+- `backend/internal/service/patron_service.go`
+- `backend/internal/service/patron_service_test.go`
+- `backend/internal/http/handlers/patron_handler.go`
 - `backend/internal/http/server.go`
 - `frontend/src/api/client.ts`
 - `frontend/src/pages/DashboardPage.tsx`
 
 ## Commands Run
 
-- `gofmt -w backend/internal/domain/report.go backend/internal/gameconfig/report_templates.go backend/internal/repository/report_repository.go backend/internal/service/mission_service.go backend/internal/service/mission_service_test.go backend/internal/http/handlers/report_handler.go backend/internal/http/server.go`
+- `gofmt -w backend/internal/domain/patron.go backend/internal/gameconfig/patrons.go backend/internal/repository/patron_repository.go backend/internal/repository/kingdom_repository.go backend/internal/service/patron_service.go backend/internal/service/patron_service_test.go backend/internal/http/handlers/patron_handler.go backend/internal/http/server.go`
 - `cd backend && GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build GOMODCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-mod go test ./...`
 - `cd frontend && npm run typecheck`
 - `cd frontend && npm run build`
-- `docker compose up -d postgres`
-- `docker compose ps`
 - `POSTGRES_PORT=15432 docker compose up -d postgres`
-- `POSTGRES_PORT=15432 docker compose ps`
 - `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make migrate-up`
 - `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make migrate-status`
+- `lsof -nP -iTCP:18080 -sTCP:LISTEN`
 - `cd backend && DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' JWT_SECRET='dev-secret' BACKEND_PORT=18080 GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build GOMODCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-mod go run ./cmd/server`
-- `curl` smoke tests for register, create kingdom, mission start, report list, report detail, and report mark-read.
-- `POSTGRES_PORT=15432 docker compose exec -T postgres psql ...` to move test mission `finishes_at` timestamps into the past for lazy report resolution.
+- `curl` smoke tests for unauthenticated patron access, register, patron status without kingdom, create kingdom, patron options, patron status, invalid join, valid join, idempotent join, patron switch, break, repeated break, and kingdom patron readback.
 
 ## Verification
 
 - `go test ./...` completed successfully.
 - `npm run typecheck` completed successfully.
 - `npm run build` completed successfully.
-- Goose applied `00008_add_report_phases.sql` successfully.
-- Goose status shows migrations `00001` through `00008` applied.
-- Verified existing reports return `phases: []` after the migration.
-- Verified a newly generated `dry_ford_scouting` report includes narrative phases.
-- Verified `GET /api/reports/me?limit=20&offset=0` returns `reports`, `pagination`, and `unreadCount`.
-- Verified `GET /api/reports/:id` returns one owned report with phases.
-- Verified `POST /api/reports/:id/read` returns `isRead: true`.
-- Verified repeated `POST /api/reports/:id/read` succeeds and remains `isRead: true`.
-- Verified unread count decreases after marking one report read.
+- Goose applied `00009_create_patron_relations.sql` successfully.
+- Goose status shows migrations `00001` through `00009` applied.
+- Verified unauthenticated `GET /api/patron/options` returns 401.
+- Verified authenticated user without kingdom gets `kingdom_not_found` from `GET /api/patron/me`.
+- Verified `GET /api/patron/options` returns all 3 patrons.
+- Verified `GET /api/patron/me` returns `patron: null` for a kingdom without patron.
+- Verified `POST /api/patron/join` rejects invalid patron with `invalid_patron`.
+- Verified `POST /api/patron/join` joins `old_pact` and updates `kingdom.patron`.
+- Verified joining the current patron succeeds.
+- Verified joining `empire_of_dusk` switches the existing relation and updates `kingdom.patron`.
+- Verified `POST /api/patron/break` clears patron response and `kingdom.patron`.
+- Verified repeated `POST /api/patron/break` succeeds and remains null.
 
 Notes:
 
 - Port `5432` was already allocated locally, so live verification used `POSTGRES_PORT=15432` and `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable'`.
-- A stale backend process was listening on `18080`; it was stopped before running the updated backend on `18080`.
-- Combined local API and Docker commands needed approved local-process/local-network execution.
+- The backend was run on `18080` for verification.
+- Local API and Docker commands needed approved local-process/local-network execution.
 
 ## What Works Now
 
-- Completed PvE missions create reports with local narrative templates and ordered phases.
-- Existing pre-Phase-13 reports remain readable with an empty phases list.
-- Players can list reports with pagination metadata and unread count.
-- Players can open a single owned report.
-- Players can mark an owned report as read.
-- Mark-read is idempotent.
-- Dashboard shows report unread count, read/unread state, details, phases, rewards, losses, and refresh/read actions.
+- Players can view the three MVP patron options.
+- Players can view current patron status.
+- Players with no selected patron see `patron: null`.
+- Players can join `independent`, `empire_of_dusk`, or `old_pact`.
+- Joining the current patron is idempotent.
+- Joining a different patron switches the MVP relation.
+- Joining updates `kingdoms.patron`.
+- Players can break patron relation.
+- Breaking clears `kingdoms.patron`.
+- Dashboard shows current patron label, status, effects, future effects, and v1 limitations.
 
 ## Known Limitations
 
-- Report templates are deterministic and local; there is no AI-generated text.
-- Report content is only implemented for the three current PvE mission keys.
-- Mission resolution still is not wrapped in one cross-repository database transaction.
-- Mission outcomes use simple deterministic MVP rules; there is no advanced battle simulation.
-- There are no comments, notifications, WebSocket updates, or background jobs for reports.
-- No PvP raids, player-vs-player combat, events, patrons, tribute, dark gods, alliances, map, market, trading, payments, chat, or real-time systems were implemented.
-- No background workers by design; resources, buildings, unit training, and missions use lazy resolution.
+- Patron choice has no mechanical tribute yet.
+- No military help is implemented yet.
+- No PvP protection is implemented yet.
+- No patron quests or patron orders are implemented yet.
+- No cooldown or penalty for switching patrons exists yet.
+- No debt, pressure, contribution, NPC raids, punitive raids, patron resources, or timers exist yet.
+- No alliances, world map, dark gods, payments, chat, events, diplomacy between players, Redis, cron jobs, or background workers were implemented.
+- Tribute and pressure are planned for a later phase.
 
 ## Next Recommended Step
 
-Start Phase 14 only when explicitly requested. Based on `docs/MVP_PHASES.md`, the next likely phase is Patron System.
+Start Phase 15 only when explicitly requested. Based on `docs/MVP_PHASES.md`, the next likely phase is Tribute and Pressure.
