@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 0: Repository Bootstrap.
+Phase 1: Infrastructure Foundation.
 
-This phase creates repository documentation and structure only. It does not include backend code, frontend code, Docker, migrations, or runtime setup.
+This phase adds local PostgreSQL infrastructure for development. It does not include backend code, frontend code, migrations, auth, or gameplay systems.
 
 ## Documentation
 
@@ -27,9 +27,41 @@ This phase creates repository documentation and structure only. It does not incl
 - Frontend: React, TypeScript, Vite, Tailwind.
 - Local infrastructure: Docker Compose with PostgreSQL.
 
-The planned stack is documented for future phases only and is not implemented in Phase 0.
+## Local Database
+
+The local PostgreSQL service uses these defaults:
+
+- database: `sumerki`
+- user: `sumerki`
+- password: `sumerki`
+- port: `5432`
+
+Start PostgreSQL:
+
+```sh
+docker compose up -d postgres
+```
+
+Check service status:
+
+```sh
+docker compose ps
+```
+
+Stop local infrastructure:
+
+```sh
+docker compose down
+```
+
+Equivalent Makefile shortcuts are available:
+
+```sh
+make db-up
+make db-ps
+make db-down
+```
 
 ## Phase Discipline
 
 Each phase should be implemented independently and should update `CODEX_HANDOFF.md` before handoff.
-
