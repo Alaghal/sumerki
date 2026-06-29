@@ -27,7 +27,7 @@ func main() {
 	}
 	defer database.Close()
 
-	server := httpserver.New(database)
+	server := httpserver.New(database, cfg.JWTSecret)
 
 	errCh := make(chan error, 1)
 	go func() {
