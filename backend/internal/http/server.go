@@ -35,15 +35,18 @@ func New(database *sql.DB, jwtSecret string) *echo.Echo {
 	rulers := repository.NewRulerRepository(database)
 	resources := repository.NewResourcesRepository(database)
 	buildings := repository.NewBuildingRepository(database)
+	army := repository.NewArmyRepository(database)
 	rulerService := service.NewRulerService(kingdoms, rulers)
 	resourcesService := service.NewResourcesService(kingdoms, resources)
 	buildingService := service.NewBuildingService(kingdoms, buildings, resourcesService)
+	armyService := service.NewArmyService(kingdoms, army, resourcesService, buildingService)
 	resourcesService.SetProductionProvider(buildingService)
-	kingdomService := service.NewKingdomService(kingdoms, rulerService, resourcesService, buildingService)
+	kingdomService := service.NewKingdomService(kingdoms, rulerService, resourcesService, buildingService, armyService)
 	kingdomHandler := handlers.NewKingdomHandler(kingdomService)
 	rulerHandler := handlers.NewRulerHandler(rulerService)
 	resourcesHandler := handlers.NewResourcesHandler(resourcesService)
 	buildingHandler := handlers.NewBuildingHandler(buildingService)
+	armyHandler := handlers.NewArmyHandler(armyService)
 
 	e.POST("/api/auth/register", authHandler.Register)
 	e.POST("/api/auth/login", authHandler.Login)
@@ -54,6 +57,8 @@ func New(database *sql.DB, jwtSecret string) *echo.Echo {
 	e.GET("/api/resources/me", resourcesHandler.Me, appmiddleware.Auth(auth))
 	e.GET("/api/buildings/me", buildingHandler.Me, appmiddleware.Auth(auth))
 	e.POST("/api/buildings/:type/upgrade", buildingHandler.Upgrade, appmiddleware.Auth(auth))
+	e.GET("/api/army/me", armyHandler.Me, appmiddleware.Auth(auth))
+	e.POST("/api/army/train", armyHandler.Train, appmiddleware.Auth(auth))
 
 	return e
 }

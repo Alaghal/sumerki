@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 10: Buildings API + UI.
+Phase 11: Army API + UI.
 
-This phase adds kingdom buildings, resource spending for upgrades, lazy upgrade completion, and building production effects. It does not include armies, missions, combat, events, patrons, premium queues, or background workers.
+This phase adds trainable units, resource spending for training, lazy training completion, and a basic army dashboard. It does not include missions, combat, raids, reports, events, patrons, queues, or background workers.
 
 ## Documentation
 
@@ -170,6 +170,24 @@ curl -X POST http://localhost:8080/api/buildings/farm/upgrade \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
+## Army API
+
+Fetch current army:
+
+```sh
+curl http://localhost:8080/api/army/me \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+Train militia:
+
+```sh
+curl -X POST http://localhost:8080/api/army/train \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -d '{"unitType":"militia","amount":5}'
+```
+
 ## Frontend
 
 The frontend reads `VITE_API_BASE_URL` and defaults to `http://localhost:8080`.
@@ -211,9 +229,12 @@ Expected flow:
 4. Call `GET /api/buildings/me` to inspect the starting buildings.
 5. Start an upgrade with `POST /api/buildings/farm/upgrade`.
 6. Call `GET /api/resources/me` again to see spent resources.
-7. Wait for the upgrade timer.
-8. Call `GET /api/buildings/me` again to resolve lazy completion and confirm the farm level increased.
-9. Open `/app` and see the real kingdom, ruler, resource, and building cards.
+7. Call `GET /api/army/me` to inspect starting units.
+8. Train militia with `POST /api/army/train`.
+9. Call `GET /api/resources/me` again to see spent resources.
+10. Wait for the training timer.
+11. Call `GET /api/army/me` again to resolve lazy completion and confirm the militia amount increased.
+12. Open `/app` and see the real kingdom, ruler, resource, building, and army cards.
 
 The frontend stores the MVP JWT in `localStorage` under `sumerki.auth.token`. Refreshing the page restores the session through `GET /api/me`.
 

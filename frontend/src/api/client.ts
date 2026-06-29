@@ -88,6 +88,55 @@ export type Building = {
   updatedAt: string;
 };
 
+export type UnitType = 'militia' | 'spearmen' | 'archers' | 'cavalry' | 'scouts';
+
+export type UnitStats = {
+  attack: number;
+  defense: number;
+  speed: number;
+  supply: number;
+};
+
+export type UnitRequirements = {
+  barracksLevel: number;
+  isMet: boolean;
+};
+
+export type Unit = {
+  type: UnitType;
+  label: string;
+  amount: number;
+  stats: UnitStats;
+  cost: ResourceValues;
+  secondsPerUnit: number;
+  requirements: UnitRequirements;
+};
+
+export type TrainingOrder = {
+  id: string;
+  unitType: UnitType;
+  unitLabel: string;
+  amount: number;
+  status: 'training' | 'completed';
+  startedAt: string;
+  finishesAt: string;
+  completedAt: string | null;
+};
+
+export type ArmySummary = {
+  totalUnits: number;
+  totalAttack: number;
+  totalDefense: number;
+  totalSupply: number;
+};
+
+export type Army = {
+  kingdomId: string;
+  units: Unit[];
+  trainingOrders: TrainingOrder[];
+  summary: ArmySummary;
+};
+
 type AuthResponse = {
   user: User;
   token: string;
@@ -115,6 +164,20 @@ type BuildingsResponse = {
 
 type BuildingUpgradeResponse = {
   building: Building;
+  resources: Resources;
+};
+
+type ArmyResponse = {
+  army: Army;
+};
+
+type TrainUnitsRequest = {
+  unitType: UnitType;
+  amount: number;
+};
+
+type TrainUnitsResponse = {
+  trainingOrder: TrainingOrder;
   resources: Resources;
 };
 
@@ -235,6 +298,18 @@ export function getMyBuildings(token?: string) {
 export function upgradeBuilding(type: BuildingType, token?: string) {
   return request<BuildingUpgradeResponse>(`/api/buildings/${type}/upgrade`, {
     method: 'POST',
+    token,
+  });
+}
+
+export function getMyArmy(token?: string) {
+  return request<ArmyResponse>('/api/army/me', { token });
+}
+
+export function trainUnits(unitType: UnitType, amount: number, token?: string) {
+  return request<TrainUnitsResponse>('/api/army/train', {
+    method: 'POST',
+    body: { unitType, amount } satisfies TrainUnitsRequest,
     token,
   });
 }

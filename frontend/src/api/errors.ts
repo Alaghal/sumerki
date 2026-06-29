@@ -14,6 +14,9 @@ const errorMessages: Record<string, string> = {
   building_already_upgrading: 'Здание уже улучшается.',
   building_max_level: 'Здание уже максимального уровня.',
   insufficient_resources: 'Недостаточно ресурсов.',
+  invalid_unit_type: 'Неверный тип войск.',
+  invalid_training_amount: 'Количество должно быть от 1 до 50.',
+  barracks_level_too_low: 'Недостаточный уровень казармы.',
 };
 
 export function toUserMessage(error: unknown): string {
