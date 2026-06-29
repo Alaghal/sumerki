@@ -2,51 +2,40 @@
 
 ## Current Phase
 
-Phase 12: PvE Missions with Basic Reports.
+Phase 13: Report Polish and Narrative Templates.
 
 ## Status
 
-Phase 12 is complete according to the attached prompt: players can view configured PvE missions, send available units, have those units removed while the mission is active, resolve missions lazily, receive resource rewards, lose or recover units, and read basic mission reports in the dashboard.
+Phase 13 is complete according to the attached prompt: PvE mission reports now have deterministic local narrative templates, ordered report phases, unread counts, report detail, and idempotent mark-as-read support.
 
 ## Completed
 
-- Added reversible Goose migration `00007_create_missions_and_reports.sql`.
-- Added `missions`, `mission_units`, and `mission_reports` tables with status/type/result constraints and indexes.
-- Added mission configuration for:
+- Added reversible Goose migration `00008_add_report_phases.sql`.
+- Added `mission_reports.phases_json` with default empty JSON array for existing reports.
+- Added local deterministic report templates for:
   - `black_forest_expedition`
   - `old_kurgan_expedition`
   - `dry_ford_scouting`
-- Added mission and report domain models.
-- Added mission and report repositories.
-- Added mission service with:
-  - available mission listing
-  - mission start validation
-  - unit requirement checks
-  - available-unit checks
-  - sent-unit removal
-  - lazy mission completion
-  - survivor returns
-  - deterministic MVP losses
-  - resource rewards
-  - basic report creation
-- Added small army service/repository methods for mission unit subtraction and return.
-- Added resource reward grant support after lazy recalculation.
-- Added `GET /api/missions/available`.
-- Added `GET /api/missions/me`.
-- Added `POST /api/missions/start`.
-- Added `GET /api/reports/me`.
-- Added frontend API types and calls for missions and reports.
-- Added dashboard Missions section with available mission cards, unit amount inputs, start action, current mission display, and refresh button.
-- Added dashboard Reports section with latest mission reports.
-- Updated README with mission/report curl examples and Phase 12 local flow.
+- Added report templates for `success`, `partial_success`, and `failure`.
+- Added report phase data with title/body sections.
+- Extended mission report domain and repository access.
+- Added paginated report listing with unread count.
+- Added report detail lookup scoped to the authenticated user's kingdom.
+- Added idempotent mark-as-read support scoped to the authenticated user's kingdom.
+- Added `GET /api/reports/:id`.
+- Added `POST /api/reports/:id/read`.
+- Updated `GET /api/reports/me` response with `phases`, `pagination`, and `unreadCount`.
+- Updated frontend API types and helpers for report detail and mark-read.
+- Updated dashboard Reports UI with unread count, read/unread state, report detail expansion, phases, refresh, and mark-as-read action.
+- Updated README report curl examples and local flow.
 - Updated API contract and domain model docs.
-- Added mission service tests for invalid mission key, insufficient units, successful unit subtraction, lazy completion, rewards, unit return, and report creation.
+- Added service tests for report unread count, legacy empty phases, ownership scoping, idempotent read, and template phases.
 
 ## Phase Order Note
 
-- The attached prompt defines Phase 12 as `PvE Missions with Basic Reports`.
-- `docs/MVP_PHASES.md` currently defines Phase 12 as `PvE Missions`, which is aligned in substance.
-- This session followed the attached prompt and did not modify `docs/MVP_PHASES.md`.
+- The attached prompt defines Phase 13 as `Report Polish and Narrative Templates`.
+- This session followed the attached prompt and did not start Phase 14.
+- No PvP raids, events, patrons, tribute, dark gods, payments, chat, comments, notifications, WebSocket, background jobs, alliances, or map systems were implemented.
 
 ## Changed Files
 
@@ -54,91 +43,74 @@ Phase 12 is complete according to the attached prompt: players can view configur
 - `CODEX_HANDOFF.md`
 - `docs/API_CONTRACT.md`
 - `docs/DOMAIN_MODEL.md`
-- `backend/migrations/00007_create_missions_and_reports.sql`
-- `backend/internal/gameconfig/missions.go`
-- `backend/internal/domain/mission.go`
+- `backend/migrations/00008_add_report_phases.sql`
 - `backend/internal/domain/report.go`
-- `backend/internal/repository/army_repository.go`
-- `backend/internal/repository/mission_repository.go`
+- `backend/internal/gameconfig/report_templates.go`
 - `backend/internal/repository/report_repository.go`
-- `backend/internal/service/army_service.go`
-- `backend/internal/service/army_service_test.go`
-- `backend/internal/service/resources_service.go`
 - `backend/internal/service/mission_service.go`
 - `backend/internal/service/mission_service_test.go`
-- `backend/internal/http/handlers/mission_handler.go`
 - `backend/internal/http/handlers/report_handler.go`
 - `backend/internal/http/server.go`
 - `frontend/src/api/client.ts`
-- `frontend/src/api/errors.ts`
 - `frontend/src/pages/DashboardPage.tsx`
 
 ## Commands Run
 
-- `gofmt -w backend/internal/domain/mission.go backend/internal/domain/report.go backend/internal/gameconfig/missions.go backend/internal/repository/army_repository.go backend/internal/repository/mission_repository.go backend/internal/repository/report_repository.go backend/internal/service/army_service.go backend/internal/service/resources_service.go backend/internal/service/mission_service.go backend/internal/http/handlers/mission_handler.go backend/internal/http/handlers/report_handler.go backend/internal/http/server.go`
-- `gofmt -w backend/internal/service/army_service_test.go backend/internal/service/mission_service_test.go`
+- `gofmt -w backend/internal/domain/report.go backend/internal/gameconfig/report_templates.go backend/internal/repository/report_repository.go backend/internal/service/mission_service.go backend/internal/service/mission_service_test.go backend/internal/http/handlers/report_handler.go backend/internal/http/server.go`
 - `cd backend && GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build GOMODCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-mod go test ./...`
 - `cd frontend && npm run typecheck`
 - `cd frontend && npm run build`
+- `docker compose up -d postgres`
+- `docker compose ps`
+- `POSTGRES_PORT=15432 docker compose up -d postgres`
+- `POSTGRES_PORT=15432 docker compose ps`
 - `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make migrate-up`
 - `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make migrate-status`
-- `cd backend && GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build GOMODCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-mod DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' JWT_SECRET='dev-secret' BACKEND_PORT=18080 go run ./cmd/server`
-- `curl -i http://127.0.0.1:18080/ready`
-- HTTP smoke test covering register, create kingdom, `GET /api/missions/available`, `POST /api/missions/start`, `GET /api/missions/me`, and `GET /api/army/me`
-- Local DB timestamp adjustment to verify lazy mission completion
-- HTTP smoke test covering `GET /api/reports/me`, completed mission state, returned units, and resource rewards
-- Browser flow covering Missions/Reports dashboard rendering and starting a Black Forest mission from the UI
-- `git diff --check`
+- `cd backend && DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' JWT_SECRET='dev-secret' BACKEND_PORT=18080 GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build GOMODCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-mod go run ./cmd/server`
+- `curl` smoke tests for register, create kingdom, mission start, report list, report detail, and report mark-read.
+- `POSTGRES_PORT=15432 docker compose exec -T postgres psql ...` to move test mission `finishes_at` timestamps into the past for lazy report resolution.
 
 ## Verification
 
 - `go test ./...` completed successfully.
 - `npm run typecheck` completed successfully.
 - `npm run build` completed successfully.
-- Goose applied `00007_create_missions_and_reports.sql` successfully.
-- Goose status shows migrations `00001` through `00007` applied.
-- Verified backend readiness returned HTTP 200 with `{"status":"ready","database":"ok"}`.
-- Verified `GET /api/missions/available` returns all 3 configured MVP missions.
-- Verified `POST /api/missions/start` starts `black_forest_expedition` and immediately removes sent militia/scouts from available army.
-- Verified `GET /api/missions/me` returns the active mission and sent unit allocation.
-- Verified lazy mission completion by moving `finishes_at` into the past and reading reports.
-- Verified completed mission has `completed` status, result payload, returned units, and reward data.
-- Verified `GET /api/reports/me` creates and returns a basic `pve_mission` report after lazy completion.
-- Verified resources increased by mission rewards.
-- Verified army returned surviving units after completion.
-- Verified the dashboard renders 3 mission cards and the reports section.
-- Verified the dashboard can start a Black Forest mission and displays it as `В пути` with a finish time.
-- Verified `git diff --check` has no whitespace errors.
+- Goose applied `00008_add_report_phases.sql` successfully.
+- Goose status shows migrations `00001` through `00008` applied.
+- Verified existing reports return `phases: []` after the migration.
+- Verified a newly generated `dry_ford_scouting` report includes narrative phases.
+- Verified `GET /api/reports/me?limit=20&offset=0` returns `reports`, `pagination`, and `unreadCount`.
+- Verified `GET /api/reports/:id` returns one owned report with phases.
+- Verified `POST /api/reports/:id/read` returns `isRead: true`.
+- Verified repeated `POST /api/reports/:id/read` succeeds and remains `isRead: true`.
+- Verified unread count decreases after marking one report read.
 
 Notes:
 
-- Port `5432` was already in use locally, so live verification used `POSTGRES_PORT=15432` and `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable'`.
-- The backend was run on `18080` for verification, and the frontend was already running on `5173` with `VITE_API_BASE_URL=http://localhost:18080`.
-- Combined shell-based HTTP smoke commands needed approved local-network execution.
+- Port `5432` was already allocated locally, so live verification used `POSTGRES_PORT=15432` and `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable'`.
+- A stale backend process was listening on `18080`; it was stopped before running the updated backend on `18080`.
+- Combined local API and Docker commands needed approved local-process/local-network execution.
 
 ## What Works Now
 
-- Players can view available PvE missions.
-- Players can start PvE missions with available units.
-- Sent units are unavailable while a mission is active.
-- Mission completion is resolved lazily by mission reads, report reads, or mission start.
-- Completed missions return surviving units.
-- Completed missions can permanently lose units according to simple MVP loss rules.
-- Completed missions grant resource rewards after lazy resource recalculation.
-- Completed missions create basic unread mission reports.
-- Dashboard shows available missions, active/completed missions, and reports.
+- Completed PvE missions create reports with local narrative templates and ordered phases.
+- Existing pre-Phase-13 reports remain readable with an empty phases list.
+- Players can list reports with pagination metadata and unread count.
+- Players can open a single owned report.
+- Players can mark an owned report as read.
+- Mark-read is idempotent.
+- Dashboard shows report unread count, read/unread state, details, phases, rewards, losses, and refresh/read actions.
 
 ## Known Limitations
 
-- Mission start, unit subtraction, mission row creation, mission unit creation, reward grants, report creation, and mission completion are not wrapped in one cross-repository database transaction.
+- Report templates are deterministic and local; there is no AI-generated text.
+- Report content is only implemented for the three current PvE mission keys.
+- Mission resolution still is not wrapped in one cross-repository database transaction.
 - Mission outcomes use simple deterministic MVP rules; there is no advanced battle simulation.
-- Failure is rare because mission start rejects below-minimum allocations.
-- Reports are basic and cannot be marked read yet.
-- Report text is intentionally simple; richer report polish is deferred.
-- There is no separate locked-unit system beyond mission unit allocation records.
-- No PvP raids, player-vs-player combat, route/pathfinding, heroes, equipment, unit XP, events, patrons, tribute, alliances, map, market, trading, payments, chat, or real-time systems were implemented.
+- There are no comments, notifications, WebSocket updates, or background jobs for reports.
+- No PvP raids, player-vs-player combat, events, patrons, tribute, dark gods, alliances, map, market, trading, payments, chat, or real-time systems were implemented.
 - No background workers by design; resources, buildings, unit training, and missions use lazy resolution.
 
 ## Next Recommended Step
 
-Start Phase 13 only when explicitly requested. Based on `docs/MVP_PHASES.md`, the next likely phase is Report Polish.
+Start Phase 14 only when explicitly requested. Based on `docs/MVP_PHASES.md`, the next likely phase is Patron System.

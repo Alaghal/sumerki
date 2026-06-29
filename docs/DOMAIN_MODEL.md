@@ -295,7 +295,7 @@ Rules:
 
 Represents the result of a mission, raid, battle, or event.
 
-Phase 12 report type:
+Phase 13 report type:
 
 - `pve_mission`
 
@@ -307,6 +307,7 @@ Fields:
 - `type`: report type
 - `title`: report title
 - `body`: readable report body
+- `phasesJson`: ordered narrative phase payload
 - `result`: `success`, `partial_success`, or `failure`
 - `rewardsJson`: resource rewards payload
 - `lossesJson`: unit losses payload
@@ -315,9 +316,14 @@ Fields:
 
 Rules:
 
-- Basic mission reports are created when PvE missions resolve.
-- Reports remain unread in Phase 12; no mark-as-read endpoint exists yet.
-- Report polish, richer narrative structure, raid reports, and event reports are later phases.
+- Mission reports are created when PvE missions resolve.
+- PvE mission reports use local deterministic narrative templates keyed by mission and result.
+- Report phases are ordered title/body sections for the existing report detail view.
+- Existing reports without phase data are treated as having an empty phase list.
+- Reports can be marked read idempotently.
+- Report ownership is scoped to the authenticated user's kingdom.
+- Report delivery is pull-based through the API; there are no comments, notifications, WebSocket, or background jobs in Phase 13.
+- Raid reports and event reports are later phases.
 
 ## Event
 

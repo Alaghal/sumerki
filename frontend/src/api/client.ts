@@ -171,6 +171,11 @@ export type MissionResult = {
   losses: Partial<Record<UnitType, number>>;
 };
 
+export type ReportPhase = {
+  title: string;
+  body: string;
+};
+
 export type Mission = {
   id: string;
   missionKey: string;
@@ -189,11 +194,17 @@ export type MissionReport = {
   type: 'pve_mission';
   title: string;
   body: string;
+  phases: ReportPhase[];
   result: MissionResultStatus;
   rewards: ResourceValues;
   losses: Partial<Record<UnitType, number>>;
   isRead: boolean;
   createdAt: string;
+};
+
+export type Pagination = {
+  limit: number;
+  offset: number;
 };
 
 type AuthResponse = {
@@ -263,6 +274,12 @@ type StartMissionResponse = {
 
 type ReportsResponse = {
   reports: MissionReport[];
+  pagination: Pagination;
+  unreadCount: number;
+};
+
+type ReportResponse = {
+  report: MissionReport;
 };
 
 type ApiErrorResponse = {
@@ -414,8 +431,27 @@ export function startMission(missionKey: string, units: StartMissionRequest['uni
   });
 }
 
-export function getMyReports(token?: string) {
-  return request<ReportsResponse>('/api/reports/me', { token });
+export function getMyReports(token?: string, params: { limit?: number; offset?: number } = {}) {
+  const query = new URLSearchParams();
+  if (params.limit !== undefined) {
+    query.set('limit', String(params.limit));
+  }
+  if (params.offset !== undefined) {
+    query.set('offset', String(params.offset));
+  }
+  const suffix = query.toString() ? `?${query.toString()}` : '';
+  return request<ReportsResponse>(`/api/reports/me${suffix}`, { token });
+}
+
+export function getReport(id: string, token?: string) {
+  return request<ReportResponse>(`/api/reports/${id}`, { token });
+}
+
+export function markReportRead(id: string, token?: string) {
+  return request<ReportResponse>(`/api/reports/${id}/read`, {
+    method: 'POST',
+    token,
+  });
 }
 
 export { API_BASE_URL, AUTH_TOKEN_KEY, clearStoredToken, readStoredToken, storeToken };

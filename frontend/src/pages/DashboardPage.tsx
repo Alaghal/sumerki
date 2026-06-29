@@ -12,6 +12,8 @@ import {
   getMyReports,
   getMyResources,
   getMyRuler,
+  getReport,
+  markReportRead,
   Mission,
   MissionReport,
   Resources,
@@ -127,6 +129,10 @@ export function DashboardPage() {
   const [missionInputs, setMissionInputs] = useState<Record<string, Partial<Record<UnitType, number>>>>({});
   const [startingMissionKey, setStartingMissionKey] = useState<string | null>(null);
   const [reports, setReports] = useState<MissionReport[]>([]);
+  const [unreadReportsCount, setUnreadReportsCount] = useState(0);
+  const [selectedReportID, setSelectedReportID] = useState<string | null>(null);
+  const [loadingReportID, setLoadingReportID] = useState<string | null>(null);
+  const [markingReportID, setMarkingReportID] = useState<string | null>(null);
   const [reportsLoading, setReportsLoading] = useState(true);
   const [reportsError, setReportsError] = useState('');
 
@@ -232,6 +238,7 @@ export function DashboardPage() {
     try {
       const response = await getMyReports(token);
       setReports(response.reports);
+      setUnreadReportsCount(response.unreadCount);
     } catch {
       setReportsError('Не удалось загрузить отчёты.');
     } finally {
@@ -285,6 +292,51 @@ export function DashboardPage() {
 
   async function refreshMissions() {
     await Promise.all([loadMissions(), loadArmy(), loadResources(), loadReports()]);
+  }
+
+  async function toggleReportDetails(reportID: string) {
+    if (!token) {
+      return;
+    }
+    if (selectedReportID === reportID) {
+      setSelectedReportID(null);
+      return;
+    }
+
+    setSelectedReportID(reportID);
+    setLoadingReportID(reportID);
+    setReportsError('');
+
+    try {
+      const response = await getReport(reportID, token);
+      setReports((current) => current.map((report) => (report.id === reportID ? response.report : report)));
+    } catch (caughtError) {
+      setReportsError(toUserMessage(caughtError));
+    } finally {
+      setLoadingReportID(null);
+    }
+  }
+
+  async function handleMarkReportRead(reportID: string) {
+    if (!token) {
+      return;
+    }
+
+    setMarkingReportID(reportID);
+    setReportsError('');
+
+    try {
+      const wasUnread = reports.some((report) => report.id === reportID && !report.isRead);
+      const response = await markReportRead(reportID, token);
+      setReports((current) => current.map((report) => (report.id === reportID ? response.report : report)));
+      if (wasUnread) {
+        setUnreadReportsCount((current) => Math.max(0, current - 1));
+      }
+    } catch (caughtError) {
+      setReportsError(toUserMessage(caughtError));
+    } finally {
+      setMarkingReportID(null);
+    }
   }
 
   function setMissionUnitAmount(missionKey: string, unitType: UnitType, amount: number) {
@@ -514,6 +566,7 @@ export function DashboardPage() {
         const response = await getMyReports(token);
         if (isActive) {
           setReports(response.reports);
+          setUnreadReportsCount(response.unreadCount);
         }
       } catch {
         if (isActive) {
@@ -901,31 +954,81 @@ export function DashboardPage() {
           </Card>
           <Card title="Reports">
             <div className="grid gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="text-sm text-stone-400">Непрочитано: {unreadReportsCount}</p>
+                <Button className="justify-self-start" disabled={reportsLoading} onClick={loadReports} type="button">
+                  Обновить отчёты
+                </Button>
+              </div>
               {reportsLoading ? <p>Загрузка отчётов...</p> : null}
               {reportsError ? <p className="text-red-300">{reportsError}</p> : null}
-              {!reportsLoading && reports.length === 0 ? <p className="text-sm text-stone-400">Отчётов пока нет.</p> : null}
+              {!reportsLoading && reports.length === 0 ? (
+                <p className="text-sm text-stone-400">Отчётов пока нет. Отправьте отряд в первую экспедицию.</p>
+              ) : null}
               {!reportsLoading
-                ? reports.map((report) => (
-                    <div className="rounded border border-stone-800 bg-dusk-950 p-3" key={report.id}>
-                      <div className="flex flex-wrap justify-between gap-3">
-                        <div>
-                          <h3 className="font-semibold text-stone-100">{report.title}</h3>
-                          <p className="text-sm text-dusk-gold">{missionResultLabels[report.result]}</p>
+                ? reports.map((report) => {
+                    const isExpanded = selectedReportID === report.id;
+                    return (
+                      <div
+                        className={report.isRead ? 'rounded border border-stone-800 bg-dusk-950 p-3' : 'rounded border border-dusk-gold bg-dusk-950 p-3'}
+                        key={report.id}
+                      >
+                        <div className="flex flex-wrap justify-between gap-3">
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h3 className="font-semibold text-stone-100">{report.title}</h3>
+                              <span className={report.isRead ? 'text-xs text-stone-500' : 'text-xs text-dusk-gold'}>
+                                {report.isRead ? 'Прочитано' : 'Новое'}
+                              </span>
+                            </div>
+                            <p className="text-sm text-dusk-gold">{missionResultLabels[report.result]}</p>
+                          </div>
+                          <div className="text-right text-sm text-stone-400">{new Date(report.createdAt).toLocaleString('ru-RU')}</div>
                         </div>
-                        <div className="text-right text-sm text-stone-400">{new Date(report.createdAt).toLocaleString('ru-RU')}</div>
+                        <p className="mt-2 text-sm text-stone-400">{report.body}</p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <Button onClick={() => toggleReportDetails(report.id)} type="button">
+                            {isExpanded ? 'Скрыть детали' : 'Открыть отчёт'}
+                          </Button>
+                          <Button
+                            disabled={markingReportID === report.id || report.isRead}
+                            onClick={() => handleMarkReportRead(report.id)}
+                            type="button"
+                          >
+                            {markingReportID === report.id ? 'Отмечается...' : 'Отметить прочитанным'}
+                          </Button>
+                        </div>
+                        {loadingReportID === report.id ? <p className="mt-3 text-sm text-stone-400">Загрузка деталей...</p> : null}
+                        {isExpanded && loadingReportID !== report.id ? (
+                          <div className="mt-4 grid gap-3">
+                            <div className="grid gap-2">
+                              {report.phases.length === 0 ? <p className="text-sm text-stone-400">Подробные фазы не записаны.</p> : null}
+                              {report.phases.map((phase) => (
+                                <div className="rounded border border-stone-800 bg-dusk-900 p-3" key={`${report.id}-${phase.title}`}>
+                                  <h4 className="font-semibold text-stone-100">{phase.title}</h4>
+                                  <p className="mt-1 text-sm text-stone-400">{phase.body}</p>
+                                </div>
+                              ))}
+                            </div>
+                            <p className="text-sm text-stone-400">
+                              Rewards: {resourceRows.map(([label, key]) => `${label}: ${report.rewards[key]}`).join(', ')}
+                            </p>
+                            <p className="text-sm text-stone-400">
+                              Losses:{' '}
+                              {unitTypes
+                                .map(
+                                  (unitType) =>
+                                    `${army?.units.find((unit) => unit.type === unitType)?.label ?? unitType}: ${
+                                      report.losses[unitType] ?? 0
+                                    }`,
+                                )
+                                .join(', ')}
+                            </p>
+                          </div>
+                        ) : null}
                       </div>
-                      <p className="mt-2 text-sm text-stone-400">{report.body}</p>
-                      <p className="mt-2 text-sm text-stone-400">
-                        Rewards: {resourceRows.map(([label, key]) => `${label}: ${report.rewards[key]}`).join(', ')}
-                      </p>
-                      <p className="mt-1 text-sm text-stone-400">
-                        Losses:{' '}
-                        {unitTypes
-                          .map((unitType) => `${army?.units.find((unit) => unit.type === unitType)?.label ?? unitType}: ${report.losses[unitType] ?? 0}`)
-                          .join(', ')}
-                      </p>
-                    </div>
-                  ))
+                    );
+                  })
                 : null}
             </div>
           </Card>

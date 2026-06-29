@@ -12,6 +12,7 @@ type MissionReport struct {
 	Result      string
 	RewardsJSON []byte
 	LossesJSON  []byte
+	PhasesJSON  []byte
 	IsRead      bool
 	CreatedAt   time.Time
 }

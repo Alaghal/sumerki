@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"time"
 
 	"sumerki/backend/internal/domain"
@@ -19,6 +18,7 @@ var (
 	ErrInvalidMissionUnitAmount  = errors.New("invalid unit amount")
 	ErrInsufficientUnits         = errors.New("insufficient units")
 	ErrMissionRequirementsNotMet = errors.New("mission requirements not met")
+	ErrReportNotFound            = errors.New("report not found")
 )
 
 type MissionRepository interface {
@@ -32,8 +32,11 @@ type MissionRepository interface {
 }
 
 type MissionReportRepository interface {
-	CreateMissionReport(ctx context.Context, kingdomID string, missionID string, title string, body string, result string, rewardsJSON []byte, lossesJSON []byte) (domain.MissionReport, error)
-	ListByKingdomID(ctx context.Context, kingdomID string) ([]domain.MissionReport, error)
+	CreateMissionReport(ctx context.Context, kingdomID string, missionID string, title string, body string, result string, rewardsJSON []byte, lossesJSON []byte, phasesJSON []byte) (domain.MissionReport, error)
+	ListByKingdomID(ctx context.Context, kingdomID string, limit int, offset int) ([]domain.MissionReport, error)
+	CountUnreadByKingdomID(ctx context.Context, kingdomID string) (int64, error)
+	FindByIDAndKingdomID(ctx context.Context, reportID string, kingdomID string) (domain.MissionReport, error)
+	MarkRead(ctx context.Context, reportID string, kingdomID string) (domain.MissionReport, error)
 }
 
 type MissionArmyService interface {
@@ -65,6 +68,12 @@ type MissionReportView struct {
 	Report  domain.MissionReport
 	Rewards gameconfig.ResourceValues
 	Losses  map[string]int64
+	Phases  []gameconfig.ReportPhase
+}
+
+type MissionReportsResult struct {
+	Reports     []MissionReportView
+	UnreadCount int64
 }
 
 type StartMissionUnit struct {
@@ -126,31 +135,60 @@ func (s *MissionService) Current(ctx context.Context, userID string) ([]MissionV
 	return s.views(ctx, missions)
 }
 
-func (s *MissionService) Reports(ctx context.Context, userID string) ([]MissionReportView, error) {
+func (s *MissionService) Reports(ctx context.Context, userID string, limit int, offset int) (MissionReportsResult, error) {
 	kingdom, err := s.kingdomForUser(ctx, userID)
 	if err != nil {
-		return nil, err
+		return MissionReportsResult{}, err
 	}
 	if err := s.ResolveCompleted(ctx, kingdom.ID); err != nil {
-		return nil, err
+		return MissionReportsResult{}, err
 	}
 
-	reports, err := s.reports.ListByKingdomID(ctx, kingdom.ID)
+	reports, err := s.reports.ListByKingdomID(ctx, kingdom.ID, limit, offset)
 	if err != nil {
-		return nil, err
+		return MissionReportsResult{}, err
+	}
+	unreadCount, err := s.reports.CountUnreadByKingdomID(ctx, kingdom.ID)
+	if err != nil {
+		return MissionReportsResult{}, err
 	}
 
-	views := make([]MissionReportView, 0, len(reports))
-	for _, report := range reports {
-		reward, _ := decodeResourceValues(report.RewardsJSON)
-		losses, _ := decodeLosses(report.LossesJSON)
-		views = append(views, MissionReportView{
-			Report:  report,
-			Rewards: reward,
-			Losses:  losses,
-		})
+	return MissionReportsResult{
+		Reports:     missionReportViews(reports),
+		UnreadCount: unreadCount,
+	}, nil
+}
+
+func (s *MissionService) Report(ctx context.Context, userID string, reportID string) (MissionReportView, error) {
+	kingdom, err := s.kingdomForUser(ctx, userID)
+	if err != nil {
+		return MissionReportView{}, err
 	}
-	return views, nil
+
+	report, err := s.reports.FindByIDAndKingdomID(ctx, reportID, kingdom.ID)
+	if errors.Is(err, repository.ErrReportNotFound) {
+		return MissionReportView{}, ErrReportNotFound
+	}
+	if err != nil {
+		return MissionReportView{}, err
+	}
+	return missionReportView(report), nil
+}
+
+func (s *MissionService) MarkReportRead(ctx context.Context, userID string, reportID string) (MissionReportView, error) {
+	kingdom, err := s.kingdomForUser(ctx, userID)
+	if err != nil {
+		return MissionReportView{}, err
+	}
+
+	report, err := s.reports.MarkRead(ctx, reportID, kingdom.ID)
+	if errors.Is(err, repository.ErrReportNotFound) {
+		return MissionReportView{}, ErrReportNotFound
+	}
+	if err != nil {
+		return MissionReportView{}, err
+	}
+	return missionReportView(report), nil
 }
 
 func (s *MissionService) Start(ctx context.Context, userID string, missionKey string, units []StartMissionUnit) (StartMissionResult, error) {
@@ -273,7 +311,12 @@ func (s *MissionService) resolveMission(ctx context.Context, mission domain.Miss
 	if err != nil {
 		return err
 	}
-	if _, err := s.reports.CreateMissionReport(ctx, mission.KingdomID, mission.ID, reportTitle(cfg), reportBody(cfg, result), result.Result, rewardsJSON, lossesJSON); err != nil {
+	template := gameconfig.MissionReportTemplate(cfg.Key, result.Result)
+	phasesJSON, err := json.Marshal(template.Phases)
+	if err != nil {
+		return err
+	}
+	if _, err := s.reports.CreateMissionReport(ctx, mission.KingdomID, mission.ID, template.Title, template.Body, result.Result, rewardsJSON, lossesJSON, phasesJSON); err != nil {
 		return err
 	}
 
@@ -471,24 +514,6 @@ func totalSent(sent map[string]int64) int64 {
 	return total
 }
 
-func reportTitle(cfg gameconfig.MissionConfig) string {
-	if cfg.Type == "scouting" {
-		return "Разведка: " + cfg.Label
-	}
-	return "Экспедиция в " + cfg.Label
-}
-
-func reportBody(cfg gameconfig.MissionConfig, result MissionResult) string {
-	switch result.Result {
-	case "success":
-		return fmt.Sprintf("Отряд вернулся из %s с добычей и вестями.", cfg.Label)
-	case "partial_success":
-		return fmt.Sprintf("Отряд вернулся из %s не с пустыми руками, но путь был тяжёлым.", cfg.Label)
-	default:
-		return fmt.Sprintf("Поход к %s едва не сорвался.", cfg.Label)
-	}
-}
-
 func decodeResourceValues(data []byte) (gameconfig.ResourceValues, error) {
 	var values gameconfig.ResourceValues
 	if len(data) == 0 {
@@ -505,4 +530,33 @@ func decodeLosses(data []byte) (map[string]int64, error) {
 	}
 	err := json.Unmarshal(data, &losses)
 	return losses, err
+}
+
+func decodeReportPhases(data []byte) ([]gameconfig.ReportPhase, error) {
+	phases := []gameconfig.ReportPhase{}
+	if len(data) == 0 {
+		return phases, nil
+	}
+	err := json.Unmarshal(data, &phases)
+	return phases, err
+}
+
+func missionReportViews(reports []domain.MissionReport) []MissionReportView {
+	views := make([]MissionReportView, 0, len(reports))
+	for _, report := range reports {
+		views = append(views, missionReportView(report))
+	}
+	return views
+}
+
+func missionReportView(report domain.MissionReport) MissionReportView {
+	rewards, _ := decodeResourceValues(report.RewardsJSON)
+	losses, _ := decodeLosses(report.LossesJSON)
+	phases, _ := decodeReportPhases(report.PhasesJSON)
+	return MissionReportView{
+		Report:  report,
+		Rewards: rewards,
+		Losses:  losses,
+		Phases:  phases,
+	}
 }

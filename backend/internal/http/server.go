@@ -68,6 +68,8 @@ func New(database *sql.DB, jwtSecret string) *echo.Echo {
 	e.GET("/api/missions/me", missionHandler.Me, appmiddleware.Auth(auth))
 	e.POST("/api/missions/start", missionHandler.Start, appmiddleware.Auth(auth))
 	e.GET("/api/reports/me", reportHandler.Me, appmiddleware.Auth(auth))
+	e.GET("/api/reports/:id", reportHandler.Detail, appmiddleware.Auth(auth))
+	e.POST("/api/reports/:id/read", reportHandler.MarkRead, appmiddleware.Auth(auth))
 
 	return e
 }
