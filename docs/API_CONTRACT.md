@@ -26,13 +26,39 @@ This is the initial draft API contract for future backend phases. It is document
 
 ### `GET /health`
 
-Returns service health.
+Returns process health. This endpoint does not require database connectivity.
 
 Response:
 
 ```json
 {
   "status": "ok"
+}
+```
+
+### `GET /ready`
+
+Returns service readiness.
+
+Response when the database is reachable:
+
+```json
+{
+  "status": "ready",
+  "database": "ok"
+}
+```
+
+Response when the database is not reachable:
+
+HTTP 503
+
+```json
+{
+  "error": {
+    "code": "database_unavailable",
+    "message": "Database is not reachable"
+  }
 }
 ```
 
@@ -165,4 +191,3 @@ Patrons:
 - `independent`
 - `empire_of_dusk`
 - `old_pact`
-

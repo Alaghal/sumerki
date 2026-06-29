@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 1: Infrastructure Foundation.
+Phase 2: Backend Skeleton.
 
-This phase adds local PostgreSQL infrastructure for development. It does not include backend code, frontend code, migrations, auth, or gameplay systems.
+This phase adds a minimal Go backend with health and readiness endpoints. It does not include auth, users, kingdoms, migrations, frontend code, or gameplay systems.
 
 ## Documentation
 
@@ -60,6 +60,37 @@ Equivalent Makefile shortcuts are available:
 make db-up
 make db-ps
 make db-down
+```
+
+## Backend
+
+The backend requires `DATABASE_URL`. `BACKEND_PORT` defaults to `8080` when unset. `JWT_SECRET` is loaded for future auth work but is not used yet.
+
+Run the backend:
+
+```sh
+cd backend
+go mod tidy
+DATABASE_URL="postgres://sumerki:sumerki@localhost:5432/sumerki?sslmode=disable" go run ./cmd/server
+```
+
+Equivalent Makefile shortcuts are available:
+
+```sh
+make backend-tidy
+make backend-run
+```
+
+Check process health:
+
+```sh
+curl http://localhost:8080/health
+```
+
+Check database readiness:
+
+```sh
+curl http://localhost:8080/ready
 ```
 
 ## Phase Discipline
