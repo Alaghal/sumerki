@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 6: Frontend Shell.
+Phase 7: Frontend Auth + Kingdom Flow.
 
-This phase adds a React, TypeScript, Vite, and Tailwind frontend shell with public placeholder routes. It does not include auth integration, protected routes, backend API calls from pages, resources, buildings, rulers, combat, events, patrons, or gameplay systems.
+This phase connects the React frontend shell to the existing backend auth and kingdom APIs. It does not include resources, buildings, rulers, combat, events, patrons, or gameplay systems.
 
 ## Documentation
 
@@ -138,11 +138,52 @@ curl http://localhost:8080/api/kingdoms/me \
 
 ## Frontend
 
-Run the frontend shell:
+The frontend reads `VITE_API_BASE_URL` and defaults to `http://localhost:8080`.
+
+Run the frontend:
 
 ```sh
 cd frontend
 npm install
+VITE_API_BASE_URL=http://localhost:8080 npm run dev
+```
+
+For a complete local account flow, use separate terminals:
+
+```sh
+docker compose up -d postgres
+make migrate-up
+make backend-run
+```
+
+Then start the frontend:
+
+```sh
+cd frontend
+VITE_API_BASE_URL=http://localhost:8080 npm run dev
+```
+
+Open:
+
+```sh
+http://localhost:5173
+```
+
+Expected flow:
+
+1. Register a new account.
+2. Create a kingdom.
+3. Land on the dashboard with the real kingdom name and culture.
+4. Logout.
+5. Login again with the same account.
+6. Return to the dashboard.
+
+The frontend stores the MVP JWT in `localStorage` under `sumerki.auth.token`. Refreshing the page restores the session through `GET /api/me`.
+
+If you only need to start the Vite server:
+
+```sh
+cd frontend
 npm run dev
 ```
 

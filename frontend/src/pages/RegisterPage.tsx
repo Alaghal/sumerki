@@ -1,15 +1,32 @@
 import { FormEvent, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
+import { toUserMessage } from '../api/errors';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { useSession } from '../context/SessionContext';
 
 export function RegisterPage() {
-  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
+  const { registerUser } = useSession();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setMessage('Registration will connect to the backend in a later phase.');
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      await registerUser(email, password);
+      navigate('/create-kingdom', { replace: true });
+    } catch (caughtError) {
+      setError(toUserMessage(caughtError));
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -18,14 +35,31 @@ export function RegisterPage() {
         <form className="grid gap-4" onSubmit={handleSubmit}>
           <label className="grid gap-2">
             <span>Email</span>
-            <input className="rounded border border-stone-700 bg-dusk-950 px-3 py-2 text-stone-100" type="email" />
+            <input
+              autoComplete="email"
+              className="rounded border border-stone-700 bg-dusk-950 px-3 py-2 text-stone-100"
+              onChange={(event) => setEmail(event.target.value)}
+              required
+              type="email"
+              value={email}
+            />
           </label>
           <label className="grid gap-2">
             <span>Password</span>
-            <input className="rounded border border-stone-700 bg-dusk-950 px-3 py-2 text-stone-100" type="password" />
+            <input
+              autoComplete="new-password"
+              className="rounded border border-stone-700 bg-dusk-950 px-3 py-2 text-stone-100"
+              minLength={8}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+              type="password"
+              value={password}
+            />
           </label>
-          <Button type="submit">Register</Button>
-          {message ? <p className="text-dusk-gold">{message}</p> : null}
+          <Button disabled={isSubmitting} type="submit">
+            {isSubmitting ? 'Creating account...' : 'Register'}
+          </Button>
+          {error ? <p className="text-red-300">{error}</p> : null}
           <Link className="text-dusk-gold hover:text-amber-300" to="/login">
             Already have an account?
           </Link>
