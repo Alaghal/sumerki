@@ -2,107 +2,71 @@
 
 ## Current Phase
 
-Phase 20: Smoke Tests and Seed Data.
+Phase 21: First Playtest Build.
 
 ## Status
 
-Phase 20 is implemented according to the attached prompt. Local development now has predictable seed data, Makefile verification helpers, an API smoke script, smoke-test documentation, and a manual playtest checklist.
+Phase 21 is implemented according to the attached prompt. The MVP is now packaged for the first internal manual playtest with focused tester instructions, structured feedback, known limitations, release notes, playtest helper targets, and a visible Playtest 001 label in the frontend.
 
 ## Completed
 
-- Added `backend/cmd/seed-dev`.
-- Added idempotent local dev seed data for:
-  - `northern@example.com`
-  - `lizard@example.com`
-  - `posad@example.com`
-  - `raider@example.com`
-- Dev password for all seeded users is `password123`.
-- Seeded kingdoms include rulers, resources, buildings, units, and patron state where selected.
-- Seeded resources are:
-  - gold: 2000
-  - food: 1500
-  - wood: 1500
-  - stone: 1200
-  - population: 250
-- Seeded units are:
-  - militia: 40
-  - scouts: 10
-  - spearmen: 15
-  - archers: 15
-  - cavalry: 5
-- Seeded kingdoms are aged beyond newbie protection for local raid smoke tests.
-- `northern@example.com` has boosted local buildings:
-  - farm level 2
-  - lumberyard level 2
-  - quarry level 2
-  - market level 2
-  - barracks level 2
-  - walls level 1
-- Added `scripts/smoke-api.sh`.
-- Added Makefile helpers:
-  - `seed-dev`
-  - `reset-db`
-  - `smoke-api`
-  - `test-backend`
-  - `test-frontend`
-  - `test-all`
-- Added local Go build cache support in Makefile with `GOCACHE ?= $(CURDIR)/.cache/go-build`.
-- Added `docs/SMOKE_TESTS.md`.
-- Added `docs/PLAYTEST_CHECKLIST.md`.
-- Updated README with local MVP verification commands and dev account notes.
+- Added `docs/PLAYTEST_GUIDE.md` as the main first-playtest guide.
+- Added `docs/FEEDBACK_TEMPLATE.md` for structured tester feedback.
+- Added `docs/KNOWN_LIMITATIONS.md` to separate MVP limitations from bugs.
+- Updated `docs/PLAYTEST_CHECKLIST.md` into a pre-flight, manual app, and UX checklist.
+- Added `docs/RELEASE_NOTES_PLAYTEST_001.md`.
+- Updated README with:
+  - Phase 21 status
+  - compact first playtest quick start
+  - seed account list
+  - playtest documentation links
+- Added Makefile playtest helpers:
+  - `playtest-setup`
+  - `playtest-check`
+  - `playtest-reset`
+- Added a tiny frontend clarity label: `Playtest 001` in the top bar.
 
 ## Phase Scope Note
 
 - No new gameplay systems were added.
 - No schema or migration changes were made.
 - No API response shapes were changed.
-- No frontend UI changes were made.
 - No gameplay balance values were changed.
-- No background workers, cron jobs, queues, Redis, WebSocket, analytics, production deployment, payments, admin panel, chat, alliances, or map/province systems were added.
-- `reset-db` is intentionally destructive and documented as local Docker development only.
-- This session did not start Phase 21.
+- No backend runtime systems were added.
+- No production deployment, payments, analytics, admin panel, chat, alliances, map/province systems, dark god systems, NPC retaliation, background workers, cron jobs, Redis, or WebSocket were added.
+- Frontend change was limited to a small playtest build label.
+- This session did not start Phase 22.
 
 ## Changed Files
 
-- `Makefile`
 - `README.md`
 - `CODEX_HANDOFF.md`
-- `backend/cmd/seed-dev/main.go`
-- `docs/SMOKE_TESTS.md`
+- `Makefile`
+- `docs/PLAYTEST_GUIDE.md`
+- `docs/FEEDBACK_TEMPLATE.md`
+- `docs/KNOWN_LIMITATIONS.md`
 - `docs/PLAYTEST_CHECKLIST.md`
-- `scripts/smoke-api.sh`
+- `docs/RELEASE_NOTES_PLAYTEST_001.md`
+- `frontend/src/components/layout/TopBar.tsx`
 
 ## Commands Run
 
-- `gofmt -w backend/cmd/seed-dev/main.go`
-- `cd backend && GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build go test ./...`
-- `bash -n scripts/smoke-api.sh`
-- `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make seed-dev`
-- `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make seed-dev`
-- `docker compose exec -T postgres psql -U sumerki -d sumerki -c "select email, count(*) ..."`
-- `docker compose exec -T postgres psql -U sumerki -d sumerki -c "select k.name, k.patron, r.gold, ..."`
-- `docker compose exec -T postgres psql -U sumerki -d sumerki -c "select u.email, unit_type, amount ..."`
-- `docker compose exec -T postgres psql -U sumerki -d sumerki -c "select type, level ..."`
-- `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' JWT_SECRET='dev-secret' BACKEND_PORT=18080 GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build go run ./cmd/server`
-- `API_BASE_URL='http://localhost:18080' make smoke-api`
 - `make test-backend`
 - `make test-frontend`
-- `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make migrate-status`
+- `make playtest-check`
+- `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make playtest-setup`
+- `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' JWT_SECRET='dev-secret' BACKEND_PORT=18080 GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build go run ./cmd/server`
+- `API_BASE_URL='http://localhost:18080' make smoke-api`
 
 ## Verification
 
-- `backend/cmd/seed-dev` compiles.
 - Backend tests passed.
 - Frontend typecheck passed.
 - Frontend production build passed.
-- `scripts/smoke-api.sh` passed shell syntax check.
-- `make seed-dev` completed successfully.
-- Re-running `make seed-dev` returned the same dev user and kingdom IDs, confirming idempotent behavior for the dev accounts.
-- SQL confirmed exactly one user row for each dev account.
-- SQL confirmed seeded kingdoms have the expected resource values.
-- SQL confirmed `northern@example.com` has the expected seeded unit amounts.
-- SQL confirmed `northern@example.com` has boosted building levels.
-- Goose status shows migrations `00001` through `00013` applied.
+- `make playtest-check` passed and printed the expected smoke-api instruction.
+- `make playtest-setup` ran successfully against the local Docker database on `15432`.
+- Goose reported no pending migrations and current version `13`.
+- `make seed-dev` ran as part of `playtest-setup` and refreshed all four dev accounts.
 - Live API smoke test against `http://localhost:18080` completed successfully:
   - auth login
   - kingdom fetch
@@ -121,29 +85,26 @@ Phase 20 is implemented according to the attached prompt. Local development now 
 
 ## What Works Now
 
-- A developer can seed predictable local users and kingdoms with `make seed-dev`.
-- Running `make seed-dev` twice does not duplicate the four dev users or kingdoms.
-- Dev users can login with `password123`.
-- Seeded kingdoms have enough resources and units for missions and raids.
-- At least one seeded kingdom has patron pressure state.
-- At least one seeded account can start a mission.
-- At least one seeded account can view and choose events.
-- At least one seeded raid target is available after seeding.
-- `make smoke-api` verifies the core MVP API flow.
-- `make test-backend`, `make test-frontend`, and `make test-all` provide convenient local checks.
-- `make reset-db` provides a documented local destructive reset path.
-- README and smoke docs explain the full local verification flow.
+- A tester can use `docs/PLAYTEST_GUIDE.md` to understand the purpose and route of Playtest 001.
+- A developer can run `make playtest-setup` to migrate and seed local playtest data.
+- A developer can run `make playtest-check` for backend and frontend checks.
+- A developer can run `make playtest-reset` for a documented local destructive reset and reseed.
+- README has a compact First Playtest section and links to the detailed playtest docs.
+- Testers have a structured feedback template.
+- Current limitations are clearly documented.
+- The dashboard top bar identifies the build as `Playtest 001`.
 
 ## Known Limitations
 
+- Playtest 001 is local-development only.
 - Seed data is local-only and uses public dev passwords.
-- `reset-db` is destructive and assumes the local Docker PostgreSQL service/user/database from this repository.
+- `reset-db` and `playtest-reset` are destructive and assume the local Docker PostgreSQL service/user/database from this repository.
 - `scripts/smoke-api.sh` requires `jq`.
-- Smoke API checks endpoint availability and basic happy paths; it does not wait for mission or raid timers to resolve.
 - Smoke API mutates local data by starting upgrades, training, missions, raids, and event choices.
+- Smoke API checks happy paths but does not wait for mission or raid timers to resolve.
 - Existing lazy mission/report duplicate behavior noted in Phase 19 was not changed.
 - The local Docker database is currently published on `15432`, so verification used `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable'`.
 
 ## Next Recommended Phase
 
-Start Phase 21 only when explicitly requested.
+Start Phase 22 only when explicitly requested.
