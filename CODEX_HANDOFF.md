@@ -2,22 +2,23 @@
 
 ## Current Phase
 
-Phase 26: Game Shell v1.
+Phase 27: Local SVG Map v1.
 
 ## Status
 
-Phase 26 completed.
+Phase 27 completed.
 
 ## Completed
 
-- Added Game Shell v1 for the `/app` screen.
-- Added a top resource HUD with kingdom, culture, patron, resources, unread reports, and active events.
-- Added local mode navigation for map, city, army, missions, events, reports, patron, and raids.
-- Added a central scene placeholder that prepares the screen for Phase 27 Local SVG Map v1.
-- Added a right context panel that shows the existing mode-specific dashboard panels.
-- Added a bottom activity feed summarizing active upgrades, training, missions, raids, events, and unread reports.
-- Preserved existing dashboard/gameplay behavior, API calls, action handlers, and i18n behavior.
-- Kept backend changes, API shape changes, gameplay mechanics, balance changes, and the real SVG map out of scope.
+- Added Local SVG Map v1 for the Game Shell center scene.
+- Added map nodes for the player settlement, Black Forest, Old Kurgan, Dry Ford, two neighbor slots, patron road, and omens/events.
+- Added map node clicks that switch local mode/context to city, missions, raids, patron, or events.
+- Selecting known neighbor nodes also selects the corresponding raid target using existing frontend state.
+- Added map status indicators using existing frontend data for active missions, available missions, active raids, active events, unread reports, patron pressure, and patron relation.
+- Added a compact map legend.
+- Added a new `map` i18n namespace for Russian and English map copy.
+- Preserved existing gameplay behavior, API calls, action handlers, and i18n behavior.
+- Kept backend changes, API shape changes, province systems, territory capture, pathfinding, pan/zoom, canvas, Phaser, Pixi, Three.js, and new gameplay mechanics out of scope.
 - Updated README, MVP phases, known limitations, post-playtest roadmap, and handoff.
 
 ## Changed Files
@@ -27,45 +28,45 @@ Phase 26 completed.
 - `docs/MVP_PHASES.md`
 - `docs/KNOWN_LIMITATIONS.md`
 - `docs/POST_PLAYTEST_ROADMAP.md`
-- `frontend/src/components/layout/AppShell.tsx`
-- `frontend/src/features/game/ActivityFeed.tsx`
-- `frontend/src/features/game/GameContextPanel.tsx`
-- `frontend/src/features/game/GameHud.tsx`
-- `frontend/src/features/game/GameModeNavigation.tsx`
 - `frontend/src/features/game/GameScenePlaceholder.tsx`
-- `frontend/src/features/game/GameShell.tsx`
-- `frontend/src/features/game/gameModes.ts`
-- `frontend/src/features/game/types.ts`
-- `frontend/src/i18n/resources/en/game.json`
-- `frontend/src/i18n/resources/ru/game.json`
+- `frontend/src/features/map/LocalMap.tsx`
+- `frontend/src/features/map/MapLegend.tsx`
+- `frontend/src/features/map/mapNodes.ts`
+- `frontend/src/features/map/types.ts`
+- `frontend/src/i18n/index.ts`
+- `frontend/src/i18n/resources/en/map.json`
+- `frontend/src/i18n/resources/ru/map.json`
 - `frontend/src/pages/DashboardPage.tsx`
 
 ## Commands Run
 
 - `cd frontend && npm run typecheck`
 - `cd frontend && npm run build`
-- `rg -n "GameShell|GameHud|GameModeNavigation|ActivityFeed|GameScenePlaceholder|GameContextPanel" frontend/src`
-- `rg -n "\"Kingdom\"|\"Culture\"|\"Patron\"|\"Player\"|\"Favor\"|\"Logout\"|\"No data\"" frontend/src`
+- `rg -n "LocalMap|mapNodes|selectedMapNode|MapLegend" frontend/src`
+- `rg -n "Phaser|Pixi|Three|canvas" frontend/src`
 - `git diff --check`
 - `git status --short`
 
 ## What Works Now
 
-- `/app` uses a game-style shell instead of the pure stacked dashboard layout.
-- Players can switch local game modes without changing routes.
-- The right context panel keeps current gameplay actions usable.
-- The resource HUD and activity feed summarize current settlement state using existing frontend data.
-- Russian/English i18n still works through the existing namespace setup.
+- `/app` has a central local SVG map instead of a placeholder.
+- Players can click map nodes to navigate to city, missions, raids, patron, and events.
+- Existing right context panels and actions remain usable.
+- Map indicators reflect current frontend state where available.
+- Russian/English i18n still works through the registered namespace setup.
 - Frontend typecheck and production build pass.
 
 ## Known Limitations
 
-- The center scene is still a placeholder.
-- Real SVG map nodes are not implemented yet.
-- Mode changes are frontend-local and do not represent real world navigation.
+- The map is symbolic and local, not a province system.
+- There is no territory capture.
+- There is no pathfinding.
+- There is no pan/zoom.
+- Neighbor nodes use existing neighbor data and fall back to generic labels.
+- Mission nodes provide mode switching and basic status only.
+- Deeper node-specific context behavior remains Phase 28.
 - Backend-provided event/report narrative text remains in its original language.
-- Some panels may still feel dense until Phase 28 context-panel refinement.
 
 ## Next Recommended Step
 
-Phase 27: Local SVG Map v1.
+Phase 28: Context Panels And Activity Feed.

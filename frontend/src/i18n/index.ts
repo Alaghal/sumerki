@@ -8,6 +8,7 @@ import enErrors from './resources/en/errors.json';
 import enEvents from './resources/en/events.json';
 import enGame from './resources/en/game.json';
 import enKingdom from './resources/en/kingdom.json';
+import enMap from './resources/en/map.json';
 import enMissions from './resources/en/missions.json';
 import enPatrons from './resources/en/patrons.json';
 import enRaids from './resources/en/raids.json';
@@ -21,6 +22,7 @@ import ruErrors from './resources/ru/errors.json';
 import ruEvents from './resources/ru/events.json';
 import ruGame from './resources/ru/game.json';
 import ruKingdom from './resources/ru/kingdom.json';
+import ruMap from './resources/ru/map.json';
 import ruMissions from './resources/ru/missions.json';
 import ruPatrons from './resources/ru/patrons.json';
 import ruRaids from './resources/ru/raids.json';
@@ -66,6 +68,7 @@ void i18n.use(initReactI18next).init({
     'patrons',
     'events',
     'raids',
+    'map',
   ],
   resources: {
     en: {
@@ -76,6 +79,7 @@ void i18n.use(initReactI18next).init({
       events: enEvents,
       game: enGame,
       kingdom: enKingdom,
+      map: enMap,
       missions: enMissions,
       patrons: enPatrons,
       raids: enRaids,
@@ -91,6 +95,7 @@ void i18n.use(initReactI18next).init({
       events: ruEvents,
       game: ruGame,
       kingdom: ruKingdom,
+      map: ruMap,
       missions: ruMissions,
       patrons: ruPatrons,
       raids: ruRaids,

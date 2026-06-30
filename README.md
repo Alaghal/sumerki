@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 26: Game Shell v1.
+Phase 27: Local SVG Map v1.
 
-Playtest 001 is complete. The frontend now has a Russian/English localization foundation, most current UI labels are localized, and `/app` uses a first game-shell layout with HUD, local mode navigation, scene placeholder, context panel, and activity feed. The local SVG map is planned next.
+Playtest 001 is complete. The frontend now has a Russian/English localization foundation, most current UI labels are localized, and `/app` uses a first game-shell layout with a symbolic local SVG map. The map is not a province system; it shows settlement, nearby mission sites, neighbors, patron road, and omens.
 
 ## Documentation
 

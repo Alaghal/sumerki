@@ -1,0 +1,69 @@
+{
+  "title": "Settlement Outskirts",
+  "subtitle": "Local map",
+  "legend": {
+    "settlement": "Settlement",
+    "mission": "Mission",
+    "neighbor": "Neighbor",
+    "patron": "Patron",
+    "event": "Omen",
+    "active": "Active",
+    "warning": "Warning"
+  },
+  "nodes": {
+    "home": {
+      "name": "Settlement",
+      "description": "Your court, ruler, and settlement buildings."
+    },
+    "black_forest": {
+      "name": "Black Forest",
+      "description": "A wet forest beyond the palisade. The first dangerous expeditions begin here."
+    },
+    "old_kurgan": {
+      "name": "Old Kurgan",
+      "description": "A dead hill with ancient marks and an ill reputation."
+    },
+    "dry_ford": {
+      "name": "Dry Ford",
+      "description": "A shallow path across the old river. Useful for scouting."
+    },
+    "neighbor_1": {
+      "name": "Northern neighbor",
+      "description": "A nearby kingdom still hidden in the mist.",
+      "knownDescription": "Nearby kingdom. Power: {{power}}."
+    },
+    "neighbor_2": {
+      "name": "Southern neighbor",
+      "description": "A distant kingdom still hidden in the mist.",
+      "knownDescription": "Distant kingdom. Power: {{power}}."
+    },
+    "patron_road": {
+      "name": "Envoy Road",
+      "description": "Envoys, tribute collectors, and foreign promises arrive by this road."
+    },
+    "omens": {
+      "name": "Dark Omens",
+      "description": "Rumors, news, and troubling choices gather over the settlement."
+    }
+  },
+  "status": {
+    "activeMission": "Mission",
+    "availableMission": "Available",
+    "activeRaid": "Raid",
+    "activeEvents": "Events: {{count}}",
+    "unreadReports": "Reports: {{count}}",
+    "noNeighbors": "No neighbors",
+    "patronPressure": "Pressure",
+    "patronChosen": "Bound"
+  },
+  "actions": {
+    "map": "Open map",
+    "city": "Open city",
+    "army": "Open army",
+    "missions": "Open missions",
+    "events": "Open events",
+    "reports": "Open reports",
+    "patron": "Open patron",
+    "raids": "Open raids"
+  }
+}

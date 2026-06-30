@@ -63,9 +63,10 @@ import {
 import { costRows, ResourceKey, resourceRows, unitTypes } from '../features/dashboard/shared';
 import { ActivityFeed } from '../features/game/ActivityFeed';
 import { GameHud } from '../features/game/GameHud';
-import { GameScenePlaceholder } from '../features/game/GameScenePlaceholder';
 import { GameShell } from '../features/game/GameShell';
 import type { GameMode } from '../features/game/types';
+import { LocalMap } from '../features/map/LocalMap';
+import type { LocalMapNode, LocalMapNodeID } from '../features/map/types';
 
 export function DashboardPage() {
   const { i18n, t } = useTranslation([
@@ -132,6 +133,7 @@ export function DashboardPage() {
   const [eventsError, setEventsError] = useState('');
   const [choosingEventID, setChoosingEventID] = useState<string | null>(null);
   const [currentMode, setCurrentMode] = useState<GameMode>('map');
+  const [selectedMapNodeID, setSelectedMapNodeID] = useState<LocalMapNodeID>('home');
 
   function formatDate(value: string) {
     return new Date(value).toLocaleString(i18n.language === 'en' ? 'en-US' : 'ru-RU');
@@ -168,6 +170,14 @@ export function DashboardPage() {
 
   function eventChoiceLabel(event: KingdomEvent) {
     return event.choices.find((choice) => choice.key === event.selectedChoiceKey)?.label ?? t('common:states.unknown');
+  }
+
+  function handleMapNodeSelect(node: LocalMapNode, neighborID?: string) {
+    setSelectedMapNodeID(node.id);
+    setCurrentMode(node.mode);
+    if (neighborID) {
+      setSelectedRaidTargetID(neighborID);
+    }
   }
 
   async function loadRuler() {
@@ -952,7 +962,6 @@ export function DashboardPage() {
   const activeEvents = events.filter((event) => event.status === 'active');
   const activeMissions = missions.filter((mission) => mission.status === 'active');
   const activeRaids = raids.filter((raid) => raid.status === 'active');
-  const upgradingBuildings = buildings.filter((building) => building.isUpgrading);
 
   const patronPanel = (
     <PatronPanel
@@ -1116,14 +1125,19 @@ export function DashboardPage() {
         }
         onModeChange={setCurrentMode}
         scene={
-          <GameScenePlaceholder
+          <LocalMap
             activeEvents={activeEvents}
             activeMissions={activeMissions}
             activeRaids={activeRaids}
+            availableMissions={availableMissions}
             currentMode={currentMode}
             kingdom={kingdom}
             neighbors={neighbors}
-            upgradingBuildings={upgradingBuildings}
+            onNodeSelect={handleMapNodeSelect}
+            patronPressure={patronPressure}
+            patronStatus={patronStatus}
+            selectedNodeID={selectedMapNodeID}
+            unreadReportsCount={unreadReportsCount}
           />
         }
       />
