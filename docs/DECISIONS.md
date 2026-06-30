@@ -38,3 +38,14 @@ Status: Accepted
 
 Work should follow `docs/MVP_PHASES.md`. A requested phase should not pull in code or infrastructure from later phases unless explicitly approved.
 
+## 0007. Playtest 001 Baseline
+
+Status: Accepted
+
+Playtest 001 is the first local-development playtest baseline. It includes auth, kingdom, ruler, resources, buildings, army, PvE missions, reports, patron selection, patron pressure, events, PvP raids with protection, seed data, smoke tests, and playtest documentation.
+
+## 0008. Documentation Follows Implemented Phase Order
+
+Status: Accepted
+
+The phase documentation should reflect the implemented Playtest 001 order and actual feature set. Some earlier prompt order drift placed Tribute and Pressure before Raids; the repository now documents the completed order without renumbering migrations or code history.

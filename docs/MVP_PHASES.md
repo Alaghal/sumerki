@@ -14,11 +14,25 @@ By the end of MVP, a player can:
 * train basic units
 * send units to PvE missions
 * perform simple PvP raids
-* receive battle/mission reports
+* receive battle/mission/event reports
 * choose a patron: Independent, Empire of Dusk, or Old Pact
 * receive simple events and make choices
 
-## Out of scope for first MVP
+## Implementation Status
+
+* Playtest 001 is complete.
+* Phases 0 through 21 are implemented.
+* The MVP is ready for first internal manual playtest.
+* `CODEX_HANDOFF.md` remains the operational source of truth for the latest run details.
+* Future phases after Playtest 001 are post-MVP or playtest-feedback driven.
+
+## Phase Order Correction
+
+The original plan placed Tribute and Pressure before Simple PvP Raids. Actual implementation followed the prompt-specified order where Simple PvP Raids with Protection landed before Tribute and Pressure.
+
+This document now reflects the completed feature set and Playtest 001 order. Do not renumber code, migrations, or historical artifacts just to match this documentation cleanup.
+
+## Out Of Scope For First MVP
 
 Do not implement:
 
@@ -51,147 +65,49 @@ Do not implement:
 
 # Phase 0: Repository Bootstrap
 
-## Goal
+Status: Completed
 
-Prepare the empty repository.
-
-## Scope
-
-Create:
-
-* `AGENTS.md`
-* `CODEX_HANDOFF.md`
-* `README.md`
-* `docs/MVP_SCOPE.md`
-* `docs/MVP_PHASES.md`
-* `docs/DECISIONS.md`
-* `docs/API_CONTRACT.md`
-* `docs/DOMAIN_MODEL.md`
-* `docs/phases/`
-
-## Result
-
-Repository has project rules, MVP scope, and phase documentation.
+Created the initial repository documentation, agent rules, phase plan, API contract, domain model, decision log, handoff file, and phase notes folder.
 
 ---
 
 # Phase 1: Infrastructure Foundation
 
-## Goal
+Status: Completed
 
-Prepare local infrastructure.
-
-## Scope
-
-Add:
-
-* Docker Compose
-* PostgreSQL
-* `.env.example`
-* basic Makefile commands
-
-Services:
-
-* `postgres`
-
-## Result
-
-Developer can start PostgreSQL locally.
+Added local Docker Compose PostgreSQL infrastructure, `.env.example`, Makefile database helpers, and README database commands.
 
 ---
 
 # Phase 1b: Infrastructure Verification
 
-## Goal
+Status: Completed
 
-Confirm local PostgreSQL startup before backend work begins.
-
-## Scope
-
-Verify:
-
-* `docker compose up -d postgres`
-* `docker compose ps`
-* PostgreSQL container is running
-* PostgreSQL accepts connections with database `sumerki`, user `sumerki`, password `sumerki`, and port `5432`
-* `docker compose down`
-
-Update:
-
-* `CODEX_HANDOFF.md` with verification results
-
-## Result
-
-Infrastructure is proven locally and Phase 2 can rely on a working database.
+Verified local PostgreSQL startup, container status, connection settings, and local shutdown flow.
 
 ---
 
 # Phase 2: Backend Skeleton
 
-## Goal
+Status: Completed
 
-Create minimal backend service.
-
-## Scope
-
-Backend stack:
-
-* Go
-* Echo
-* PostgreSQL
-
-Create:
-
-* backend folder structure
-* config loading
-* database connection
-* health endpoint
-
-Endpoint:
-
-* `GET /health`
-
-## Result
-
-Backend starts locally and returns health status.
+Added the Go/Echo backend skeleton with config loading, PostgreSQL connection, request logging, recovery, local CORS, graceful shutdown, `GET /health`, and `GET /ready`.
 
 ---
 
 # Phase 3: Database Migration Foundation
 
-## Goal
+Status: Completed
 
-Create the first backend schema before frontend implementation.
-
-## Scope
-
-Add migration tooling and initial reversible migrations.
-
-Tables:
-
-* `users`
-* `kingdoms`
-
-Rules:
-
-* one user can have one kingdom
-* UUID primary keys
-* reversible migrations
-* local migration commands documented in README
-
-## Result
-
-Database can store users and kingdoms, and the backend/auth/kingdom flow can be implemented against real schema.
+Added Goose migration support and initial reversible migrations for `users` and `kingdoms`.
 
 ---
 
 # Phase 4: Auth API
 
-## Goal
+Status: Completed
 
-Allow users to register and login.
-
-## Scope
+Implemented email/password registration, login, JWT auth, `GET /api/me`, password hashing, auth middleware, and consistent JSON errors.
 
 Endpoints:
 
@@ -199,714 +115,269 @@ Endpoints:
 * `POST /api/auth/login`
 * `GET /api/me`
 
-Features:
-
-* password hashing
-* JWT auth
-* auth middleware
-* clean JSON errors
-
-## Result
-
-Player can register, login, and fetch current user through the backend.
-
 ---
 
 # Phase 5: Kingdom Creation API
 
-## Goal
+Status: Completed
 
-Allow authenticated player to create a kingdom.
-
-## Scope
+Implemented one-kingdom-per-user creation and current kingdom lookup.
 
 Endpoints:
 
 * `POST /api/kingdoms`
 * `GET /api/kingdoms/me`
 
-Cultures:
-
-* `northern_principality`
-* `lizard_grad`
-* `free_posad`
-
-Rules:
-
-* one kingdom per user
-* kingdom name length: 3 to 32
-* culture must be valid
-
-## Result
-
-Player can create and fetch their kingdom through the backend.
-
 ---
 
 # Phase 6: Ruler System
 
-## Goal
+Status: Completed
 
-Add ruler identity immediately after the account and kingdom loop.
-
-## Scope
-
-Add table:
-
-* `rulers`
-
-Ruler fields:
-
-* name
-* age
-* culture
-* authority
-* courage
-* cunning
-* honor
-* cruelty
-* ambition
-* paranoia
-* health_status
-
-Rules:
-
-* ruler is generated when kingdom is created
-* ruler belongs to exactly one kingdom
-* initial ruler generation can be deterministic or simple random MVP logic
+Added rulers, generated a ruler during kingdom creation, and exposed the current ruler.
 
 Endpoint:
 
 * `GET /api/ruler/me`
 
-## Result
-
-Player has a ruler attached to the first playable account and kingdom loop.
-
 ---
 
 # Phase 7: Frontend Skeleton
 
-## Goal
+Status: Completed
 
-Create minimal frontend app after the backend account, kingdom, and ruler APIs exist.
-
-## Scope
-
-Frontend stack:
-
-* React
-* TypeScript
-* Vite
-* Tailwind
-
-Create pages:
-
-* `/login`
-* `/register`
-* `/create-kingdom`
-* `/app`
-
-Create layout:
-
-* top bar
-* sidebar
-* main content area
-
-## Result
-
-Frontend starts locally and shows basic pages ready to connect to backend APIs.
+Created the React/TypeScript/Vite/Tailwind frontend with login, register, kingdom creation, dashboard route, top bar, sidebar, and app shell.
 
 ---
 
-# Phase 8: Frontend Auth, Kingdom, and Ruler Integration
+# Phase 8: Frontend Auth, Kingdom, And Ruler Integration
 
-## Goal
+Status: Completed
 
-Connect the first playable account and kingdom flow to the frontend.
-
-## Scope
-
-Implement:
-
-* register form
-* login form
-* logout
-* JWT storage
-* protected routes
-* session restore via `GET /api/me`
-* kingdom creation form
-* culture select with short descriptions
-* ruler card on dashboard
-
-Routing rules:
-
-* no token -> `/login`
-* token but no kingdom -> `/create-kingdom`
-* token and kingdom exists -> `/app`
-
-Dashboard must show:
-
-* kingdom name
-* culture
-* ruler summary
-* placeholder resources area
-* clear loading, error, and empty states
-
-## Result
-
-Playable vertical slice:
-
-register -> login -> create kingdom -> view dashboard with ruler.
+Connected register, login, logout, JWT session restore, protected routes, kingdom creation, and ruler dashboard display.
 
 ---
 
 # Phase 9: Resources System
 
-## Goal
+Status: Completed
 
-Add basic resource economy.
-
-## Scope
-
-Resources:
-
-* gold
-* food
-* wood
-* stone
-* population
-
-Add table:
-
-* `kingdom_resources`
-
-Implement lazy passive production calculation.
-
-Rules:
-
-* do not use background workers
-* calculate resource changes from `last_calculated_at`
-* resolve resources during resource reads and commands that spend or grant resources
-* population can grow or cap production, but must stay simple for MVP
+Added `kingdom_resources`, lazy resource production, resource display, and the resource API.
 
 Endpoint:
 
 * `GET /api/resources/me`
 
-Frontend:
-
-* replace placeholder resources with live resource values
-* show enough timing or production context for resource growth to be understandable
-
-## Result
-
-Player sees resources that grow over time through lazy resolution.
-
 ---
 
 # Phase 10: Buildings System
 
-## Goal
+Status: Completed
 
-Allow player to upgrade basic buildings.
-
-## Scope
-
-Buildings:
-
-* town_hall
-* farm
-* lumberyard
-* quarry
-* barracks
-* walls
-* shrine
-
-Add table:
-
-* `kingdom_buildings`
+Added MVP buildings, upgrade costs, lazy upgrade completion, production bonuses, building API, and dashboard building controls.
 
 Endpoints:
 
 * `GET /api/buildings/me`
 * `POST /api/buildings/{type}/upgrade`
 
-Rules:
-
-* upgrades cost resources
-* upgrade completion is resolved lazily from start and finish timestamps
-* only one upgrade per building at a time
-* no premium queues
-* do not use background workers
-
-Frontend:
-
-* add a buildings view or dashboard section
-* show building level, cost, status, and upgrade action
-* refresh affected resources after upgrade commands
-
-## Result
-
-Player can spend resources to upgrade buildings and see progress without background workers.
-
 ---
 
 # Phase 11: Army System
 
-## Goal
+Status: Completed
 
-Allow player to train basic units.
-
-## Scope
-
-Units:
-
-* militia
-* spearmen
-* archers
-* cavalry
-* scouts
-
-Add table:
-
-* `kingdom_units`
+Added MVP units, unit training costs, barracks requirements, lazy training completion, army API, and dashboard training controls.
 
 Endpoints:
 
 * `GET /api/army/me`
 * `POST /api/army/train`
 
-Rules:
-
-* units cost resources
-* training completion is resolved lazily from start and finish timestamps
-* do not use background workers
-* units have simple stats:
-
-    * attack
-    * defense
-    * speed
-    * supply
-
-Frontend:
-
-* add an army view or dashboard section
-* show available unit counts, training costs, and training status
-* refresh affected resources after training commands
-
-## Result
-
-Player can train basic army units and see their force grow through lazy resolution.
-
 ---
 
 # Phase 12: PvE Missions
 
-## Goal
+Status: Completed
 
-Allow player to send army to PvE locations and receive basic reports.
-
-## Scope
-
-PvE locations:
-
-* Black Forest
-* Old Kurgan
-* Dry Ford
-
-Mission types:
-
-* expedition
-* scouting
-
-Add tables:
-
-* `missions`
-* `reports`
+Added configured PvE missions, sent-unit tracking, lazy mission completion, resource rewards, losses, and basic reports.
 
 Endpoints:
 
-* `POST /api/missions/start`
+* `GET /api/missions/available`
 * `GET /api/missions/me`
+* `POST /api/missions/start`
 * `GET /api/reports/me`
-
-Rules:
-
-* mission has start time and resolve time
-* mission completion is resolved lazily when missions or reports are read, or when a dependent command needs current state
-* result may include resources, losses, and short flavor text
-* do not use background workers
-* basic report creation happens in this phase
-
-Frontend:
-
-* add missions view or dashboard section
-* show available missions, sent units, mission status, and resolved report summaries
-* add a basic reports list that can display PvE mission outcomes
-
-## Result
-
-Player can send units to PvE missions and receive basic reports in the UI.
 
 ---
 
 # Phase 13: Report Polish
 
-## Goal
+Status: Completed
 
-Make mission and later raid results readable and atmospheric.
+Improved reports with narrative phases, unread/read state, report detail, read marking, and support for later raid and event report types.
 
-## Scope
+Endpoints:
 
-Improve report content:
-
-* title
-* result
-* phases
-* units sent
-* units lost
-* loot
-* consequences
-* short narrative text
+* `GET /api/reports/me`
+* `GET /api/reports/{id}`
+* `POST /api/reports/{id}/read`
 
 Report types:
 
-* `pve_expedition`
-* `pvp_raid`
+* `pve_mission`
+* `pvp_raid_attacker`
+* `pvp_raid_defender`
 * `event`
-
-Frontend:
-
-* improve report detail view or modal
-* distinguish unread and read reports
-* keep the reports UI simple and usable on the main dashboard flow
-
-## Result
-
-Player receives readable reports, not just raw numbers.
 
 ---
 
 # Phase 14: Patron System
 
-## Goal
+Status: Completed
 
-Add first political layer before PvP raids.
-
-## Scope
-
-Patrons:
-
-* independent
-* empire_of_dusk
-* old_pact
-
-Add table:
-
-* `patron_relations`
+Added basic patron selection and relation state for Independent, Empire of Dusk, and Old Pact. This phase intentionally did not include tribute, pressure, or military help.
 
 Endpoints:
 
+* `GET /api/patron/options`
 * `GET /api/patron/me`
 * `POST /api/patron/join`
 * `POST /api/patron/break`
-* `POST /api/patron/request-help`
-
-Basic effects:
-
-Independent:
-
-* no tribute
-* no protection
-
-Empire of Dusk:
-
-* pays tribute
-* receives protection bonus
-* gets trade/order flavor
-
-Old Pact:
-
-* can request defensive help
-* owes contribution later
-* gets oath/defense flavor
-
-Frontend:
-
-* add patron choice UI
-* show current patron status and basic effects
-* make patron state visible before raids are introduced
-
-## Result
-
-Player can choose a political path before interacting with PvP.
 
 ---
 
-# Phase 15: Tribute and Pressure
+# Phase 15: Simple PvP Raids With Protection
 
-## Goal
+Status: Completed
 
-Make patron choice meaningful without making it oppressive.
-
-## Scope
-
-Add tribute logic for Empire of Dusk.
-
-Rules:
-
-* tribute is based on surplus, not total income
-* tribute resolves lazily when patron state, resources, or events are read or changed
-* tribute cannot block all progress
-* if player cannot pay, create a crisis choice
-* do not use background workers
-
-Crisis choices:
-
-* ask for delay
-* accept debt
-* give resources
-* break patron relation
-* request help from another side
-
-Frontend:
-
-* show tribute status and next pressure point in patron UI
-* show crisis choices when they exist
-
-## Result
-
-Empire pressure exists, but does not create dead-end gameplay.
-
----
-
-# Phase 16: Simple PvP Raids
-
-## Goal
-
-Allow basic asynchronous PvP interaction after patron choice exists.
-
-## Scope
+Added asynchronous PvP raids with lazy completion, neighbors, weak-player protection, newbie protection, same-target cooldown, defender protection, limited loot, protected resource minimums, dread gain, and attacker/defender reports.
 
 Endpoints:
 
 * `GET /api/neighbors`
+* `GET /api/raids/me`
 * `POST /api/raids/start`
 
 Rules:
 
-* player can raid another kingdom
-* raid has travel time
-* raid result is resolved lazily from timestamps
-* defender cannot be destroyed
-* attacker can steal limited resources
-* walls reduce raid success
-* patron state can influence simple protection or flavor
-* weak-player protection exists
-* do not use background workers
+* defender cities and buildings cannot be destroyed
+* population cannot be stolen
+* loot is limited and cannot reduce defenders below protected minimums
+* no territory capture, alliance war, NPC retaliation, or real-time combat
 
-Add:
+---
 
-* infamy/dread value for aggressive behavior
+# Phase 16: Tribute And Pressure
 
-Frontend:
+Status: Completed
 
-* add simple neighbors and raid UI
-* show raid limits, travel status, and basic outcomes
-* show raid reports through the reports UI
+Added lazy patron pressure, surplus-based Empire tribute, Old Pact contribution pressure, protected minimums, pressure thresholds, payment, delay crisis choice, and patron break handling.
 
-## Result
+Endpoints:
 
-Player can raid another player, but cannot delete or fully cripple them.
+* `GET /api/patron/pressure`
+* `POST /api/patron/pay-tribute`
+* `POST /api/patron/crisis-choice`
+
+Rules:
+
+* tribute and contribution are resolved lazily
+* tribute spends only resources above protected minimums
+* crisis choice supports asking for delay or breaking patron
+* no NPC retaliation, patron armies, or background workers
 
 ---
 
 # Phase 17: Event Engine
 
-## Goal
+Status: Completed
 
-Add reusable choice-based event mechanics.
-
-## Scope
-
-Add tables:
-
-* `game_events`
-* `kingdom_events`
-* `event_choices`
-
-Event categories:
-
-* economy
-* ruler
-* military
-* patron
-* dark_omen
+Added reusable event templates, event choices, generated kingdom events, lazy event generation/expiry, choice resolution, event effects, and event reports.
 
 Endpoints:
 
 * `GET /api/events/me`
 * `POST /api/events/{id}/choose`
 
-Rules:
+Report type:
 
-* event availability and expiry resolve lazily
-* event choices can grant resources, affect units, affect patron state, or create reports
-* do not use background workers
-
-Frontend:
-
-* add an events view or dashboard section
-* show available choices and results clearly
-
-## Result
-
-The game can present and resolve simple narrative choices.
+* `event`
 
 ---
 
 # Phase 18: First Event Content Pack
 
-## Goal
+Status: Completed
 
-Add enough event content to make the MVP loop feel alive.
-
-## Scope
-
-Create first MVP events:
-
-* 20 to 30 events
-* at least one event per category
-* short, readable event text
-* clear mechanical effects
-
-Frontend:
-
-* verify event text, choices, and outcomes fit the existing UI
-
-## Result
-
-Player occasionally receives events and makes meaningful choices.
+Added the first MVP-sized event content pack with 25 active event templates: five economy, five ruler, five military, five patron, and five dark omen events.
 
 ---
 
 # Phase 19: Balance Pass
 
-## Goal
+Status: Completed
 
-Make the first loop playable.
-
-## Scope
-
-Tune:
-
-* resource production
-* building costs
-* building times
-* unit costs
-* mission rewards
-* raid limits
-* tribute values
-* event rewards and penalties
-
-Add config files if useful:
-
-* `backend/internal/gameconfig/`
-
-Frontend:
-
-* adjust labels, empty states, disabled states, and visible feedback where balance changes affect player understanding
-
-## Result
-
-The game has a basic but playable economy loop.
+Tuned first-session resources, starting army, PvE mission pacing, and early mission loss rates. Added `docs/BALANCE.md`.
 
 ---
 
-# Phase 20: Smoke Tests and Seed Data
+# Phase 20: Smoke Tests And Seed Data
 
-## Goal
+Status: Completed
 
-Make MVP easy to verify.
+Added local dev seed data, `seed-dev`, `smoke-api`, reset/test Makefile helpers, `docs/SMOKE_TESTS.md`, and a local playtest checklist.
 
-## Scope
+Key helpers:
 
-Add:
-
-* seed data
-* test users if useful
-* basic backend tests
-* API smoke checklist
-* frontend smoke checklist
-
-Required checks:
-
-* register
-* login
-* create kingdom
-* view ruler
-* view resources
-* upgrade building
-* train unit
-* start mission
-* receive report
-* choose patron
-* start raid
-* resolve event
-
-## Result
-
-Developer can verify MVP manually and with basic tests.
+* `make seed-dev`
+* `make smoke-api`
+* `make test-backend`
+* `make test-frontend`
+* `make test-all`
+* `make reset-db`
 
 ---
 
 # Phase 21: First Playtest Build
 
-## Goal
+Status: Completed
 
-Prepare first internal test.
+Prepared Playtest 001 with playtest instructions, feedback template, known limitations, release notes, playtest checklist updates, playtest Makefile helpers, and a small frontend `Playtest 001` label.
 
-## Scope
+Key docs:
 
-Add:
+* `docs/PLAYTEST_GUIDE.md`
+* `docs/FEEDBACK_TEMPLATE.md`
+* `docs/KNOWN_LIMITATIONS.md`
+* `docs/PLAYTEST_CHECKLIST.md`
+* `docs/RELEASE_NOTES_PLAYTEST_001.md`
 
-* README playtest instructions
-* known limitations
-* reset database instructions
-* feedback checklist
+Key helpers:
 
-Playtest questions:
-
-* Is the first 10 minutes clear?
-* Is resource growth understandable?
-* Are building choices meaningful?
-* Are mission reports interesting?
-* Is PvP annoying or exciting?
-* Does patron choice feel meaningful?
-
-## Result
-
-MVP is ready for first manual playtest.
+* `make playtest-setup`
+* `make playtest-check`
+* `make playtest-reset`
 
 ---
 
-# Final MVP Definition of Done
+# Final MVP Definition Of Done
 
-MVP is complete when:
+Playtest 001 completion status:
 
-* user can register and login
-* user can create one kingdom
-* kingdom has a ruler
-* kingdom has resources
-* resources grow over time
-* player can upgrade buildings
-* player can train units
-* player can send PvE missions
-* player can receive reports
-* player can raid another player
-* player can choose patron
-* player can receive and resolve events
-* player cannot be fully destroyed by another player
-* README explains how to run project
-* CODEX_HANDOFF.md is up to date
+* [x] user can register and login
+* [x] user can create one kingdom
+* [x] kingdom has a ruler
+* [x] kingdom has resources
+* [x] resources grow over time
+* [x] player can upgrade buildings
+* [x] player can train units
+* [x] player can send PvE missions
+* [x] player can receive reports
+* [x] player can raid another player
+* [x] player can choose patron
+* [x] patron pressure exists for Empire and Old Pact paths
+* [x] player can receive and resolve events
+* [x] player cannot be fully destroyed by another player
+* [x] README explains how to run and playtest the project
+* [x] `CODEX_HANDOFF.md` is up to date

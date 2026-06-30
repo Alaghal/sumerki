@@ -1,6 +1,6 @@
 # API Contract
 
-This is the initial draft API contract for future backend phases. It is documentation only in Phase 0.
+This is the API contract for the implemented Playtest 001 MVP.
 
 ## General Conventions
 
@@ -927,7 +927,7 @@ Errors:
 
 ### `GET /api/reports/me`
 
-Returns the current authenticated user's mission and raid reports after applying lazy completion.
+Returns the current authenticated user's mission, raid, and event reports after applying lazy completion.
 
 Query parameters:
 

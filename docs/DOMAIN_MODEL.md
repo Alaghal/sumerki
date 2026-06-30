@@ -1,6 +1,6 @@
 # Domain Model
 
-This is the initial domain model for the Sumerki MVP. It is documentation only in Phase 0.
+This is the domain model for the implemented Playtest 001 MVP.
 
 ## User
 
@@ -251,7 +251,7 @@ Represents trainable military forces.
 MVP units:
 
 - `militia`: starts with 10, no barracks requirement
-- `scouts`: starts with 2, no barracks requirement
+- `scouts`: starts with 3, no barracks requirement
 - `spearmen`: starts with 0, requires barracks level 1
 - `archers`: starts with 0, requires barracks level 1
 - `cavalry`: starts with 0, requires barracks level 2
@@ -273,7 +273,7 @@ Rules:
 - Units have deterministic per-unit training costs and seconds-per-unit values.
 - Training spends resources immediately, including population.
 - Training completion is resolved lazily when army is read or another army command needs current units.
-- No missions, combat, raids, unit death, healing, equipment, heroes, upkeep, cancellation, premium speedups, or multiple army formations are included in Phase 11.
+- No healing, equipment, heroes, upkeep, cancellation, premium speedups, or multiple army formations are included in the MVP.
 
 ## UnitTrainingOrder
 
@@ -294,7 +294,7 @@ Fields:
 
 Rules:
 
-- Training order amount must be 1 to 50 in the Phase 11 service.
+- Training order amount must be 1 to 50.
 - Training duration is `seconds_per_unit * amount`.
 - Finished training orders add their amount to the matching unit row.
 - Finished training orders are marked completed with `completedAt`.
@@ -333,7 +333,7 @@ Rules:
 - Completed missions return surviving units, permanently lose killed units, grant resource rewards, and create a basic report.
 - Mission outcome and losses use simple deterministic MVP rules.
 - No background workers, cron jobs, Redis, queues, or real-time ticking are used.
-- PvP raids, player-vs-player combat, route/pathfinding, heroes, equipment, unit XP, events, patrons, tribute, and advanced battle simulation are not implemented in Phase 12.
+- Route/pathfinding, heroes, equipment, unit XP, and advanced battle simulation are not implemented in the MVP.
 
 ## MissionUnit
 
@@ -421,7 +421,7 @@ Rules:
 
 Represents the result of a mission, raid, battle, or event.
 
-Phase 15 report types:
+MVP report types:
 
 - `pve_mission`
 - `pvp_raid_attacker`
@@ -570,3 +570,14 @@ Rules:
 - Phase 18 content uses the existing Phase 17 effect and condition schemas.
 - Event reports use simple local text and three phases: `Событие`, `Выбор`, and `Последствия`.
 - Event chains, advanced conditions, map/province events, alliance events, and dark god avatar mechanics remain out of scope.
+
+## Current Known Limitations
+
+- Time-based systems use lazy resolution during reads or commands.
+- There are no background workers, cron jobs, queues, Redis, WebSocket, or real-time server ticking.
+- There is no city destruction.
+- There are no alliance wars.
+- There is no map or province system.
+- There is no NPC retaliation.
+- There is no dark god avatar system.
+- Playtest values are first-pass MVP values and need feedback.

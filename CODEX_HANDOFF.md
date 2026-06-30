@@ -2,109 +2,62 @@
 
 ## Current Phase
 
-Phase 21: First Playtest Build.
+Documentation Sync after Phase 21.
 
 ## Status
 
-Phase 21 is implemented according to the attached prompt. The MVP is now packaged for the first internal manual playtest with focused tester instructions, structured feedback, known limitations, release notes, playtest helper targets, and a visible Playtest 001 label in the frontend.
+Documentation sync completed after Phase 21 Playtest 001. This was a documentation-only pass to align stale planning and reference docs with the implemented Playtest 001 state.
 
 ## Completed
 
-- Added `docs/PLAYTEST_GUIDE.md` as the main first-playtest guide.
-- Added `docs/FEEDBACK_TEMPLATE.md` for structured tester feedback.
-- Added `docs/KNOWN_LIMITATIONS.md` to separate MVP limitations from bugs.
-- Updated `docs/PLAYTEST_CHECKLIST.md` into a pre-flight, manual app, and UX checklist.
-- Added `docs/RELEASE_NOTES_PLAYTEST_001.md`.
-- Updated README with:
-  - Phase 21 status
-  - compact first playtest quick start
-  - seed account list
-  - playtest documentation links
-- Added Makefile playtest helpers:
-  - `playtest-setup`
-  - `playtest-check`
-  - `playtest-reset`
-- Added a tiny frontend clarity label: `Playtest 001` in the top bar.
-
-## Phase Scope Note
-
-- No new gameplay systems were added.
-- No schema or migration changes were made.
-- No API response shapes were changed.
-- No gameplay balance values were changed.
-- No backend runtime systems were added.
-- No production deployment, payments, analytics, admin panel, chat, alliances, map/province systems, dark god systems, NPC retaliation, background workers, cron jobs, Redis, or WebSocket were added.
-- Frontend change was limited to a small playtest build label.
-- This session did not start Phase 22.
+- Synced `docs/MVP_PHASES.md` to the actual implemented phase order through Phase 21.
+- Added top-level implementation status and phase-order correction notes to `docs/MVP_PHASES.md`.
+- Marked Phases 0 through 21 as completed in `docs/MVP_PHASES.md`.
+- Corrected Phase 15 and Phase 16 ordering:
+  - Phase 15: Simple PvP Raids With Protection
+  - Phase 16: Tribute And Pressure
+- Removed stale Patron System mention of an unimplemented patron help endpoint.
+- Updated phase descriptions for actual patron, raid, tribute/pressure, event, seed/smoke, and playtest deliverables.
+- Updated the Final MVP Definition of Done as completed for Playtest 001.
+- Updated `docs/API_CONTRACT.md` intro and report wording so it reflects the implemented Playtest 001 API and event report coverage.
+- Updated `docs/DOMAIN_MODEL.md` intro and small stale phase-specific statements.
+- Updated `docs/DOMAIN_MODEL.md` to show starting scouts as 3.
+- Added current known limitations to `docs/DOMAIN_MODEL.md`.
+- Added accepted decisions:
+  - `0007. Playtest 001 Baseline`
+  - `0008. Documentation Follows Implemented Phase Order`
 
 ## Changed Files
 
-- `README.md`
 - `CODEX_HANDOFF.md`
-- `Makefile`
-- `docs/PLAYTEST_GUIDE.md`
-- `docs/FEEDBACK_TEMPLATE.md`
-- `docs/KNOWN_LIMITATIONS.md`
-- `docs/PLAYTEST_CHECKLIST.md`
-- `docs/RELEASE_NOTES_PLAYTEST_001.md`
-- `frontend/src/components/layout/TopBar.tsx`
+- `docs/MVP_PHASES.md`
+- `docs/API_CONTRACT.md`
+- `docs/DOMAIN_MODEL.md`
+- `docs/DECISIONS.md`
 
 ## Commands Run
 
-- `make test-backend`
-- `make test-frontend`
-- `make playtest-check`
-- `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make playtest-setup`
-- `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' JWT_SECRET='dev-secret' BACKEND_PORT=18080 GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build go run ./cmd/server`
-- `API_BASE_URL='http://localhost:18080' make smoke-api`
+- `rg` checks for stale patron help, old Phase 15/16 ordering, old draft wording, stale scout counts, old report type names, and stale report wording
+- `rg -n "Status: Completed|Implementation Status|Phase Order Correction|Final MVP" docs/MVP_PHASES.md`
+- `rg -n "patron/pressure|events/me|events/\\{id\\}/choose|neighbors|raids/me|raids/start|event" docs/API_CONTRACT.md`
 
-## Verification
-
-- Backend tests passed.
-- Frontend typecheck passed.
-- Frontend production build passed.
-- `make playtest-check` passed and printed the expected smoke-api instruction.
-- `make playtest-setup` ran successfully against the local Docker database on `15432`.
-- Goose reported no pending migrations and current version `13`.
-- `make seed-dev` ran as part of `playtest-setup` and refreshed all four dev accounts.
-- Live API smoke test against `http://localhost:18080` completed successfully:
-  - auth login
-  - kingdom fetch
-  - ruler fetch
-  - resources fetch
-  - building upgrade
-  - army fetch
-  - unit training
-  - mission start
-  - missions fetch
-  - reports fetch
-  - patron options/status/pressure
-  - event choice
-  - raids fetch
-  - raid start
+No backend or frontend tests were run because this was a documentation-only sync and no code files were modified.
 
 ## What Works Now
 
-- A tester can use `docs/PLAYTEST_GUIDE.md` to understand the purpose and route of Playtest 001.
-- A developer can run `make playtest-setup` to migrate and seed local playtest data.
-- A developer can run `make playtest-check` for backend and frontend checks.
-- A developer can run `make playtest-reset` for a documented local destructive reset and reseed.
-- README has a compact First Playtest section and links to the detailed playtest docs.
-- Testers have a structured feedback template.
-- Current limitations are clearly documented.
-- The dashboard top bar identifies the build as `Playtest 001`.
+- Documentation no longer claims Phases 16 or 21 are pending.
+- `docs/MVP_PHASES.md` shows Playtest 001 as completed.
+- `docs/MVP_PHASES.md` no longer contradicts `CODEX_HANDOFF.md` about Phase 15/16 ordering.
+- Patron docs no longer list the unimplemented patron help endpoint.
+- API contract and domain docs match README and the current implemented MVP feature set more closely.
+- Decisions record the Playtest 001 baseline and the phase-order correction policy.
 
 ## Known Limitations
 
-- Playtest 001 is local-development only.
-- Seed data is local-only and uses public dev passwords.
-- `reset-db` and `playtest-reset` are destructive and assume the local Docker PostgreSQL service/user/database from this repository.
-- `scripts/smoke-api.sh` requires `jq`.
-- Smoke API mutates local data by starting upgrades, training, missions, raids, and event choices.
-- Smoke API checks happy paths but does not wait for mission or raid timers to resolve.
-- Existing lazy mission/report duplicate behavior noted in Phase 19 was not changed.
-- The local Docker database is currently published on `15432`, so verification used `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable'`.
+- Documentation sync is based on existing docs and handoff, not a fresh live API smoke run.
+- Code was intentionally not changed.
+- README was reviewed and not changed because it already points to the Playtest 001 docs and current Phase 21 state.
 
-## Next Recommended Phase
+## Next Recommended Step
 
-Start Phase 22 only when explicitly requested.
+Begin post-playtest feedback collection or create issues from Playtest 001 feedback.
