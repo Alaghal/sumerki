@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 19: Balance Pass.
+Phase 20: Smoke Tests and Seed Data.
 
-This phase tunes first-session resources, starting army, and PvE mission pacing so a new player can take several meaningful actions without manual database edits. See `docs/BALANCE.md` for the first-pass MVP balance assumptions.
+This phase adds local dev seed data, API smoke checks, and playtest documentation so the MVP loop can be verified without manual database edits.
 
 ## Documentation
 
@@ -20,6 +20,8 @@ This phase tunes first-session resources, starting army, and PvE mission pacing 
 - `docs/API_CONTRACT.md`: draft backend API contract.
 - `docs/DOMAIN_MODEL.md`: draft domain model.
 - `docs/BALANCE.md`: first-pass MVP balance assumptions.
+- `docs/SMOKE_TESTS.md`: local smoke test flow.
+- `docs/PLAYTEST_CHECKLIST.md`: manual browser playtest checklist.
 - `docs/phases/`: detailed phase notes.
 
 ## Planned Stack
@@ -63,6 +65,14 @@ make db-ps
 make db-down
 ```
 
+Reset the local Docker database:
+
+```sh
+make reset-db
+```
+
+`reset-db` is destructive and intended only for local development.
+
 ## Backend
 
 The backend requires `DATABASE_URL` and `JWT_SECRET`. `BACKEND_PORT` defaults to `8080` when unset.
@@ -93,6 +103,46 @@ Check database readiness:
 ```sh
 curl http://localhost:8080/ready
 ```
+
+## Local MVP Verification
+
+Start infrastructure, migrate, and seed dev data:
+
+```sh
+docker compose up -d postgres
+make migrate-up
+make seed-dev
+```
+
+Run checks:
+
+```sh
+make test-backend
+make test-frontend
+```
+
+Run the backend:
+
+```sh
+make backend-run
+```
+
+In another terminal, run the API smoke test:
+
+```sh
+make smoke-api
+```
+
+Dev accounts use password `password123`:
+
+- `northern@example.com`
+- `lizard@example.com`
+- `posad@example.com`
+- `raider@example.com`
+
+Dev seed data is local only. Do not use dev passwords in production.
+
+See `docs/SMOKE_TESTS.md` and `docs/PLAYTEST_CHECKLIST.md` for the full local verification flow.
 
 ## Auth API
 
