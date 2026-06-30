@@ -1,0 +1,23 @@
+{
+  "create": {
+    "title": "Create Kingdom",
+    "name": "Kingdom name",
+    "culture": "Culture",
+    "submit": "Create kingdom",
+    "loading": "Creating kingdom..."
+  },
+  "cultures": {
+    "northern_principality": {
+      "name": "Northern Principalities",
+      "description": "Fortresses, warbands, honor, and the direct military path."
+    },
+    "lizard_grad": {
+      "name": "Lizard Grads",
+      "description": "Marshes, ancient pacts, traps, and cold memory."
+    },
+    "free_posad": {
+      "name": "Free Posads",
+      "description": "Trade, gold, markets, and mercenaries."
+    }
+  }
+}

@@ -2,62 +2,82 @@
 
 ## Current Phase
 
-Phase 22: UX And i18n Strategy Docs.
+Phase 23: i18n Foundation ru/en.
 
 ## Status
 
-Phase 22 completed as a documentation-only strategy phase.
+Phase 23 completed with a minimal Russian/English frontend localization foundation.
 
 ## Completed
 
-- Documented target UX game shell.
-- Documented i18n plan.
-- Documented UI copy rules.
-- Updated post-playtest roadmap.
-- Updated `docs/MVP_PHASES.md` with Phase 22 completed status.
-- Confirmed `docs/KNOWN_LIMITATIONS.md` includes UX and localization limitations.
-- Confirmed `docs/DECISIONS.md` includes map-first, i18n foundation, and SVG-first map decisions.
-- Confirmed `README.md` links to the Phase 22 docs and notes the UX/i18n direction.
+- Installed `i18next` and `react-i18next`.
+- Added `frontend/src/i18n/index.ts` with default Russian language, English fallback, supported language metadata, and `localStorage` persistence at `sumerki.ui.language`.
+- Added initial translation namespaces for `common`, `game`, `auth`, `kingdom`, and `errors`.
+- Imported the i18n setup before app render.
+- Added a TopBar language switcher.
+- Migrated TopBar, Sidebar, Login, Register, Create Kingdom, and basic Dashboard header/kingdom-card copy to i18n.
+- Kept full DashboardPage/gameplay copy migration out of scope for Phase 24.
+- Updated README, MVP phases, and known limitations for Phase 23.
+- Updated post-playtest roadmap with Phase 23 completed status.
 
 ## Changed Files
 
 - `CODEX_HANDOFF.md`
 - `README.md`
-- `docs/POST_PLAYTEST_ROADMAP.md`
-- `docs/UX_I18N_STRATEGY.md`
-- `docs/I18N_PLAN.md`
-- `docs/UI_COPY_RULES.md`
 - `docs/MVP_PHASES.md`
+- `docs/KNOWN_LIMITATIONS.md`
+- `docs/POST_PLAYTEST_ROADMAP.md`
+- `frontend/package.json`
+- `frontend/package-lock.json`
+- `frontend/src/api/errors.ts`
+- `frontend/src/components/i18n/LanguageSwitcher.tsx`
+- `frontend/src/components/layout/Sidebar.tsx`
+- `frontend/src/components/layout/TopBar.tsx`
+- `frontend/src/i18n/index.ts`
+- `frontend/src/i18n/resources/en/auth.json`
+- `frontend/src/i18n/resources/en/common.json`
+- `frontend/src/i18n/resources/en/errors.json`
+- `frontend/src/i18n/resources/en/game.json`
+- `frontend/src/i18n/resources/en/kingdom.json`
+- `frontend/src/i18n/resources/ru/auth.json`
+- `frontend/src/i18n/resources/ru/common.json`
+- `frontend/src/i18n/resources/ru/errors.json`
+- `frontend/src/i18n/resources/ru/game.json`
+- `frontend/src/i18n/resources/ru/kingdom.json`
+- `frontend/src/main.tsx`
+- `frontend/src/pages/CreateKingdomPage.tsx`
+- `frontend/src/pages/DashboardPage.tsx`
+- `frontend/src/pages/LoginPage.tsx`
+- `frontend/src/pages/RegisterPage.tsx`
 
 ## Commands Run
 
-- `rg "UX And i18n Strategy|Game Shell|i18next|Phase 22|UI Copy Rules" docs README.md`
-- `rg "0009|0010|0011" docs/DECISIONS.md`
-- `rg "POST_PLAYTEST_ROADMAP|UX_I18N_STRATEGY|I18N_PLAN|UI_COPY_RULES" README.md docs`
-- `rg "Phase 22|Phase 31|Post-Playtest" docs/MVP_PHASES.md`
-- `rg "Map-First|i18n|SVG" docs/DECISIONS.md`
-- `rg -n "Phase 2[2-9]|Phase 3[0-1]" docs/MVP_PHASES.md docs/POST_PLAYTEST_ROADMAP.md`
-- `rg -n "UX Limitations|Localization Limitations|Russian/English localization|map-first game shell" docs/KNOWN_LIMITATIONS.md docs/UX_I18N_STRATEGY.md`
-- `git diff --stat`
+- `npm install i18next react-i18next`
+- `npm run typecheck`
+- `npm run build`
+- `rg "sumerki.ui.language|fallbackLng|LanguageSwitcher|useTranslation" frontend/src`
+- `rg "Phase 23|i18n Foundation|UI Copy Migration" README.md docs/MVP_PHASES.md docs/KNOWN_LIMITATIONS.md CODEX_HANDOFF.md`
 - `git diff --check`
 - `git status --short`
 
-No backend or frontend tests were required because this was documentation-only.
-
 ## What Works Now
 
-- Project has a documented UX/i18n direction after Playtest 001.
-- Phase 23 has clear prerequisites and scope.
-- Map-first shell is documented before code changes.
-- README links to the roadmap, strategy, i18n plan, and UI copy rules.
+- Frontend initializes i18next before rendering the app.
+- Russian is the default UI language and English is the fallback.
+- Selected language persists in `localStorage` under `sumerki.ui.language`.
+- TopBar includes a language switcher.
+- Shell/auth/create-kingdom/basic dashboard copy can switch between Russian and English.
+- Existing API error mapping continues through the new `errors` namespace.
 
 ## Known Limitations
 
-- No i18n code is implemented yet.
+- Not all dashboard copy is migrated yet.
+- Event/report content is not localized yet.
+- Backend-provided text remains in its original language.
+- Additional languages are not added yet, but the structure supports them.
 - No game shell code is implemented yet.
 - No map UI is implemented yet.
-- Current dashboard remains unchanged.
 
 ## Next Recommended Step
 
-Start Phase 23: i18n Foundation ru/en.
+Phase 24: UI Copy Migration.

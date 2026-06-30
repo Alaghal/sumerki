@@ -1,10 +1,13 @@
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { useSession } from '../../context/SessionContext';
+import { LanguageSwitcher } from '../i18n/LanguageSwitcher';
 import { Button } from '../ui/Button';
 
 export function TopBar() {
   const navigate = useNavigate();
+  const { t } = useTranslation(['common', 'game']);
   const { user, logout } = useSession();
 
   function handleLogout() {
@@ -17,15 +20,18 @@ export function TopBar() {
       <div className="mx-auto flex min-h-16 w-full max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="text-xl font-semibold tracking-normal text-stone-100">Sumerki</div>
-            <span className="rounded border border-dusk-gold/40 px-2 py-0.5 text-xs uppercase tracking-normal text-dusk-gold">Playtest 001</span>
+            <div className="text-xl font-semibold tracking-normal text-stone-100">{t('game:app.name')}</div>
+            <span className="rounded border border-dusk-gold/40 px-2 py-0.5 text-xs uppercase tracking-normal text-dusk-gold">
+              {t('game:app.playtestLabel')}
+            </span>
           </div>
-          <div className="text-sm text-dusk-gold">Сумеречье</div>
+          <div className="text-sm text-dusk-gold">{t('game:app.subtitle')}</div>
         </div>
-        <div className="flex items-center gap-3 text-sm text-stone-300">
+        <div className="flex flex-wrap items-center justify-end gap-3 text-sm text-stone-300">
+          <LanguageSwitcher />
           <span className="max-w-[13rem] truncate">{user?.email}</span>
           <Button onClick={handleLogout} type="button">
-            Logout
+            {t('common:buttons.logout')}
           </Button>
         </div>
       </div>

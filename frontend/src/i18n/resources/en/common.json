@@ -1,0 +1,16 @@
+{
+  "buttons": {
+    "logout": "Logout",
+    "refresh": "Refresh",
+    "loading": "Loading..."
+  },
+  "language": {
+    "ru": "Русский",
+    "en": "English"
+  },
+  "states": {
+    "loading": "Loading...",
+    "error": "Error",
+    "empty": "Empty"
+  }
+}

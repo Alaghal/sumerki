@@ -1,0 +1,28 @@
+{
+  "app": {
+    "name": "Sumerki",
+    "subtitle": "Сумеречье",
+    "playtestLabel": "Playtest 001"
+  },
+  "navigation": {
+    "city": "Город",
+    "ruler": "Правитель",
+    "army": "Армия",
+    "outskirts": "Окрестности",
+    "reports": "Отчёты",
+    "patron": "Покровитель",
+    "map": "Карта",
+    "events": "События",
+    "raids": "Набеги"
+  },
+  "dashboard": {
+    "title": "{{name}}",
+    "subtitle": "Двор владения {{email}}",
+    "kingdom": "Владение",
+    "culture": "Культура",
+    "patron": "Покровитель",
+    "player": "Игрок",
+    "noPatron": "Без покровителя",
+    "refreshCity": "Обновить город"
+  }
+}

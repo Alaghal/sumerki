@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   Army,
@@ -179,6 +180,7 @@ const raidBlockedReasonLabels = {
 };
 
 export function DashboardPage() {
+  const { t } = useTranslation(['game', 'kingdom']);
   const { token, user, kingdom } = useSession();
   const [ruler, setRuler] = useState<Ruler | null>(null);
   const [rulerLoading, setRulerLoading] = useState(true);
@@ -1004,27 +1006,27 @@ export function DashboardPage() {
     <AppShell>
       <div className="grid gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-stone-100">{kingdom.name}</h1>
-          <p className="mt-1 text-sm text-stone-400">Settlement dashboard for {user.email}</p>
+          <h1 className="text-2xl font-semibold text-stone-100">{t('game:dashboard.title', { name: kingdom.name })}</h1>
+          <p className="mt-1 text-sm text-stone-400">{t('game:dashboard.subtitle', { email: user.email })}</p>
         </div>
         <Button className="justify-self-start" onClick={refreshCity} type="button">
-          Обновить город
+          {t('game:dashboard.refreshCity')}
         </Button>
         <div className="grid gap-4 lg:grid-cols-2">
-          <Card title="Kingdom">
+          <Card title={t('game:dashboard.kingdom')}>
             <dl className="grid gap-2">
               <div className="flex justify-between gap-4">
-                <dt className="text-stone-400">Culture</dt>
-                <dd className="text-right text-stone-100">{cultureLabels[kingdom.culture]}</dd>
+                <dt className="text-stone-400">{t('game:dashboard.culture')}</dt>
+                <dd className="text-right text-stone-100">{t(`kingdom:cultures.${kingdom.culture}.name`)}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-stone-400">Patron</dt>
+                <dt className="text-stone-400">{t('game:dashboard.patron')}</dt>
                 <dd className="text-right text-stone-100">
-                  {patronStatus?.patron?.label ?? (kingdom.patron ? patronLabels[kingdom.patron] : 'Без покровителя')}
+                  {patronStatus?.patron?.label ?? (kingdom.patron ? patronLabels[kingdom.patron] : t('game:dashboard.noPatron'))}
                 </dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-stone-400">Player</dt>
+                <dt className="text-stone-400">{t('game:dashboard.player')}</dt>
                 <dd className="max-w-[14rem] truncate text-right text-stone-100">{user.email}</dd>
               </div>
             </dl>
