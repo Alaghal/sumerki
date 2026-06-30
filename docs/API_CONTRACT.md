@@ -758,11 +758,176 @@ Errors:
 - `insufficient_units`
 - `mission_requirements_not_met`
 
+## Raids
+
+### `GET /api/neighbors`
+
+Returns possible PvP raid targets. The current user's kingdom is excluded and exact defender resources or unit counts are not exposed.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "neighbors": [
+    {
+      "kingdomId": "uuid",
+      "name": "Серый Посад",
+      "culture": "free_posad",
+      "patron": "old_pact",
+      "dread": 2,
+      "powerEstimate": "similar",
+      "canRaid": true,
+      "blockedReason": null
+    }
+  ]
+}
+```
+
+Blocked reasons:
+
+- `target_newbie_protected`
+- `target_too_weak`
+- `raid_cooldown_active`
+- `target_under_protection`
+
+### `GET /api/raids/me`
+
+Returns raids where the current user's kingdom is attacker or defender. Completed raids are resolved lazily before returning.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "raids": [
+    {
+      "id": "uuid",
+      "attackerKingdomId": "uuid",
+      "attackerKingdomName": "Воронья Сечь",
+      "defenderKingdomId": "uuid",
+      "defenderKingdomName": "Серый Посад",
+      "status": "active",
+      "result": null,
+      "startedAt": "2026-06-29T00:00:00Z",
+      "arrivesAt": "2026-06-29T00:02:00Z",
+      "completedAt": null,
+      "units": [
+        {
+          "unitType": "militia",
+          "unitLabel": "Ополчение",
+          "amountSent": 5,
+          "amountLost": 0,
+          "amountReturned": 0
+        }
+      ],
+      "loot": {
+        "gold": 0,
+        "food": 0,
+        "wood": 0,
+        "stone": 0,
+        "population": 0
+      }
+    }
+  ]
+}
+```
+
+### `POST /api/raids/start`
+
+Starts an asynchronous raid against another kingdom. Sent attacker units are removed immediately and returned when the raid resolves.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Request:
+
+```json
+{
+  "defenderKingdomId": "uuid",
+  "units": [
+    {
+      "unitType": "militia",
+      "amount": 5
+    },
+    {
+      "unitType": "scouts",
+      "amount": 1
+    }
+  ]
+}
+```
+
+Response:
+
+```json
+{
+  "raid": {
+    "id": "uuid",
+    "attackerKingdomId": "uuid",
+    "attackerKingdomName": "Воронья Сечь",
+    "defenderKingdomId": "uuid",
+    "defenderKingdomName": "Серый Посад",
+    "status": "active",
+    "result": null,
+    "startedAt": "2026-06-29T00:00:00Z",
+    "arrivesAt": "2026-06-29T00:02:00Z",
+    "completedAt": null,
+    "units": [],
+    "loot": {
+      "gold": 0,
+      "food": 0,
+      "wood": 0,
+      "stone": 0,
+      "population": 0
+    }
+  },
+  "army": {
+    "kingdomId": "uuid",
+    "units": [],
+    "trainingOrders": [],
+    "summary": {
+      "totalUnits": 7,
+      "totalAttack": 14,
+      "totalDefense": 21,
+      "totalSupply": 7
+    }
+  }
+}
+```
+
+Errors:
+
+- `kingdom_not_found`
+- `target_not_found`
+- `cannot_raid_self`
+- `invalid_unit_type`
+- `invalid_unit_amount`
+- `insufficient_units`
+- `raid_requirements_not_met`
+- `target_newbie_protected`
+- `target_too_weak`
+- `raid_cooldown_active`
+- `target_under_protection`
+
 ## Reports
 
 ### `GET /api/reports/me`
 
-Returns the current authenticated user's mission reports after applying lazy mission completion.
+Returns the current authenticated user's mission and raid reports after applying lazy completion.
 
 Query parameters:
 
@@ -1131,3 +1296,12 @@ Mission results:
 Report types:
 
 - `pve_mission`
+- `pvp_raid_attacker`
+- `pvp_raid_defender`
+
+Raid results:
+
+- `attacker_success`
+- `defender_success`
+- `bloody_stalemate`
+- `repelled_by_protection`

@@ -141,6 +141,7 @@ export type Army = {
 export type MissionType = 'expedition' | 'scouting';
 export type MissionStatus = 'active' | 'completed';
 export type MissionResultStatus = 'success' | 'partial_success' | 'failure';
+export type RaidResultStatus = 'attacker_success' | 'defender_success' | 'bloody_stalemate' | 'repelled_by_protection';
 
 export type MissionRequirements = {
   totalUnits: number;
@@ -192,11 +193,11 @@ export type Mission = {
 
 export type MissionReport = {
   id: string;
-  type: 'pve_mission';
+  type: 'pve_mission' | 'pvp_raid_attacker' | 'pvp_raid_defender';
   title: string;
   body: string;
   phases: ReportPhase[];
-  result: MissionResultStatus;
+  result: MissionResultStatus | RaidResultStatus;
   rewards: ResourceValues;
   losses: Partial<Record<UnitType, number>>;
   isRead: boolean;
@@ -233,6 +234,45 @@ export type PatronRelation = {
 export type PatronStatus = {
   patron: PatronRelation | null;
   availablePatrons: PatronKey[];
+};
+
+export type Neighbor = {
+  kingdomId: string;
+  name: string;
+  culture: Culture;
+  patron: PatronKey | null;
+  dread: number;
+  powerEstimate: 'much_weaker' | 'weaker' | 'similar' | 'stronger' | 'much_stronger';
+  canRaid: boolean;
+  blockedReason:
+    | 'target_newbie_protected'
+    | 'target_too_weak'
+    | 'raid_cooldown_active'
+    | 'target_under_protection'
+    | null;
+};
+
+export type RaidUnit = {
+  unitType: UnitType;
+  unitLabel: string;
+  amountSent: number;
+  amountLost: number;
+  amountReturned: number;
+};
+
+export type Raid = {
+  id: string;
+  attackerKingdomId: string;
+  attackerKingdomName: string;
+  defenderKingdomId: string;
+  defenderKingdomName: string;
+  status: MissionStatus;
+  result: RaidResultStatus | null;
+  startedAt: string;
+  arrivesAt: string;
+  completedAt: string | null;
+  units: RaidUnit[];
+  loot: ResourceValues;
 };
 
 type AuthResponse = {
@@ -308,6 +348,27 @@ type ReportsResponse = {
 
 type ReportResponse = {
   report: MissionReport;
+};
+
+type NeighborsResponse = {
+  neighbors: Neighbor[];
+};
+
+type RaidsResponse = {
+  raids: Raid[];
+};
+
+type StartRaidRequest = {
+  defenderKingdomId: string;
+  units: Array<{
+    unitType: UnitType;
+    amount: number;
+  }>;
+};
+
+type StartRaidResponse = {
+  raid: Raid;
+  army: Army;
 };
 
 type PatronOptionsResponse = {
@@ -526,6 +587,22 @@ export function joinPatron(patron: PatronKey, token?: string) {
 export function breakPatron(token?: string) {
   return request<BreakPatronResponse>('/api/patron/break', {
     method: 'POST',
+    token,
+  });
+}
+
+export function getNeighbors(token?: string) {
+  return request<NeighborsResponse>('/api/neighbors', { token });
+}
+
+export function getMyRaids(token?: string) {
+  return request<RaidsResponse>('/api/raids/me', { token });
+}
+
+export function startRaid(defenderKingdomId: string, units: StartRaidRequest['units'], token?: string) {
+  return request<StartRaidResponse>('/api/raids/start', {
+    method: 'POST',
+    body: { defenderKingdomId, units } satisfies StartRaidRequest,
     token,
   });
 }

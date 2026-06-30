@@ -11,21 +11,26 @@ import {
   getMyBuildings,
   getMyMissions,
   getMyPatron,
+  getMyRaids,
   getMyReports,
   getMyResources,
   getMyRuler,
+  getNeighbors,
   getPatronOptions,
   getReport,
   joinPatron,
   markReportRead,
   Mission,
   MissionReport,
+  Neighbor,
   PatronKey,
   PatronOption,
   PatronStatus,
+  Raid,
   Resources,
   Ruler,
   startMission,
+  startRaid,
   trainUnits,
   UnitType,
   upgradeBuilding,
@@ -117,6 +122,25 @@ const missionResultLabels = {
   success: 'Успех',
   partial_success: 'Частичный успех',
   failure: 'Провал',
+  attacker_success: 'Набег успешен',
+  defender_success: 'Защитник отбился',
+  bloody_stalemate: 'Кровавая ничья',
+  repelled_by_protection: 'Набег сорван',
+};
+
+const powerEstimateLabels = {
+  much_weaker: 'Намного слабее',
+  weaker: 'Слабее',
+  similar: 'Сравним',
+  stronger: 'Сильнее',
+  much_stronger: 'Намного сильнее',
+};
+
+const raidBlockedReasonLabels = {
+  target_newbie_protected: 'Владение под защитой новичка',
+  target_too_weak: 'Цель слишком слаба',
+  raid_cooldown_active: 'Недавно уже был набег',
+  target_under_protection: 'Цель под временной защитой',
 };
 
 export function DashboardPage() {
@@ -156,6 +180,13 @@ export function DashboardPage() {
   const [patronError, setPatronError] = useState('');
   const [joiningPatron, setJoiningPatron] = useState<PatronKey | null>(null);
   const [isBreakingPatron, setIsBreakingPatron] = useState(false);
+  const [neighbors, setNeighbors] = useState<Neighbor[]>([]);
+  const [raids, setRaids] = useState<Raid[]>([]);
+  const [raidsLoading, setRaidsLoading] = useState(true);
+  const [raidsError, setRaidsError] = useState('');
+  const [selectedRaidTargetID, setSelectedRaidTargetID] = useState<string | null>(null);
+  const [raidInputs, setRaidInputs] = useState<Partial<Record<UnitType, number>>>({});
+  const [isStartingRaid, setIsStartingRaid] = useState(false);
 
   async function loadRuler() {
     if (!token || !kingdom) {
@@ -286,8 +317,28 @@ export function DashboardPage() {
     }
   }
 
+  async function loadRaids() {
+    if (!token || !kingdom) {
+      return;
+    }
+
+    setRaidsLoading(true);
+    setRaidsError('');
+
+    try {
+      const [neighborsResponse, raidsResponse] = await Promise.all([getNeighbors(token), getMyRaids(token)]);
+      setNeighbors(neighborsResponse.neighbors);
+      setRaids(raidsResponse.raids);
+      setSelectedRaidTargetID((current) => current ?? neighborsResponse.neighbors.find((neighbor) => neighbor.canRaid)?.kingdomId ?? null);
+    } catch {
+      setRaidsError('Не удалось загрузить набеги.');
+    } finally {
+      setRaidsLoading(false);
+    }
+  }
+
   async function refreshCity() {
-    await Promise.all([loadRuler(), loadResources(), loadBuildings(), loadArmy(), loadMissions(), loadReports(), loadPatron()]);
+    await Promise.all([loadRuler(), loadResources(), loadBuildings(), loadArmy(), loadMissions(), loadReports(), loadPatron(), loadRaids()]);
   }
 
   async function handleUpgrade(buildingType: BuildingType) {
@@ -334,6 +385,10 @@ export function DashboardPage() {
     await Promise.all([loadMissions(), loadArmy(), loadResources(), loadReports()]);
   }
 
+  async function refreshRaids() {
+    await Promise.all([loadRaids(), loadArmy(), loadResources(), loadReports()]);
+  }
+
   async function handleJoinPatron(patron: PatronKey) {
     if (!token) {
       return;
@@ -367,6 +422,44 @@ export function DashboardPage() {
       setPatronError(toUserMessage(caughtError));
     } finally {
       setIsBreakingPatron(false);
+    }
+  }
+
+  function setRaidUnitAmount(unitType: UnitType, amount: number) {
+    setRaidInputs((current) => ({
+      ...current,
+      [unitType]: amount,
+    }));
+  }
+
+  async function handleStartRaid() {
+    if (!token || !selectedRaidTargetID) {
+      return;
+    }
+
+    const units = unitTypes
+      .map((unitType) => ({
+        unitType,
+        amount: raidInputs[unitType] ?? 0,
+      }))
+      .filter((unit) => unit.amount > 0);
+
+    if (units.length === 0 || units.some((unit) => !Number.isInteger(unit.amount) || unit.amount < 0)) {
+      setRaidsError('Выберите целое неотрицательное количество войск.');
+      return;
+    }
+
+    setIsStartingRaid(true);
+    setRaidsError('');
+
+    try {
+      const response = await startRaid(selectedRaidTargetID, units, token);
+      setArmy(response.army);
+      await refreshRaids();
+    } catch (caughtError) {
+      setRaidsError(toUserMessage(caughtError));
+    } finally {
+      setIsStartingRaid(false);
     }
   }
 
@@ -484,6 +577,42 @@ export function DashboardPage() {
     }
 
     loadRuler();
+
+    return () => {
+      isActive = false;
+    };
+  }, [kingdom, token]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadInitialRaids() {
+      if (!token || !kingdom) {
+        return;
+      }
+
+      setRaidsLoading(true);
+      setRaidsError('');
+
+      try {
+        const [neighborsResponse, raidsResponse] = await Promise.all([getNeighbors(token), getMyRaids(token)]);
+        if (isActive) {
+          setNeighbors(neighborsResponse.neighbors);
+          setRaids(raidsResponse.raids);
+          setSelectedRaidTargetID(neighborsResponse.neighbors.find((neighbor) => neighbor.canRaid)?.kingdomId ?? null);
+        }
+      } catch {
+        if (isActive) {
+          setRaidsError('Не удалось загрузить набеги.');
+        }
+      } finally {
+        if (isActive) {
+          setRaidsLoading(false);
+        }
+      }
+    }
+
+    loadInitialRaids();
 
     return () => {
       isActive = false;
@@ -1141,6 +1270,113 @@ export function DashboardPage() {
                             Result: {missionResultLabels[mission.result.result]}
                           </p>
                         ) : null}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : null}
+            </div>
+          </Card>
+          <Card title="Набеги">
+            <div className="grid gap-4">
+              {raidsLoading ? <p>Загрузка набегов...</p> : null}
+              {raidsError ? <p className="text-red-300">{raidsError}</p> : null}
+              <Button className="justify-self-start" disabled={raidsLoading} onClick={refreshRaids} type="button">
+                Обновить набеги
+              </Button>
+              {!raidsLoading ? (
+                <>
+                  <div className="grid gap-3">
+                    <h3 className="font-semibold text-stone-100">Соседи</h3>
+                    {neighbors.length === 0 ? <p className="text-sm text-stone-400">Нет доступных соседей.</p> : null}
+                    {neighbors.map((neighbor) => (
+                      <div className="rounded border border-stone-800 bg-dusk-950 p-3" key={neighbor.kingdomId}>
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <h3 className="font-semibold text-stone-100">{neighbor.name}</h3>
+                            <p className="text-sm text-stone-400">{cultureLabels[neighbor.culture]}</p>
+                            <p className="text-sm text-stone-400">
+                              Покровитель: {neighbor.patron ? patronLabels[neighbor.patron] : 'Без покровителя'}
+                            </p>
+                          </div>
+                          <div className="text-right text-sm text-stone-300">
+                            <div>Страх: {neighbor.dread}</div>
+                            <div>{powerEstimateLabels[neighbor.powerEstimate]}</div>
+                          </div>
+                        </div>
+                        <p className={neighbor.canRaid ? 'mt-2 text-sm text-dusk-gold' : 'mt-2 text-sm text-stone-500'}>
+                          {neighbor.canRaid
+                            ? 'Можно начать набег'
+                            : neighbor.blockedReason
+                              ? raidBlockedReasonLabels[neighbor.blockedReason]
+                              : 'Набег недоступен'}
+                        </p>
+                        {neighbor.canRaid ? (
+                          <label className="mt-3 flex items-center gap-2 text-sm text-stone-400">
+                            <input
+                              checked={selectedRaidTargetID === neighbor.kingdomId}
+                              onChange={() => setSelectedRaidTargetID(neighbor.kingdomId)}
+                              type="radio"
+                            />
+                            Выбрать цель
+                          </label>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+
+                  {selectedRaidTargetID ? (
+                    <div className="grid gap-3 rounded border border-stone-800 bg-dusk-950 p-3">
+                      <h3 className="font-semibold text-stone-100">Отправить отряд</h3>
+                      <div className="grid gap-2 sm:grid-cols-5">
+                        {unitTypes.map((unitType) => (
+                          <label className="grid gap-1 text-xs text-stone-400" key={unitType}>
+                            {army?.units.find((unit) => unit.type === unitType)?.label ?? unitType}
+                            <input
+                              className="rounded border border-stone-700 bg-dusk-900 px-2 py-2 text-stone-100"
+                              min={0}
+                              onChange={(event) => setRaidUnitAmount(unitType, Number(event.target.value))}
+                              type="number"
+                              value={raidInputs[unitType] ?? 0}
+                            />
+                          </label>
+                        ))}
+                      </div>
+                      <p className="text-sm text-stone-400">Минимум 3, максимум 100 воинов. Население не крадётся.</p>
+                      <Button className="justify-self-start" disabled={isStartingRaid} onClick={handleStartRaid} type="button">
+                        {isStartingRaid ? 'Отправка...' : 'Начать набег'}
+                      </Button>
+                    </div>
+                  ) : null}
+
+                  <div className="grid gap-2">
+                    <h3 className="font-semibold text-stone-100">Текущие набеги</h3>
+                    {raids.length === 0 ? <p className="text-sm text-stone-400">Набегов пока нет.</p> : null}
+                    {raids.map((raid) => (
+                      <div className="rounded border border-stone-800 bg-dusk-950 p-3" key={raid.id}>
+                        <div className="flex flex-wrap justify-between gap-3">
+                          <div>
+                            <p className="font-semibold text-stone-100">
+                              {raid.attackerKingdomName} → {raid.defenderKingdomName}
+                            </p>
+                            <p className="text-sm text-stone-400">{missionStatusLabels[raid.status]}</p>
+                            {raid.result ? <p className="text-sm text-dusk-gold">{missionResultLabels[raid.result]}</p> : null}
+                          </div>
+                          <div className="text-right text-sm text-stone-400">
+                            {raid.completedAt
+                              ? `Завершено ${new Date(raid.completedAt).toLocaleString('ru-RU')}`
+                              : `Дойдёт ${new Date(raid.arrivesAt).toLocaleString('ru-RU')}`}
+                          </div>
+                        </div>
+                        <p className="mt-2 text-sm text-stone-400">
+                          Units:{' '}
+                          {raid.units
+                            .map((unit) => `${unit.unitLabel}: ${unit.amountSent} sent, ${unit.amountLost} lost, ${unit.amountReturned} returned`)
+                            .join(', ')}
+                        </p>
+                        <p className="mt-1 text-sm text-stone-400">
+                          Loot: {resourceRows.map(([label, key]) => `${label}: ${raid.loot[key]}`).join(', ')}
+                        </p>
                       </div>
                     ))}
                   </div>

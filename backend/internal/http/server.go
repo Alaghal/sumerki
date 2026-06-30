@@ -39,13 +39,16 @@ func New(database *sql.DB, jwtSecret string) *echo.Echo {
 	missions := repository.NewMissionRepository(database)
 	reports := repository.NewReportRepository(database)
 	patrons := repository.NewPatronRepository(database)
+	raids := repository.NewRaidRepository(database)
 	rulerService := service.NewRulerService(kingdoms, rulers)
 	resourcesService := service.NewResourcesService(kingdoms, resources)
 	buildingService := service.NewBuildingService(kingdoms, buildings, resourcesService)
 	armyService := service.NewArmyService(kingdoms, army, resourcesService, buildingService)
 	missionService := service.NewMissionService(kingdoms, missions, reports, armyService, resourcesService)
 	patronService := service.NewPatronService(kingdoms, patrons)
+	raidService := service.NewRaidService(kingdoms, raids, reports, armyService, resourcesService, buildingService)
 	resourcesService.SetProductionProvider(buildingService)
+	missionService.SetRaidResolver(raidService)
 	kingdomService := service.NewKingdomService(kingdoms, rulerService, resourcesService, buildingService, armyService)
 	kingdomHandler := handlers.NewKingdomHandler(kingdomService)
 	rulerHandler := handlers.NewRulerHandler(rulerService)
@@ -55,6 +58,7 @@ func New(database *sql.DB, jwtSecret string) *echo.Echo {
 	missionHandler := handlers.NewMissionHandler(missionService)
 	reportHandler := handlers.NewReportHandler(missionService)
 	patronHandler := handlers.NewPatronHandler(patronService)
+	raidHandler := handlers.NewRaidHandler(raidService)
 
 	e.POST("/api/auth/register", authHandler.Register)
 	e.POST("/api/auth/login", authHandler.Login)
@@ -77,6 +81,9 @@ func New(database *sql.DB, jwtSecret string) *echo.Echo {
 	e.GET("/api/patron/me", patronHandler.Me, appmiddleware.Auth(auth))
 	e.POST("/api/patron/join", patronHandler.Join, appmiddleware.Auth(auth))
 	e.POST("/api/patron/break", patronHandler.Break, appmiddleware.Auth(auth))
+	e.GET("/api/neighbors", raidHandler.Neighbors, appmiddleware.Auth(auth))
+	e.GET("/api/raids/me", raidHandler.Me, appmiddleware.Auth(auth))
+	e.POST("/api/raids/start", raidHandler.Start, appmiddleware.Auth(auth))
 
 	return e
 }
