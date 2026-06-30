@@ -42,8 +42,8 @@ var Missions = map[string]MissionConfig{
 			Wood: 120,
 		},
 		Risk:            "medium",
-		BaseLossPercent: 10,
-		MaxLossPercent:  25,
+		BaseLossPercent: 8,
+		MaxLossPercent:  12,
 	},
 	"old_kurgan_expedition": {
 		Key:             "old_kurgan_expedition",
@@ -61,15 +61,15 @@ var Missions = map[string]MissionConfig{
 			Stone: 100,
 		},
 		Risk:            "medium",
-		BaseLossPercent: 18,
-		MaxLossPercent:  35,
+		BaseLossPercent: 14,
+		MaxLossPercent:  18,
 	},
 	"dry_ford_scouting": {
 		Key:             "dry_ford_scouting",
 		Label:           "Сухой Брод",
 		Type:            "scouting",
 		Description:     "Сухой Брод тихий только на карте. На деле там считают чужие следы.",
-		DurationSeconds: 90,
+		DurationSeconds: 75,
 		MinimumRequirements: MissionRequirements{
 			Scouts: 1,
 		},
@@ -81,8 +81,8 @@ var Missions = map[string]MissionConfig{
 			Stone: 20,
 		},
 		Risk:            "low",
-		BaseLossPercent: 5,
-		MaxLossPercent:  15,
+		BaseLossPercent: 3,
+		MaxLossPercent:  5,
 	},
 }
 
