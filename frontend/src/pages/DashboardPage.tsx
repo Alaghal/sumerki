@@ -35,6 +35,7 @@ import {
   PatronStatus,
   Raid,
   Resources,
+  ResourceValues,
   Ruler,
   payPatronTribute,
   startMission,
@@ -49,138 +50,42 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { useSession } from '../context/SessionContext';
 
-const cultureLabels = {
-  northern_principality: 'Северные Княжества',
-  lizard_grad: 'Ящерские Грады',
-  free_posad: 'Вольные Посады',
-};
-
-const patronLabels = {
-  independent: 'Независимость',
-  empire_of_dusk: 'Империя Заката',
-  old_pact: 'Старый Договор',
-};
-
-const standingLabels = {
-  hostile: 'Враждебно',
-  cold: 'Холодно',
-  neutral: 'Нейтрально',
-  warm: 'Тепло',
-  loyal: 'Верно',
-};
-
-const pressureStatusLabels = {
-  none: 'Спокойно',
-  warning: 'Предупреждение',
-  active: 'Кризис',
-  delayed: 'Отсрочка',
-};
-
-const healthLabels = {
-  healthy: 'Здоров',
-  wounded: 'Ранен',
-  sick: 'Болен',
-};
-
 const rulerStats = [
-  ['Власть', 'authority'],
-  ['Храбрость', 'courage'],
-  ['Хитрость', 'cunning'],
-  ['Честь', 'honor'],
-  ['Жестокость', 'cruelty'],
-  ['Амбиция', 'ambition'],
-  ['Паранойя', 'paranoia'],
+  'authority',
+  'courage',
+  'cunning',
+  'honor',
+  'cruelty',
+  'ambition',
+  'paranoia',
 ] as const;
 
-const resourceRows = [
-  ['Золото', 'gold'],
-  ['Еда', 'food'],
-  ['Дерево', 'wood'],
-  ['Камень', 'stone'],
-  ['Население', 'population'],
-] as const;
+const resourceRows = ['gold', 'food', 'wood', 'stone', 'population'] as const;
 
-const costRows = [
-  ['Золото', 'gold'],
-  ['Дерево', 'wood'],
-  ['Камень', 'stone'],
-] as const;
+const costRows = ['gold', 'wood', 'stone'] as const;
 
-const armyCostRows = [
-  ['Золото', 'gold'],
-  ['Еда', 'food'],
-  ['Дерево', 'wood'],
-  ['Камень', 'stone'],
-  ['Население', 'population'],
-] as const;
+const armyCostRows = ['gold', 'food', 'wood', 'stone', 'population'] as const;
 
-const unitStatRows = [
-  ['Атака', 'attack'],
-  ['Защита', 'defense'],
-  ['Скорость', 'speed'],
-  ['Снабжение', 'supply'],
-] as const;
+const unitStatRows = ['attack', 'defense', 'speed', 'supply'] as const;
 
 const unitTypes: UnitType[] = ['militia', 'spearmen', 'archers', 'cavalry', 'scouts'];
 
-const missionTypeLabels = {
-  expedition: 'Экспедиция',
-  scouting: 'Разведка',
-};
-
-const missionStatusLabels = {
-  active: 'В пути',
-  completed: 'Завершено',
-};
-
-const missionResultLabels = {
-  success: 'Успех',
-  partial_success: 'Частичный успех',
-  failure: 'Провал',
-  attacker_success: 'Набег успешен',
-  defender_success: 'Защитник отбился',
-  bloody_stalemate: 'Кровавая ничья',
-  repelled_by_protection: 'Набег сорван',
-};
-
-const reportTypeLabels = {
-  pve_mission: 'Поход',
-  pvp_raid_attacker: 'Набег',
-  pvp_raid_defender: 'Защита',
-  event: 'Событие',
-};
-
-const eventCategoryLabels = {
-  economy: 'Хозяйство',
-  ruler: 'Правитель',
-  military: 'Войско',
-  patron: 'Покровитель',
-  dark_omen: 'Тёмное знамение',
-};
-
-const eventStatusLabels = {
-  active: 'Доступно',
-  resolved: 'Решено',
-  expired: 'Истекло',
-};
-
-const powerEstimateLabels = {
-  much_weaker: 'Намного слабее',
-  weaker: 'Слабее',
-  similar: 'Сравним',
-  stronger: 'Сильнее',
-  much_stronger: 'Намного сильнее',
-};
-
-const raidBlockedReasonLabels = {
-  target_newbie_protected: 'Владение под защитой новичка',
-  target_too_weak: 'Цель слишком слаба',
-  raid_cooldown_active: 'Недавно уже был набег',
-  target_under_protection: 'Цель под временной защитой',
-};
+type ResourceKey = keyof ResourceValues;
 
 export function DashboardPage() {
-  const { t } = useTranslation(['game', 'kingdom']);
+  const { i18n, t } = useTranslation([
+    'game',
+    'common',
+    'kingdom',
+    'resources',
+    'buildings',
+    'units',
+    'missions',
+    'reports',
+    'patrons',
+    'events',
+    'raids',
+  ]);
   const { token, user, kingdom } = useSession();
   const [ruler, setRuler] = useState<Ruler | null>(null);
   const [rulerLoading, setRulerLoading] = useState(true);
@@ -232,6 +137,43 @@ export function DashboardPage() {
   const [eventsError, setEventsError] = useState('');
   const [choosingEventID, setChoosingEventID] = useState<string | null>(null);
 
+  function formatDate(value: string) {
+    return new Date(value).toLocaleString(i18n.language === 'en' ? 'en-US' : 'ru-RU');
+  }
+
+  function resourceLabel(key: ResourceKey) {
+    return t(`resources:${key}.name`);
+  }
+
+  function unitLabel(unitType: UnitType) {
+    return t(`units:${unitType}.name`);
+  }
+
+  function resourceList(values: Partial<ResourceValues>) {
+    return resourceRows.map((key) => `${resourceLabel(key)}: ${values[key] ?? 0}`).join(', ');
+  }
+
+  function costList(values: Partial<ResourceValues>, keys: readonly ResourceKey[] = costRows) {
+    return keys.map((key) => `${resourceLabel(key)}: ${values[key] ?? 0}`).join(', ');
+  }
+
+  function unitList<TUnit extends { unitType: UnitType; amountSent: number; amountLost: number; amountReturned: number }>(units: TUnit[]) {
+    return units
+      .map((unit) =>
+        t('missions:unitSummary', {
+          lost: unit.amountLost,
+          returned: unit.amountReturned,
+          sent: unit.amountSent,
+          unit: unitLabel(unit.unitType),
+        }),
+      )
+      .join(', ');
+  }
+
+  function eventChoiceLabel(event: KingdomEvent) {
+    return event.choices.find((choice) => choice.key === event.selectedChoiceKey)?.label ?? t('common:states.unknown');
+  }
+
   async function loadRuler() {
     if (!token || !kingdom) {
       return;
@@ -244,7 +186,7 @@ export function DashboardPage() {
       const response = await getMyRuler(token);
       setRuler(response.ruler);
     } catch {
-      setRulerError('Не удалось загрузить правителя.');
+      setRulerError(t('game:ruler.error'));
     } finally {
       setRulerLoading(false);
     }
@@ -262,7 +204,7 @@ export function DashboardPage() {
       const response = await getMyResources(token);
       setResources(response.resources);
     } catch {
-      setResourcesError('Не удалось загрузить ресурсы.');
+      setResourcesError(t('resources:loadError'));
     } finally {
       setResourcesLoading(false);
     }
@@ -280,7 +222,7 @@ export function DashboardPage() {
       const response = await getMyBuildings(token);
       setBuildings(response.buildings);
     } catch {
-      setBuildingsError('Не удалось загрузить здания.');
+      setBuildingsError(t('buildings:loadError'));
     } finally {
       setBuildingsLoading(false);
     }
@@ -298,7 +240,7 @@ export function DashboardPage() {
       const response = await getMyArmy(token);
       setArmy(response.army);
     } catch {
-      setArmyError('Не удалось загрузить войско.');
+      setArmyError(t('units:loadError'));
     } finally {
       setArmyLoading(false);
     }
@@ -317,7 +259,7 @@ export function DashboardPage() {
       setAvailableMissions(availableResponse.missions);
       setMissions(currentResponse.missions);
     } catch {
-      setMissionsError('Не удалось загрузить походы.');
+      setMissionsError(t('missions:loadError'));
     } finally {
       setMissionsLoading(false);
     }
@@ -336,7 +278,7 @@ export function DashboardPage() {
       setReports(response.reports);
       setUnreadReportsCount(response.unreadCount);
     } catch {
-      setReportsError('Не удалось загрузить отчёты.');
+      setReportsError(t('reports:loadError'));
     } finally {
       setReportsLoading(false);
     }
@@ -360,7 +302,7 @@ export function DashboardPage() {
       setPatronStatus(statusResponse);
       setPatronPressure(pressureResponse.pressure);
     } catch {
-      setPatronError('Не удалось загрузить покровителя.');
+      setPatronError(t('patrons:loadError'));
     } finally {
       setPatronLoading(false);
     }
@@ -380,7 +322,7 @@ export function DashboardPage() {
       setRaids(raidsResponse.raids);
       setSelectedRaidTargetID((current) => current ?? neighborsResponse.neighbors.find((neighbor) => neighbor.canRaid)?.kingdomId ?? null);
     } catch {
-      setRaidsError('Не удалось загрузить набеги.');
+      setRaidsError(t('raids:loadError'));
     } finally {
       setRaidsLoading(false);
     }
@@ -398,7 +340,7 @@ export function DashboardPage() {
       const response = await getMyEvents(token);
       setEvents(response.events);
     } catch {
-      setEventsError('Не удалось загрузить события.');
+      setEventsError(t('events:loadError'));
     } finally {
       setEventsLoading(false);
     }
@@ -553,7 +495,7 @@ export function DashboardPage() {
       .filter((unit) => unit.amount > 0);
 
     if (units.length === 0 || units.some((unit) => !Number.isInteger(unit.amount) || unit.amount < 0)) {
-      setRaidsError('Выберите целое неотрицательное количество войск.');
+      setRaidsError(t('raids:validation.choosePositiveUnits'));
       return;
     }
 
@@ -664,7 +606,7 @@ export function DashboardPage() {
       .filter((unit) => unit.amount > 0);
 
     if (units.length === 0 || units.some((unit) => !Number.isInteger(unit.amount) || unit.amount < 0)) {
-      setMissionsError('Выберите целое неотрицательное количество войск.');
+      setMissionsError(t('missions:validation.choosePositiveUnits'));
       return;
     }
 
@@ -700,7 +642,7 @@ export function DashboardPage() {
         }
       } catch {
         if (isActive) {
-          setRulerError('Не удалось загрузить правителя.');
+          setRulerError(t('game:ruler.error'));
         }
       } finally {
         if (isActive) {
@@ -736,7 +678,7 @@ export function DashboardPage() {
         }
       } catch {
         if (isActive) {
-          setRaidsError('Не удалось загрузить набеги.');
+          setRaidsError(t('raids:loadError'));
         }
       } finally {
         if (isActive) {
@@ -776,7 +718,7 @@ export function DashboardPage() {
         }
       } catch {
         if (isActive) {
-          setPatronError('Не удалось загрузить покровителя.');
+          setPatronError(t('patrons:loadError'));
         }
       } finally {
         if (isActive) {
@@ -810,7 +752,7 @@ export function DashboardPage() {
         }
       } catch {
         if (isActive) {
-          setResourcesError('Не удалось загрузить ресурсы.');
+          setResourcesError(t('resources:loadError'));
         }
       } finally {
         if (isActive) {
@@ -844,7 +786,7 @@ export function DashboardPage() {
         }
       } catch {
         if (isActive) {
-          setBuildingsError('Не удалось загрузить здания.');
+          setBuildingsError(t('buildings:loadError'));
         }
       } finally {
         if (isActive) {
@@ -878,7 +820,7 @@ export function DashboardPage() {
         }
       } catch {
         if (isActive) {
-          setArmyError('Не удалось загрузить войско.');
+          setArmyError(t('units:loadError'));
         }
       } finally {
         if (isActive) {
@@ -913,7 +855,7 @@ export function DashboardPage() {
         }
       } catch {
         if (isActive) {
-          setMissionsError('Не удалось загрузить походы.');
+          setMissionsError(t('missions:loadError'));
         }
       } finally {
         if (isActive) {
@@ -948,7 +890,7 @@ export function DashboardPage() {
         }
       } catch {
         if (isActive) {
-          setReportsError('Не удалось загрузить отчёты.');
+          setReportsError(t('reports:loadError'));
         }
       } finally {
         if (isActive) {
@@ -982,7 +924,7 @@ export function DashboardPage() {
         }
       } catch {
         if (isActive) {
-          setEventsError('Не удалось загрузить события.');
+          setEventsError(t('events:loadError'));
         }
       } finally {
         if (isActive) {
@@ -1022,7 +964,11 @@ export function DashboardPage() {
               <div className="flex justify-between gap-4">
                 <dt className="text-stone-400">{t('game:dashboard.patron')}</dt>
                 <dd className="text-right text-stone-100">
-                  {patronStatus?.patron?.label ?? (kingdom.patron ? patronLabels[kingdom.patron] : t('game:dashboard.noPatron'))}
+                  {patronStatus?.patron
+                    ? t(`patrons:${patronStatus.patron.key}.name`)
+                    : kingdom.patron
+                      ? t(`patrons:${kingdom.patron}.name`)
+                      : t('game:dashboard.noPatron')}
                 </dd>
               </div>
               <div className="flex justify-between gap-4">
@@ -1031,9 +977,9 @@ export function DashboardPage() {
               </div>
             </dl>
           </Card>
-          <Card title="Patron">
+          <Card title={t('patrons:section.title')}>
             <div className="grid gap-4">
-              {patronLoading ? <p>Загрузка покровителя...</p> : null}
+              {patronLoading ? <p>{t('patrons:loading')}</p> : null}
               {patronError ? <p className="text-red-300">{patronError}</p> : null}
               {!patronLoading ? (
                 <>
@@ -1041,23 +987,23 @@ export function DashboardPage() {
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <h3 className="font-semibold text-stone-100">
-                          {patronStatus?.patron ? patronStatus.patron.label : 'Покровитель не выбран'}
+                          {patronStatus?.patron ? t(`patrons:${patronStatus.patron.key}.name`) : t('patrons:notChosen')}
                         </h3>
                         <p className="mt-1 text-sm text-stone-400">
-                          {patronPressure?.summary ?? 'Выберите политический путь для княжества.'}
+                          {patronPressure?.summary ?? t('patrons:choosePath')}
                         </p>
                       </div>
                       {patronStatus?.patron ? (
                         <div className="text-right text-sm text-stone-300">
-                          <div>Favor: {patronStatus.patron.favor}</div>
-                          <div>{standingLabels[patronStatus.patron.standing]}</div>
-                          <div>{new Date(patronStatus.patron.joinedAt).toLocaleString('ru-RU')}</div>
+                          <div>{t('patrons:favor')}: {patronStatus.patron.favor}</div>
+                          <div>{t(`patrons:standing.${patronStatus.patron.standing}`)}</div>
+                          <div>{formatDate(patronStatus.patron.joinedAt)}</div>
                         </div>
                       ) : null}
                     </div>
                     {patronStatus?.patron ? (
                       <Button className="mt-3 justify-self-start" disabled={isBreakingPatron} onClick={handleBreakPatron} type="button">
-                        {isBreakingPatron ? 'Разрывается...' : 'Разорвать связь'}
+                        {isBreakingPatron ? t('patrons:breakingTie') : t('patrons:breakTie')}
                       </Button>
                     ) : null}
                   </div>
@@ -1066,39 +1012,39 @@ export function DashboardPage() {
                     <div className="rounded border border-stone-800 bg-dusk-950 p-3">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                          <h3 className="font-semibold text-stone-100">Давление</h3>
+                          <h3 className="font-semibold text-stone-100">{t('patrons:pressureTitle')}</h3>
                           <p className="mt-1 text-sm text-stone-400">{patronPressure.summary}</p>
                         </div>
                         <div className="text-right text-sm text-stone-300">
-                          <div>{pressureStatusLabels[patronPressure.crisisStatus]}</div>
-                          <div>{patronPressure.pressureLevel} / 100</div>
+                          <div>{t(`patrons:pressure.status.${patronPressure.crisisStatus}`)}</div>
+                          <div>{t('patrons:pressureLevel', { level: patronPressure.pressureLevel })}</div>
                         </div>
                       </div>
                       <dl className="mt-3 grid gap-2 text-sm">
                         <div className="flex justify-between gap-4">
-                          <dt className="text-stone-400">Долг дани</dt>
+                          <dt className="text-stone-400">{t('patrons:tributeDebt')}</dt>
                           <dd className="text-right text-stone-100">
-                            {patronPressure.tributeDebt.gold} золота, {patronPressure.tributeDebt.food} еды
+                            {resourceList(patronPressure.tributeDebt)}
                           </dd>
                         </div>
                         <div className="flex justify-between gap-4">
-                          <dt className="text-stone-400">Обязательство</dt>
-                          <dd className="text-right text-stone-100">{patronPressure.contributionDebt.food} еды</dd>
+                          <dt className="text-stone-400">{t('patrons:contributionDebt')}</dt>
+                          <dd className="text-right text-stone-100">{resourceList(patronPressure.contributionDebt)}</dd>
                         </div>
                         <div className="flex justify-between gap-4">
-                          <dt className="text-stone-400">Следующий сбор</dt>
+                          <dt className="text-stone-400">{t('patrons:nextTribute')}</dt>
                           <dd className="text-right text-stone-100">
-                            {patronPressure.nextTributeAt ? new Date(patronPressure.nextTributeAt).toLocaleString('ru-RU') : 'Нет'}
+                            {patronPressure.nextTributeAt ? formatDate(patronPressure.nextTributeAt) : t('patrons:noNextTribute')}
                           </dd>
                         </div>
                         {patronPressure.delayUntil ? (
                           <div className="flex justify-between gap-4">
-                            <dt className="text-stone-400">Отсрочка до</dt>
-                            <dd className="text-right text-stone-100">{new Date(patronPressure.delayUntil).toLocaleString('ru-RU')}</dd>
+                            <dt className="text-stone-400">{t('patrons:delayUntil')}</dt>
+                            <dd className="text-right text-stone-100">{formatDate(patronPressure.delayUntil)}</dd>
                           </div>
                         ) : null}
                         <div className="flex justify-between gap-4">
-                          <dt className="text-stone-400">Неприкосновенный запас</dt>
+                          <dt className="text-stone-400">{t('patrons:protectedMinimums')}</dt>
                           <dd className="text-right text-stone-100">
                             {patronPressure.protectedMinimums.gold ?? 0} / {patronPressure.protectedMinimums.food ?? 0} /{' '}
                             {patronPressure.protectedMinimums.wood ?? 0} / {patronPressure.protectedMinimums.stone ?? 0}
@@ -1108,17 +1054,17 @@ export function DashboardPage() {
                       <div className="mt-3 flex flex-wrap gap-2">
                         {patronPressure.availableActions.includes('pay_tribute') ? (
                           <Button disabled={isPayingTribute} onClick={handlePayTribute} type="button">
-                            {isPayingTribute ? 'Платим...' : 'Заплатить'}
+                            {isPayingTribute ? t('patrons:payingTribute') : t('patrons:payTribute')}
                           </Button>
                         ) : null}
                         {patronPressure.availableActions.includes('ask_delay') ? (
                           <Button disabled={crisisChoice === 'ask_delay'} onClick={() => handleCrisisChoice('ask_delay')} type="button">
-                            {crisisChoice === 'ask_delay' ? 'Просим...' : 'Попросить отсрочку'}
+                            {crisisChoice === 'ask_delay' ? t('patrons:askingDelay') : t('patrons:askDelay')}
                           </Button>
                         ) : null}
                         {patronPressure.availableActions.includes('break_patron') ? (
                           <Button disabled={crisisChoice === 'break_patron'} onClick={() => handleCrisisChoice('break_patron')} type="button">
-                            {crisisChoice === 'break_patron' ? 'Разрываем...' : 'Разорвать через кризис'}
+                            {crisisChoice === 'break_patron' ? t('patrons:breakingTie') : t('patrons:breakDuringCrisis')}
                           </Button>
                         ) : null}
                       </div>
@@ -1127,7 +1073,7 @@ export function DashboardPage() {
 
                   <div className="flex flex-wrap gap-2">
                     <Button disabled={patronLoading} onClick={loadPatron} type="button">
-                      Обновить покровителя
+                      {t('patrons:refresh')}
                     </Button>
                   </div>
 
@@ -1138,7 +1084,7 @@ export function DashboardPage() {
                         <div className="rounded border border-stone-800 bg-dusk-950 p-3" key={option.key}>
                           <div className="flex flex-wrap items-start justify-between gap-3">
                             <div>
-                              <h3 className="font-semibold text-stone-100">{option.label}</h3>
+                              <h3 className="font-semibold text-stone-100">{t(`patrons:${option.key}.name`)}</h3>
                               <p className="mt-1 text-sm text-stone-400">{option.shortDescription}</p>
                               <p className="mt-2 text-sm text-stone-500">{option.flavor}</p>
                             </div>
@@ -1147,12 +1093,12 @@ export function DashboardPage() {
                               onClick={() => handleJoinPatron(option.key)}
                               type="button"
                             >
-                              {isCurrent ? 'Выбрано' : option.key === 'independent' ? 'Выбрать' : 'Присоединиться'}
+                              {isCurrent ? t('patrons:chosen') : option.key === 'independent' ? t('patrons:choose') : t('patrons:join')}
                             </Button>
                           </div>
                           <div className="mt-3 grid gap-2 text-sm text-stone-400">
                             <div>
-                              <p className="font-semibold text-stone-300">Сейчас</p>
+                              <p className="font-semibold text-stone-300">{t('patrons:currentEffects')}</p>
                               <ul className="mt-1 list-disc pl-5">
                                 {option.currentEffects.map((effect) => (
                                   <li key={effect}>{effect}</li>
@@ -1160,7 +1106,7 @@ export function DashboardPage() {
                               </ul>
                             </div>
                             <div>
-                              <p className="font-semibold text-stone-300">Позже</p>
+                              <p className="font-semibold text-stone-300">{t('patrons:futureEffects')}</p>
                               <ul className="mt-1 list-disc pl-5">
                                 {option.futureEffects.map((effect) => (
                                   <li key={effect}>{effect}</li>
@@ -1176,55 +1122,55 @@ export function DashboardPage() {
               ) : null}
             </div>
           </Card>
-          <Card title="Resources">
+          <Card title={t('resources:section.title')}>
             <div className="grid gap-4">
-              {resourcesLoading ? <p>Загрузка ресурсов...</p> : null}
+              {resourcesLoading ? <p>{t('resources:loading')}</p> : null}
               {resourcesError ? <p className="text-red-300">{resourcesError}</p> : null}
               {resources && !resourcesLoading && !resourcesError ? (
                 <dl className="grid gap-2">
-                  {resourceRows.map(([label, key]) => (
+                  {resourceRows.map((key) => (
                     <div className="flex items-center justify-between gap-4" key={key}>
-                      <dt className="text-stone-400">{label}</dt>
+                      <dt className="text-stone-400">{resourceLabel(key)}</dt>
                       <dd className="text-right">
                         <div className="font-semibold text-stone-100">{resources[key]}</div>
-                        <div className="text-xs text-dusk-gold">+{resources.productionPerHour[key]} / час</div>
+                        <div className="text-xs text-dusk-gold">{t('resources:productionPerHour', { amount: resources.productionPerHour[key] })}</div>
                       </dd>
                     </div>
                   ))}
                 </dl>
               ) : null}
               <Button className="justify-self-start" disabled={resourcesLoading} onClick={loadResources} type="button">
-                Обновить ресурсы
+                {t('resources:refresh')}
               </Button>
             </div>
           </Card>
-          <Card title="Ruler">
-            {rulerLoading ? <p>Загрузка правителя...</p> : null}
+          <Card title={t('game:ruler.section.title')}>
+            {rulerLoading ? <p>{t('game:ruler.loading')}</p> : null}
             {rulerError ? <p className="text-red-300">{rulerError}</p> : null}
             {ruler && !rulerLoading && !rulerError ? (
               <div className="grid gap-4">
                 <dl className="grid gap-2">
                   <div className="flex justify-between gap-4">
-                    <dt className="text-stone-400">Name</dt>
+                    <dt className="text-stone-400">{t('game:ruler.name')}</dt>
                     <dd className="text-right text-stone-100">{ruler.name}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <dt className="text-stone-400">Age</dt>
+                    <dt className="text-stone-400">{t('game:ruler.age')}</dt>
                     <dd className="text-right text-stone-100">{ruler.age}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <dt className="text-stone-400">Health</dt>
-                    <dd className="text-right text-stone-100">{healthLabels[ruler.healthStatus]}</dd>
+                    <dt className="text-stone-400">{t('game:ruler.health')}</dt>
+                    <dd className="text-right text-stone-100">{t(`game:ruler.healthStatus.${ruler.healthStatus}`)}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <dt className="text-stone-400">Culture</dt>
-                    <dd className="text-right text-stone-100">{cultureLabels[ruler.culture]}</dd>
+                    <dt className="text-stone-400">{t('game:dashboard.culture')}</dt>
+                    <dd className="text-right text-stone-100">{t(`kingdom:cultures.${ruler.culture}.name`)}</dd>
                   </div>
                 </dl>
                 <dl className="grid gap-2">
-                  {rulerStats.map(([label, key]) => (
+                  {rulerStats.map((key) => (
                     <div className="flex justify-between gap-4" key={key}>
-                      <dt className="text-stone-400">{label}</dt>
+                      <dt className="text-stone-400">{t(`game:ruler.stats.${key}`)}</dt>
                       <dd className="text-right text-stone-100">{ruler[key]}</dd>
                     </div>
                   ))}
@@ -1232,9 +1178,9 @@ export function DashboardPage() {
               </div>
             ) : null}
           </Card>
-          <Card title="Buildings">
+          <Card title={t('buildings:section.title')}>
             <div className="grid gap-4">
-              {buildingsLoading ? <p>Загрузка зданий...</p> : null}
+              {buildingsLoading ? <p>{t('buildings:loading')}</p> : null}
               {buildingsError ? <p className="text-red-300">{buildingsError}</p> : null}
               {!buildingsLoading && !buildingsError ? (
                 <div className="grid gap-3">
@@ -1246,11 +1192,10 @@ export function DashboardPage() {
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                          <h3 className="font-semibold text-stone-100">{building.label}</h3>
-                          <p className="text-xs text-stone-500">{building.type}</p>
+                          <h3 className="font-semibold text-stone-100">{t(`buildings:${building.type}.name`)}</h3>
                         </div>
                         <div className="text-right text-sm text-stone-300">
-                          Level {building.level}/{building.maxLevel}
+                          {t('buildings:level', { level: building.level, maxLevel: building.maxLevel })}
                         </div>
                       </div>
                       <div className="mt-3 grid gap-2">
@@ -1261,28 +1206,26 @@ export function DashboardPage() {
                         ))}
                         {building.isUpgrading ? (
                           <p className="text-dusk-gold">
-                            Улучшается до{' '}
-                            {building.upgradeFinishesAt
-                              ? new Date(building.upgradeFinishesAt).toLocaleString('ru-RU')
-                              : 'завершения'}
+                            {t('buildings:completedAt', {
+                              date: building.upgradeFinishesAt ? formatDate(building.upgradeFinishesAt) : t('buildings:untilComplete'),
+                            })}
                           </p>
                         ) : null}
                         {!building.isUpgrading && building.nextUpgrade ? (
                           <div className="grid gap-2">
                             {building.nextUpgrade.blockedReason === 'max_level' ? (
-                              <p className="text-dusk-gold">Максимальный уровень</p>
+                              <p className="text-dusk-gold">{t('buildings:maxLevel')}</p>
                             ) : (
                               <>
                                 <div className="grid gap-1">
                                   <p className="text-stone-400">
-                                    Upgrade to level {building.nextUpgrade.targetLevel},{' '}
-                                    {building.nextUpgrade.durationSeconds} sec
+                                    {t('buildings:upgradeDetails', {
+                                      level: building.nextUpgrade.targetLevel,
+                                      seconds: building.nextUpgrade.durationSeconds,
+                                    })}
                                   </p>
                                   <p className="text-stone-400">
-                                    Cost:{' '}
-                                    {costRows
-                                      .map(([label, key]) => `${label}: ${building.nextUpgrade?.cost[key] ?? 0}`)
-                                      .join(', ')}
+                                    {t('buildings:cost')}: {costList(building.nextUpgrade.cost)}
                                   </p>
                                 </div>
                                 <Button
@@ -1292,7 +1235,7 @@ export function DashboardPage() {
                                   onClick={() => handleUpgrade(building.type)}
                                   type="button"
                                 >
-                                  {upgradingType === building.type ? 'Запуск...' : 'Улучшить'}
+                                  {upgradingType === building.type ? t('buildings:upgrading') : t('buildings:upgrade')}
                                 </Button>
                               </>
                             )}
@@ -1305,27 +1248,27 @@ export function DashboardPage() {
               ) : null}
             </div>
           </Card>
-          <Card title="Army">
+          <Card title={t('units:section.title')}>
             <div className="grid gap-4">
-              {armyLoading ? <p>Загрузка войска...</p> : null}
+              {armyLoading ? <p>{t('units:loading')}</p> : null}
               {armyError ? <p className="text-red-300">{armyError}</p> : null}
               {army && !armyLoading ? (
                 <>
                   <dl className="grid gap-2">
                     <div className="flex justify-between gap-4">
-                      <dt className="text-stone-400">Всего</dt>
+                      <dt className="text-stone-400">{t('units:summary.total')}</dt>
                       <dd className="text-right text-stone-100">{army.summary.totalUnits}</dd>
                     </div>
                     <div className="flex justify-between gap-4">
-                      <dt className="text-stone-400">Атака</dt>
+                      <dt className="text-stone-400">{t('units:stats.attack')}</dt>
                       <dd className="text-right text-stone-100">{army.summary.totalAttack}</dd>
                     </div>
                     <div className="flex justify-between gap-4">
-                      <dt className="text-stone-400">Защита</dt>
+                      <dt className="text-stone-400">{t('units:stats.defense')}</dt>
                       <dd className="text-right text-stone-100">{army.summary.totalDefense}</dd>
                     </div>
                     <div className="flex justify-between gap-4">
-                      <dt className="text-stone-400">Снабжение</dt>
+                      <dt className="text-stone-400">{t('units:stats.supply')}</dt>
                       <dd className="text-right text-stone-100">{army.summary.totalSupply}</dd>
                     </div>
                   </dl>
@@ -1335,30 +1278,29 @@ export function DashboardPage() {
                       <div className="rounded border border-stone-800 bg-dusk-950 p-3" data-unit-type={unit.type} key={unit.type}>
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
-                            <h3 className="font-semibold text-stone-100">{unit.label}</h3>
-                            <p className="text-xs text-stone-500">{unit.type}</p>
+                            <h3 className="font-semibold text-stone-100">{unitLabel(unit.type)}</h3>
                           </div>
                           <div className="text-right text-sm text-stone-300">{unit.amount}</div>
                         </div>
                         <dl className="mt-3 grid gap-1 text-sm">
-                          {unitStatRows.map(([label, key]) => (
+                          {unitStatRows.map((key) => (
                             <div className="flex justify-between gap-4" key={key}>
-                              <dt className="text-stone-400">{label}</dt>
+                              <dt className="text-stone-400">{t(`units:stats.${key}`)}</dt>
                               <dd className="text-right text-stone-100">{unit.stats[key]}</dd>
                             </div>
                           ))}
                         </dl>
                         <p className="mt-2 text-sm text-stone-400">
-                          Cost:{' '}
-                          {armyCostRows.map(([label, key]) => `${label}: ${unit.cost[key]}`).join(', ')}
+                          {t('units:cost')}: {costList(unit.cost, armyCostRows)}
                         </p>
-                        <p className="mt-1 text-sm text-stone-400">{unit.secondsPerUnit} sec / unit</p>
+                        <p className="mt-1 text-sm text-stone-400">{t('units:secondsPerUnit', { seconds: unit.secondsPerUnit })}</p>
                         <p className={unit.requirements.isMet ? 'mt-1 text-sm text-dusk-gold' : 'mt-1 text-sm text-red-300'}>
                           {unit.requirements.barracksLevel > 0
-                            ? `Требуется казарма уровня ${unit.requirements.barracksLevel}. ${
-                                unit.requirements.isMet ? 'Требование выполнено' : 'Требование не выполнено'
-                              }`
-                            : 'Требование выполнено'}
+                            ? t('units:barracksRequirement', {
+                                level: unit.requirements.barracksLevel,
+                                status: unit.requirements.isMet ? t('units:requirementMet') : t('units:requirementNotMet'),
+                              })
+                            : t('units:requirementMet')}
                         </p>
                       </div>
                     ))}
@@ -1367,7 +1309,7 @@ export function DashboardPage() {
                   <div className="grid gap-3 rounded border border-stone-800 bg-dusk-950 p-3">
                     <div className="grid gap-2 sm:grid-cols-[1fr_8rem_auto]">
                       <label className="grid gap-1 text-sm text-stone-400">
-                        Unit
+                        {t('units:unitType')}
                         <select
                           className="rounded border border-stone-700 bg-dusk-900 px-3 py-2 text-stone-100"
                           disabled={isTraining}
@@ -1376,13 +1318,13 @@ export function DashboardPage() {
                         >
                           {army.units.map((unit) => (
                             <option key={unit.type} value={unit.type}>
-                              {unit.label}
+                              {unitLabel(unit.type)}
                             </option>
                           ))}
                         </select>
                       </label>
                       <label className="grid gap-1 text-sm text-stone-400">
-                        Amount
+                        {t('units:amount')}
                         <input
                           className="rounded border border-stone-700 bg-dusk-900 px-3 py-2 text-stone-100"
                           disabled={isTraining}
@@ -1394,24 +1336,24 @@ export function DashboardPage() {
                         />
                       </label>
                       <Button className="self-end" disabled={isTraining} onClick={handleTrain} type="button">
-                        {isTraining ? 'Обучается...' : 'Обучить'}
+                        {isTraining ? t('units:trainingNow') : t('units:train')}
                       </Button>
                     </div>
-                    <p className="text-sm text-stone-400">Миссии и бои появятся позже.</p>
+                    <p className="text-sm text-stone-400">{t('units:futureSystems')}</p>
                   </div>
 
                   <div className="grid gap-2">
-                    <h3 className="font-semibold text-stone-100">Обучается</h3>
-                    {army.trainingOrders.length === 0 ? <p className="text-sm text-stone-400">Нет активного обучения.</p> : null}
+                    <h3 className="font-semibold text-stone-100">{t('units:training')}</h3>
+                    {army.trainingOrders.length === 0 ? <p className="text-sm text-stone-400">{t('units:noTraining')}</p> : null}
                     {army.trainingOrders.map((order) => (
                       <div className="rounded border border-stone-800 bg-dusk-950 p-3" key={order.id}>
                         <div className="flex flex-wrap justify-between gap-3">
                           <div>
-                            <p className="font-semibold text-stone-100">{order.unitLabel}</p>
-                            <p className="text-sm text-stone-400">Amount: {order.amount}</p>
+                            <p className="font-semibold text-stone-100">{unitLabel(order.unitType)}</p>
+                            <p className="text-sm text-stone-400">{t('units:amount')}: {order.amount}</p>
                           </div>
                           <div className="text-right text-sm text-dusk-gold">
-                            Завершится {new Date(order.finishesAt).toLocaleString('ru-RU')}
+                            {t('units:completedAt', { date: formatDate(order.finishesAt) })}
                           </div>
                         </div>
                       </div>
@@ -1421,38 +1363,44 @@ export function DashboardPage() {
               ) : null}
             </div>
           </Card>
-          <Card title="Missions">
+          <Card title={t('missions:section.title')}>
             <div className="grid gap-4">
-              {missionsLoading ? <p>Загрузка походов...</p> : null}
+              {missionsLoading ? <p>{t('missions:loading')}</p> : null}
               {missionsError ? <p className="text-red-300">{missionsError}</p> : null}
               <Button className="justify-self-start" disabled={missionsLoading} onClick={refreshMissions} type="button">
-                Обновить походы
+                {t('missions:refresh')}
               </Button>
               {!missionsLoading ? (
                 <>
                   <div className="grid gap-3">
+                    <h3 className="font-semibold text-stone-100">{t('missions:availableMissions')}</h3>
+                    {availableMissions.length === 0 ? <p className="text-sm text-stone-400">{t('missions:noAvailable')}</p> : null}
                     {availableMissions.map((mission) => (
                       <div className="rounded border border-stone-800 bg-dusk-950 p-3" data-mission-key={mission.key} key={mission.key}>
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
-                            <h3 className="font-semibold text-stone-100">{mission.label}</h3>
-                            <p className="text-xs text-stone-500">{missionTypeLabels[mission.type]}</p>
+                            <h3 className="font-semibold text-stone-100">
+                              {t(`missions:${mission.key}.name`, { defaultValue: mission.label })}
+                            </h3>
+                            <p className="text-xs text-stone-500">{t(`missions:types.${mission.type}`)}</p>
                           </div>
-                          <div className="text-right text-sm text-stone-300">{mission.durationSeconds} sec</div>
+                          <div className="text-right text-sm text-stone-300">{t('missions:duration', { seconds: mission.durationSeconds })}</div>
                         </div>
                         <p className="mt-2 text-sm text-stone-400">{mission.description}</p>
                         <p className="mt-2 text-sm text-stone-400">
-                          Risk: {mission.risk}. Minimum: total {mission.minimumRequirements.totalUnits}, scouts{' '}
-                          {mission.minimumRequirements.scouts}
+                          {t('missions:risk')}: {mission.risk}. {t('missions:minimum')}:{' '}
+                          {t('missions:minimumUnits', {
+                            scouts: mission.minimumRequirements.scouts,
+                            total: mission.minimumRequirements.totalUnits,
+                          })}
                         </p>
                         <p className="mt-1 text-sm text-stone-400">
-                          Rewards:{' '}
-                          {resourceRows.map(([label, key]) => `${label}: ${mission.baseRewards[key]}`).join(', ')}
+                          {t('missions:rewards')}: {resourceList(mission.baseRewards)}
                         </p>
                         <div className="mt-3 grid gap-2 sm:grid-cols-5">
                           {unitTypes.map((unitType) => (
                             <label className="grid gap-1 text-xs text-stone-400" key={unitType}>
-                              {army?.units.find((unit) => unit.type === unitType)?.label ?? unitType}
+                              {unitLabel(unitType)}
                               <input
                                 className="rounded border border-stone-700 bg-dusk-900 px-2 py-2 text-stone-100"
                                 min={0}
@@ -1469,37 +1417,36 @@ export function DashboardPage() {
                           onClick={() => handleStartMission(mission.key)}
                           type="button"
                         >
-                          {startingMissionKey === mission.key ? 'Отправка...' : 'Отправить'}
+                          {startingMissionKey === mission.key ? t('missions:sending') : t('missions:send')}
                         </Button>
                       </div>
                     ))}
                   </div>
 
                   <div className="grid gap-2">
-                    <h3 className="font-semibold text-stone-100">Текущие походы</h3>
-                    {missions.length === 0 ? <p className="text-sm text-stone-400">Нет походов.</p> : null}
+                    <h3 className="font-semibold text-stone-100">{t('missions:activeMissions')}</h3>
+                    {missions.length === 0 ? <p className="text-sm text-stone-400">{t('missions:noActive')}</p> : null}
                     {missions.map((mission) => (
                       <div className="rounded border border-stone-800 bg-dusk-950 p-3" key={mission.id}>
                         <div className="flex flex-wrap justify-between gap-3">
                           <div>
-                            <p className="font-semibold text-stone-100">{mission.missionLabel}</p>
-                            <p className="text-sm text-stone-400">{missionStatusLabels[mission.status]}</p>
+                            <p className="font-semibold text-stone-100">
+                              {t(`missions:${mission.missionKey}.name`, { defaultValue: mission.missionLabel })}
+                            </p>
+                            <p className="text-sm text-stone-400">{t(`missions:status.${mission.status}`)}</p>
                           </div>
                           <div className="text-right text-sm text-dusk-gold">
                             {mission.completedAt
-                              ? `Завершено ${new Date(mission.completedAt).toLocaleString('ru-RU')}`
-                              : `Завершится ${new Date(mission.finishesAt).toLocaleString('ru-RU')}`}
+                              ? t('missions:completedAt', { date: formatDate(mission.completedAt) })
+                              : t('missions:resolvesAt', { date: formatDate(mission.finishesAt) })}
                           </div>
                         </div>
                         <p className="mt-2 text-sm text-stone-400">
-                          Units:{' '}
-                          {mission.units
-                            .map((unit) => `${unit.unitLabel}: ${unit.amountSent} sent, ${unit.amountLost} lost, ${unit.amountReturned} returned`)
-                            .join(', ')}
+                          {t('missions:sentUnits')}: {unitList(mission.units)}
                         </p>
                         {mission.result ? (
                           <p className="mt-1 text-sm text-stone-400">
-                            Result: {missionResultLabels[mission.result.result]}
+                            {t('missions:result')}: {t(`reports:results.${mission.result.result}`)}
                           </p>
                         ) : null}
                       </div>
@@ -1509,39 +1456,39 @@ export function DashboardPage() {
               ) : null}
             </div>
           </Card>
-          <Card title="Набеги">
+          <Card title={t('raids:section.title')}>
             <div className="grid gap-4">
-              {raidsLoading ? <p>Загрузка набегов...</p> : null}
+              {raidsLoading ? <p>{t('raids:loading')}</p> : null}
               {raidsError ? <p className="text-red-300">{raidsError}</p> : null}
               <Button className="justify-self-start" disabled={raidsLoading} onClick={refreshRaids} type="button">
-                Обновить набеги
+                {t('raids:refresh')}
               </Button>
               {!raidsLoading ? (
                 <>
                   <div className="grid gap-3">
-                    <h3 className="font-semibold text-stone-100">Соседи</h3>
-                    {neighbors.length === 0 ? <p className="text-sm text-stone-400">Нет доступных соседей.</p> : null}
+                    <h3 className="font-semibold text-stone-100">{t('raids:neighbors')}</h3>
+                    {neighbors.length === 0 ? <p className="text-sm text-stone-400">{t('raids:noNeighbors')}</p> : null}
                     {neighbors.map((neighbor) => (
                       <div className="rounded border border-stone-800 bg-dusk-950 p-3" key={neighbor.kingdomId}>
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
                             <h3 className="font-semibold text-stone-100">{neighbor.name}</h3>
-                            <p className="text-sm text-stone-400">{cultureLabels[neighbor.culture]}</p>
+                            <p className="text-sm text-stone-400">{t(`kingdom:cultures.${neighbor.culture}.name`)}</p>
                             <p className="text-sm text-stone-400">
-                              Покровитель: {neighbor.patron ? patronLabels[neighbor.patron] : 'Без покровителя'}
+                              {t('game:dashboard.patron')}: {neighbor.patron ? t(`patrons:${neighbor.patron}.name`) : t('game:dashboard.noPatron')}
                             </p>
                           </div>
                           <div className="text-right text-sm text-stone-300">
-                            <div>Страх: {neighbor.dread}</div>
-                            <div>{powerEstimateLabels[neighbor.powerEstimate]}</div>
+                            <div>{t('raids:dread')}: {neighbor.dread}</div>
+                            <div>{t(`raids:power.${neighbor.powerEstimate}`)}</div>
                           </div>
                         </div>
                         <p className={neighbor.canRaid ? 'mt-2 text-sm text-dusk-gold' : 'mt-2 text-sm text-stone-500'}>
                           {neighbor.canRaid
-                            ? 'Можно начать набег'
+                            ? t('raids:canRaid')
                             : neighbor.blockedReason
-                              ? raidBlockedReasonLabels[neighbor.blockedReason]
-                              : 'Набег недоступен'}
+                              ? t(`raids:blockedReasons.${neighbor.blockedReason}`)
+                              : t('raids:cannotRaid')}
                         </p>
                         {neighbor.canRaid ? (
                           <label className="mt-3 flex items-center gap-2 text-sm text-stone-400">
@@ -1550,7 +1497,7 @@ export function DashboardPage() {
                               onChange={() => setSelectedRaidTargetID(neighbor.kingdomId)}
                               type="radio"
                             />
-                            Выбрать цель
+                            {t('raids:selectTarget')}
                           </label>
                         ) : null}
                       </div>
@@ -1559,11 +1506,11 @@ export function DashboardPage() {
 
                   {selectedRaidTargetID ? (
                     <div className="grid gap-3 rounded border border-stone-800 bg-dusk-950 p-3">
-                      <h3 className="font-semibold text-stone-100">Отправить отряд</h3>
+                      <h3 className="font-semibold text-stone-100">{t('raids:sendParty')}</h3>
                       <div className="grid gap-2 sm:grid-cols-5">
                         {unitTypes.map((unitType) => (
                           <label className="grid gap-1 text-xs text-stone-400" key={unitType}>
-                            {army?.units.find((unit) => unit.type === unitType)?.label ?? unitType}
+                            {unitLabel(unitType)}
                             <input
                               className="rounded border border-stone-700 bg-dusk-900 px-2 py-2 text-stone-100"
                               min={0}
@@ -1574,16 +1521,16 @@ export function DashboardPage() {
                           </label>
                         ))}
                       </div>
-                      <p className="text-sm text-stone-400">Минимум 3, максимум 100 воинов. Население не крадётся.</p>
+                      <p className="text-sm text-stone-400">{t('raids:minimumHint')}</p>
                       <Button className="justify-self-start" disabled={isStartingRaid} onClick={handleStartRaid} type="button">
-                        {isStartingRaid ? 'Отправка...' : 'Начать набег'}
+                        {isStartingRaid ? t('raids:startingRaid') : t('raids:startRaid')}
                       </Button>
                     </div>
                   ) : null}
 
                   <div className="grid gap-2">
-                    <h3 className="font-semibold text-stone-100">Текущие набеги</h3>
-                    {raids.length === 0 ? <p className="text-sm text-stone-400">Набегов пока нет.</p> : null}
+                    <h3 className="font-semibold text-stone-100">{t('raids:activeRaids')}</h3>
+                    {raids.length === 0 ? <p className="text-sm text-stone-400">{t('raids:noActiveRaids')}</p> : null}
                     {raids.map((raid) => (
                       <div className="rounded border border-stone-800 bg-dusk-950 p-3" key={raid.id}>
                         <div className="flex flex-wrap justify-between gap-3">
@@ -1591,23 +1538,20 @@ export function DashboardPage() {
                             <p className="font-semibold text-stone-100">
                               {raid.attackerKingdomName} → {raid.defenderKingdomName}
                             </p>
-                            <p className="text-sm text-stone-400">{missionStatusLabels[raid.status]}</p>
-                            {raid.result ? <p className="text-sm text-dusk-gold">{missionResultLabels[raid.result]}</p> : null}
+                            <p className="text-sm text-stone-400">{t(`missions:status.${raid.status}`)}</p>
+                            {raid.result ? <p className="text-sm text-dusk-gold">{t(`reports:results.${raid.result}`)}</p> : null}
                           </div>
                           <div className="text-right text-sm text-stone-400">
                             {raid.completedAt
-                              ? `Завершено ${new Date(raid.completedAt).toLocaleString('ru-RU')}`
-                              : `Дойдёт ${new Date(raid.arrivesAt).toLocaleString('ru-RU')}`}
+                              ? t('raids:completedAt', { date: formatDate(raid.completedAt) })
+                              : t('raids:arrivesAt', { date: formatDate(raid.arrivesAt) })}
                           </div>
                         </div>
                         <p className="mt-2 text-sm text-stone-400">
-                          Units:{' '}
-                          {raid.units
-                            .map((unit) => `${unit.unitLabel}: ${unit.amountSent} sent, ${unit.amountLost} lost, ${unit.amountReturned} returned`)
-                            .join(', ')}
+                          {t('raids:sentUnits')}: {unitList(raid.units)}
                         </p>
                         <p className="mt-1 text-sm text-stone-400">
-                          Loot: {resourceRows.map(([label, key]) => `${label}: ${raid.loot[key]}`).join(', ')}
+                          {t('reports:loot')}: {resourceList(raid.loot)}
                         </p>
                       </div>
                     ))}
@@ -1616,18 +1560,18 @@ export function DashboardPage() {
               ) : null}
             </div>
           </Card>
-          <Card title="События">
+          <Card title={t('events:section.title')}>
             <div className="grid gap-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-sm text-stone-400">Дворовые вести и тревожные выборы</p>
+                <p className="text-sm text-stone-400">{t('events:subtitle')}</p>
                 <Button className="justify-self-start" disabled={eventsLoading} onClick={loadEvents} type="button">
-                  Обновить события
+                  {t('events:refresh')}
                 </Button>
               </div>
-              {eventsLoading ? <p>Загрузка событий...</p> : null}
+              {eventsLoading ? <p>{t('events:loading')}</p> : null}
               {eventsError ? <p className="text-red-300">{eventsError}</p> : null}
               {!eventsLoading && events.length === 0 ? (
-                <p className="text-sm text-stone-400">Событий пока нет. Обновите двор позже.</p>
+                <p className="text-sm text-stone-400">{t('events:noEvents')}</p>
               ) : null}
               {!eventsLoading && events.filter((event) => event.status === 'active').length > 0 ? (
                 <div className="grid gap-3">
@@ -1637,12 +1581,12 @@ export function DashboardPage() {
                       <div className="rounded border border-dusk-gold bg-dusk-950 p-3" key={event.id}>
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
-                            <p className="text-xs uppercase tracking-wide text-dusk-gold">{eventCategoryLabels[event.category]}</p>
+                            <p className="text-xs uppercase tracking-wide text-dusk-gold">{t(`events:categories.${event.category}`)}</p>
                             <h3 className="mt-1 font-semibold text-stone-100">{event.title}</h3>
                           </div>
                           <div className="text-right text-sm text-stone-400">
-                            <div>{eventStatusLabels[event.status]}</div>
-                            <div>До {new Date(event.expiresAt).toLocaleString('ru-RU')}</div>
+                            <div>{t(`events:status.${event.status}`)}</div>
+                            <div>{t('events:expiresAt', { date: formatDate(event.expiresAt) })}</div>
                           </div>
                         </div>
                         <p className="mt-2 text-sm text-stone-400">{event.body}</p>
@@ -1659,7 +1603,7 @@ export function DashboardPage() {
                                   onClick={() => handleChooseEvent(event.id, choice.key)}
                                   type="button"
                                 >
-                                  {choosingEventID === event.id ? 'Выбираем...' : 'Выбрать'}
+                                  {choosingEventID === event.id ? t('events:choosing') : t('events:choose')}
                                 </Button>
                               </div>
                             </div>
@@ -1671,23 +1615,23 @@ export function DashboardPage() {
               ) : null}
               {!eventsLoading && events.filter((event) => event.status !== 'active').length > 0 ? (
                 <div className="grid gap-3">
-                  <h3 className="font-semibold text-stone-100">Решённые события</h3>
+                  <h3 className="font-semibold text-stone-100">{t('events:resolvedEvents')}</h3>
                   {events
                     .filter((event) => event.status !== 'active')
                     .map((event) => (
                       <div className="rounded border border-stone-800 bg-dusk-950 p-3" key={event.id}>
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
-                            <p className="text-xs uppercase tracking-wide text-stone-500">{eventCategoryLabels[event.category]}</p>
+                            <p className="text-xs uppercase tracking-wide text-stone-500">{t(`events:categories.${event.category}`)}</p>
                             <h3 className="mt-1 font-semibold text-stone-100">{event.title}</h3>
                           </div>
                           <div className="text-right text-sm text-stone-400">
-                            <div>{eventStatusLabels[event.status]}</div>
-                            {event.resolvedAt ? <div>{new Date(event.resolvedAt).toLocaleString('ru-RU')}</div> : null}
+                            <div>{t(`events:status.${event.status}`)}</div>
+                            {event.resolvedAt ? <div>{formatDate(event.resolvedAt)}</div> : null}
                           </div>
                         </div>
                         {event.selectedChoiceKey ? (
-                          <p className="mt-2 text-sm text-stone-500">Выбор: {event.selectedChoiceKey}</p>
+                          <p className="mt-2 text-sm text-stone-500">{t('events:selectedChoice', { choice: eventChoiceLabel(event) })}</p>
                         ) : null}
                         {event.result ? (
                           <div className="mt-2">
@@ -1701,18 +1645,18 @@ export function DashboardPage() {
               ) : null}
             </div>
           </Card>
-          <Card title="Reports">
+          <Card title={t('reports:section.title')}>
             <div className="grid gap-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-sm text-stone-400">Непрочитано: {unreadReportsCount}</p>
+                <p className="text-sm text-stone-400">{t('reports:unread', { count: unreadReportsCount })}</p>
                 <Button className="justify-self-start" disabled={reportsLoading} onClick={loadReports} type="button">
-                  Обновить отчёты
+                  {t('reports:refresh')}
                 </Button>
               </div>
-              {reportsLoading ? <p>Загрузка отчётов...</p> : null}
+              {reportsLoading ? <p>{t('reports:loading')}</p> : null}
               {reportsError ? <p className="text-red-300">{reportsError}</p> : null}
               {!reportsLoading && reports.length === 0 ? (
-                <p className="text-sm text-stone-400">Отчётов пока нет. Отправьте отряд в первую экспедицию.</p>
+                <p className="text-sm text-stone-400">{t('reports:noReports')}</p>
               ) : null}
               {!reportsLoading
                 ? reports.map((report) => {
@@ -1726,33 +1670,33 @@ export function DashboardPage() {
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
                               <h3 className="font-semibold text-stone-100">{report.title}</h3>
-                              <span className="text-xs text-stone-500">{reportTypeLabels[report.type]}</span>
+                              <span className="text-xs text-stone-500">{t(`reports:types.${report.type}`)}</span>
                               <span className={report.isRead ? 'text-xs text-stone-500' : 'text-xs text-dusk-gold'}>
-                                {report.isRead ? 'Прочитано' : 'Новое'}
+                                {report.isRead ? t('reports:read') : t('reports:new')}
                               </span>
                             </div>
-                            <p className="text-sm text-dusk-gold">{missionResultLabels[report.result]}</p>
+                            <p className="text-sm text-dusk-gold">{t(`reports:results.${report.result}`)}</p>
                           </div>
-                          <div className="text-right text-sm text-stone-400">{new Date(report.createdAt).toLocaleString('ru-RU')}</div>
+                          <div className="text-right text-sm text-stone-400">{formatDate(report.createdAt)}</div>
                         </div>
                         <p className="mt-2 text-sm text-stone-400">{report.body}</p>
                         <div className="mt-3 flex flex-wrap gap-2">
                           <Button onClick={() => toggleReportDetails(report.id)} type="button">
-                            {isExpanded ? 'Скрыть детали' : 'Открыть отчёт'}
+                            {isExpanded ? t('reports:close') : t('reports:open')}
                           </Button>
                           <Button
                             disabled={markingReportID === report.id || report.isRead}
                             onClick={() => handleMarkReportRead(report.id)}
                             type="button"
                           >
-                            {markingReportID === report.id ? 'Отмечается...' : 'Отметить прочитанным'}
+                            {markingReportID === report.id ? t('reports:markingRead') : t('reports:markRead')}
                           </Button>
                         </div>
-                        {loadingReportID === report.id ? <p className="mt-3 text-sm text-stone-400">Загрузка деталей...</p> : null}
+                        {loadingReportID === report.id ? <p className="mt-3 text-sm text-stone-400">{t('reports:loadingDetails')}</p> : null}
                         {isExpanded && loadingReportID !== report.id ? (
                           <div className="mt-4 grid gap-3">
                             <div className="grid gap-2">
-                              {report.phases.length === 0 ? <p className="text-sm text-stone-400">Подробные фазы не записаны.</p> : null}
+                              {report.phases.length === 0 ? <p className="text-sm text-stone-400">{t('reports:noPhases')}</p> : null}
                               {report.phases.map((phase) => (
                                 <div className="rounded border border-stone-800 bg-dusk-900 p-3" key={`${report.id}-${phase.title}`}>
                                   <h4 className="font-semibold text-stone-100">{phase.title}</h4>
@@ -1761,17 +1705,12 @@ export function DashboardPage() {
                               ))}
                             </div>
                             <p className="text-sm text-stone-400">
-                              Rewards: {resourceRows.map(([label, key]) => `${label}: ${report.rewards[key]}`).join(', ')}
+                              {t('reports:rewards')}: {resourceList(report.rewards)}
                             </p>
                             <p className="text-sm text-stone-400">
-                              Losses:{' '}
+                              {t('reports:unitsLost')}:{' '}
                               {unitTypes
-                                .map(
-                                  (unitType) =>
-                                    `${army?.units.find((unit) => unit.type === unitType)?.label ?? unitType}: ${
-                                      report.losses[unitType] ?? 0
-                                    }`,
-                                )
+                                .map((unitType) => `${unitLabel(unitType)}: ${report.losses[unitType] ?? 0}`)
                                 .join(', ')}
                             </p>
                           </div>

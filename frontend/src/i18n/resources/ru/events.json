@@ -1,0 +1,27 @@
+{
+  "categories": {
+    "economy": "Хозяйство",
+    "ruler": "Правитель",
+    "military": "Войско",
+    "patron": "Покровитель",
+    "dark_omen": "Тёмное знамение"
+  },
+  "status": {
+    "active": "Доступно",
+    "resolved": "Решено",
+    "expired": "Истекло"
+  },
+  "section": { "title": "События" },
+  "loading": "Загрузка событий...",
+  "loadError": "Не удалось загрузить события.",
+  "subtitle": "Дворовые вести и тревожные выборы",
+  "choose": "Выбрать",
+  "choosing": "Выбираем...",
+  "noEvents": "Событий пока нет. Обновите двор позже.",
+  "expiresAt": "До {{date}}",
+  "resolvedEvents": "Решённые события",
+  "selectedChoice": "Выбор: {{choice}}",
+  "result": "Итог",
+  "effects": "Эффекты",
+  "refresh": "Обновить события"
+}

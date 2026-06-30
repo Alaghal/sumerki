@@ -1,0 +1,12 @@
+{
+  "gold": { "name": "Золото" },
+  "food": { "name": "Еда" },
+  "wood": { "name": "Дерево" },
+  "stone": { "name": "Камень" },
+  "population": { "name": "Население" },
+  "section": { "title": "Ресурсы" },
+  "loading": "Загрузка ресурсов...",
+  "loadError": "Не удалось загрузить ресурсы.",
+  "refresh": "Обновить ресурсы",
+  "productionPerHour": "+{{amount}} / час"
+}

@@ -1,0 +1,37 @@
+{
+  "types": {
+    "expedition": "Экспедиция",
+    "scouting": "Разведка"
+  },
+  "status": {
+    "active": "В пути",
+    "completed": "Завершено"
+  },
+  "black_forest_expedition": { "name": "Чёрный Лес" },
+  "old_kurgan_expedition": { "name": "Старый Курган" },
+  "dry_ford_scouting": { "name": "Сухой Брод" },
+  "section": { "title": "Походы" },
+  "loading": "Загрузка походов...",
+  "loadError": "Не удалось загрузить походы.",
+  "availableMissions": "Доступные походы",
+  "activeMissions": "Текущие походы",
+  "send": "Отправить",
+  "sending": "Отправка...",
+  "units": "Войска",
+  "rewards": "Награды",
+  "risk": "Риск",
+  "minimum": "Минимум",
+  "minimumUnits": "всего {{total}}, разведчики {{scouts}}",
+  "duration": "{{seconds}} сек.",
+  "sentUnits": "Войска",
+  "unitSummary": "{{unit}}: {{sent}} отправлено, {{lost}} потеряно, {{returned}} вернулось",
+  "resolvesAt": "Завершится {{date}}",
+  "completedAt": "Завершено {{date}}",
+  "result": "Итог",
+  "noAvailable": "Нет доступных походов.",
+  "noActive": "Нет походов.",
+  "refresh": "Обновить походы",
+  "validation": {
+    "choosePositiveUnits": "Выберите целое неотрицательное количество войск."
+  }
+}

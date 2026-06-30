@@ -24,5 +24,27 @@
     "player": "Player",
     "noPatron": "No patron",
     "refreshCity": "Refresh city"
+  },
+  "ruler": {
+    "section": { "title": "Ruler" },
+    "name": "Name",
+    "age": "Age",
+    "health": "Health",
+    "loading": "Loading ruler...",
+    "error": "Could not load ruler.",
+    "healthStatus": {
+      "healthy": "Healthy",
+      "wounded": "Wounded",
+      "sick": "Sick"
+    },
+    "stats": {
+      "authority": "Authority",
+      "courage": "Courage",
+      "cunning": "Cunning",
+      "honor": "Honor",
+      "cruelty": "Cruelty",
+      "ambition": "Ambition",
+      "paranoia": "Paranoia"
+    }
   }
 }

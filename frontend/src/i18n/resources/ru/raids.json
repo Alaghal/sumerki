@@ -1,0 +1,41 @@
+{
+  "power": {
+    "much_weaker": "Намного слабее",
+    "weaker": "Слабее",
+    "similar": "Сравним",
+    "stronger": "Сильнее",
+    "much_stronger": "Намного сильнее"
+  },
+  "blockedReasons": {
+    "target_newbie_protected": "Владение под защитой новичка",
+    "target_too_weak": "Цель слишком слаба",
+    "raid_cooldown_active": "Недавно уже был набег",
+    "target_under_protection": "Цель под временной защитой"
+  },
+  "section": { "title": "Набеги" },
+  "loading": "Загрузка набегов...",
+  "loadError": "Не удалось загрузить набеги.",
+  "neighbors": "Соседи",
+  "activeRaids": "Текущие набеги",
+  "target": "Цель",
+  "powerLabel": "Сила",
+  "canRaid": "Можно начать набег",
+  "cannotRaid": "Набег недоступен",
+  "blockedReason": "Причина",
+  "selectTarget": "Выбрать цель",
+  "sendParty": "Отправить отряд",
+  "startRaid": "Начать набег",
+  "startingRaid": "Отправка...",
+  "sentUnits": "Войска",
+  "arrivesAt": "Дойдёт {{date}}",
+  "resolvesAt": "Завершится {{date}}",
+  "completedAt": "Завершено {{date}}",
+  "noNeighbors": "Нет доступных соседей.",
+  "noActiveRaids": "Набегов пока нет.",
+  "refresh": "Обновить набеги",
+  "minimumHint": "Минимум 3, максимум 100 воинов. Население не крадётся.",
+  "dread": "Страх",
+  "validation": {
+    "choosePositiveUnits": "Выберите целое неотрицательное количество войск."
+  }
+}

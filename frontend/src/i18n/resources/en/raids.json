@@ -1,0 +1,41 @@
+{
+  "power": {
+    "much_weaker": "Much weaker",
+    "weaker": "Weaker",
+    "similar": "Similar",
+    "stronger": "Stronger",
+    "much_stronger": "Much stronger"
+  },
+  "blockedReasons": {
+    "target_newbie_protected": "Target has newbie protection",
+    "target_too_weak": "Target is too weak",
+    "raid_cooldown_active": "Raid cooldown is active",
+    "target_under_protection": "Target is under temporary protection"
+  },
+  "section": { "title": "Raids" },
+  "loading": "Loading raids...",
+  "loadError": "Could not load raids.",
+  "neighbors": "Neighbors",
+  "activeRaids": "Active raids",
+  "target": "Target",
+  "powerLabel": "Power",
+  "canRaid": "Raid can be started",
+  "cannotRaid": "Raid unavailable",
+  "blockedReason": "Reason",
+  "selectTarget": "Select target",
+  "sendParty": "Send party",
+  "startRaid": "Start raid",
+  "startingRaid": "Starting...",
+  "sentUnits": "Units",
+  "arrivesAt": "Arrives at {{date}}",
+  "resolvesAt": "Resolves at {{date}}",
+  "completedAt": "Completed {{date}}",
+  "noNeighbors": "No available neighbors.",
+  "noActiveRaids": "No active raids.",
+  "refresh": "Refresh raids",
+  "minimumHint": "Minimum 3, maximum 100 warriors. Population cannot be stolen.",
+  "dread": "Dread",
+  "validation": {
+    "choosePositiveUnits": "Choose a whole non-negative number of units."
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "militia": { "name": "Ополчение" },
+  "spearmen": { "name": "Копейщики" },
+  "archers": { "name": "Лучники" },
+  "cavalry": { "name": "Конница" },
+  "scouts": { "name": "Разведчики" },
+  "stats": {
+    "attack": "Атака",
+    "defense": "Защита",
+    "speed": "Скорость",
+    "supply": "Снабжение"
+  },
+  "section": { "title": "Войско" },
+  "loading": "Загрузка войска...",
+  "loadError": "Не удалось загрузить войско.",
+  "summary": {
+    "total": "Всего"
+  },
+  "available": "Доступно",
+  "training": "Обучается",
+  "train": "Обучить",
+  "trainingNow": "Обучается...",
+  "amount": "Количество",
+  "unitType": "Войска",
+  "requirements": "Требования",
+  "requirementMet": "Требование выполнено",
+  "requirementNotMet": "Требование не выполнено",
+  "barracksRequirement": "Требуется казарма уровня {{level}}. {{status}}",
+  "cost": "Стоимость",
+  "secondsPerUnit": "{{seconds}} сек. / юнит",
+  "noTraining": "Нет активного обучения.",
+  "refresh": "Обновить войско",
+  "completedAt": "Завершится {{date}}",
+  "futureSystems": "Миссии и бои появятся позже.",
+  "validation": {
+    "choosePositiveUnits": "Выберите целое неотрицательное количество войск."
+  }
+}

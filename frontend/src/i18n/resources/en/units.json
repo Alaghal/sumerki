@@ -1,0 +1,38 @@
+{
+  "militia": { "name": "Militia" },
+  "spearmen": { "name": "Spearmen" },
+  "archers": { "name": "Archers" },
+  "cavalry": { "name": "Cavalry" },
+  "scouts": { "name": "Scouts" },
+  "stats": {
+    "attack": "Attack",
+    "defense": "Defense",
+    "speed": "Speed",
+    "supply": "Supply"
+  },
+  "section": { "title": "Army" },
+  "loading": "Loading army...",
+  "loadError": "Could not load army.",
+  "summary": {
+    "total": "Total"
+  },
+  "available": "Available",
+  "training": "Training",
+  "train": "Train",
+  "trainingNow": "Training...",
+  "amount": "Amount",
+  "unitType": "Unit",
+  "requirements": "Requirements",
+  "requirementMet": "Requirement met",
+  "requirementNotMet": "Requirement not met",
+  "barracksRequirement": "Requires barracks level {{level}}. {{status}}",
+  "cost": "Cost",
+  "secondsPerUnit": "{{seconds}} sec / unit",
+  "noTraining": "No active training.",
+  "refresh": "Refresh army",
+  "completedAt": "Completes at {{date}}",
+  "futureSystems": "Missions and battles will appear later.",
+  "validation": {
+    "choosePositiveUnits": "Choose a whole non-negative number of units."
+  }
+}

@@ -400,16 +400,15 @@ Status: Completed
 
 Added i18next/react-i18next, Russian and English resources, default Russian language with English fallback, language persistence in `localStorage`, a TopBar language switcher, and initial shell/auth/kingdom/basic dashboard translation coverage.
 
-Remaining full UI copy migration is Phase 24.
+Broader UI copy migration was completed in Phase 24.
 
 ## Phase 24: UI Copy Migration
 
-Status: Planned
+Status: Completed
 
-* Move hardcoded player-facing labels to i18n.
-* Remove mixed Russian/English UI.
-* Hide enum/API keys from player-facing UI.
-* Translate shell, dashboard labels, errors, buttons, resources, units, buildings, missions, reports, patrons, events, raids.
+Migrated hardcoded player-facing UI copy to i18n, added gameplay translation namespaces, and moved DashboardPage gameplay labels for resources, buildings, units, missions, reports, patrons, events, raids, and ruler details to translations.
+
+Full backend event/report narrative content localization remains Phase 30.
 
 ## Phase 25: Dashboard Decomposition
 

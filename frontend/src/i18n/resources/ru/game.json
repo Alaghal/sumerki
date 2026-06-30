@@ -24,5 +24,27 @@
     "player": "Игрок",
     "noPatron": "Без покровителя",
     "refreshCity": "Обновить город"
+  },
+  "ruler": {
+    "section": { "title": "Правитель" },
+    "name": "Имя",
+    "age": "Возраст",
+    "health": "Здоровье",
+    "loading": "Загрузка правителя...",
+    "error": "Не удалось загрузить правителя.",
+    "healthStatus": {
+      "healthy": "Здоров",
+      "wounded": "Ранен",
+      "sick": "Болен"
+    },
+    "stats": {
+      "authority": "Власть",
+      "courage": "Храбрость",
+      "cunning": "Хитрость",
+      "honor": "Честь",
+      "cruelty": "Жестокость",
+      "ambition": "Амбиция",
+      "paranoia": "Паранойя"
+    }
   }
 }

@@ -1,0 +1,12 @@
+{
+  "gold": { "name": "Gold" },
+  "food": { "name": "Food" },
+  "wood": { "name": "Wood" },
+  "stone": { "name": "Stone" },
+  "population": { "name": "Population" },
+  "section": { "title": "Resources" },
+  "loading": "Loading resources...",
+  "loadError": "Could not load resources.",
+  "refresh": "Refresh resources",
+  "productionPerHour": "+{{amount}} / hour"
+}

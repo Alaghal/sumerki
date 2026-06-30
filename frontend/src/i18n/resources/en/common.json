@@ -5,12 +5,14 @@
     "loading": "Loading..."
   },
   "language": {
+    "label": "Language",
     "ru": "Русский",
     "en": "English"
   },
   "states": {
     "loading": "Loading...",
     "error": "Error",
-    "empty": "Empty"
+    "empty": "Empty",
+    "unknown": "Unknown"
   }
 }

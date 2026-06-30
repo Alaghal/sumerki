@@ -61,6 +61,8 @@ Status: Completed
 
 ### Phase 24: UI Copy Migration
 
+Status: Completed
+
 * Move hardcoded player-facing labels to i18n.
 * Remove mixed Russian/English UI.
 * Hide enum/API keys from player-facing UI.
