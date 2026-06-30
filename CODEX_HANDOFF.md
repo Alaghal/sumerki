@@ -2,127 +2,148 @@
 
 ## Current Phase
 
-Phase 19: Balance Pass.
+Phase 20: Smoke Tests and Seed Data.
 
 ## Status
 
-Phase 19 is implemented according to the attached prompt. The first-session MVP loop is tuned so a new player can upgrade an economic building, train units, run a short PvE mission, resolve an event, and inspect patron/raid sections without manual database edits.
+Phase 20 is implemented according to the attached prompt. Local development now has predictable seed data, Makefile verification helpers, an API smoke script, smoke-test documentation, and a manual playtest checklist.
 
 ## Completed
 
-- Increased starting resources to:
-  - gold: 600
-  - food: 400
-  - wood: 400
-  - stone: 300
-  - population: 120
-- Increased starting scouts from 2 to 3 so `dry_ford_scouting` can be sent at its recommended unit count immediately.
-- Shortened `dry_ford_scouting` from 90 seconds to 75 seconds.
-- Reduced early mission loss percentages:
-  - `black_forest_expedition`: 8% base, 12% max
-  - `old_kurgan_expedition`: 14% base, 18% max
-  - `dry_ford_scouting`: 3% base, 5% max
-- Kept building costs, building timers, unit costs, unit timers, raid limits, tribute pressure, and event mechanics unchanged because they already fit the MVP target ranges closely.
-- Added concise balance documentation in `docs/BALANCE.md`.
-- Updated README current phase and documentation list.
-- Updated the army service test expectation for the new starting unit count.
-
-## Balance Areas Changed
-
-- Starting resources.
-- Starting scout count.
-- PvE mission duration for the first scouting mission.
-- PvE mission loss rates and caps.
-- Balance documentation.
+- Added `backend/cmd/seed-dev`.
+- Added idempotent local dev seed data for:
+  - `northern@example.com`
+  - `lizard@example.com`
+  - `posad@example.com`
+  - `raider@example.com`
+- Dev password for all seeded users is `password123`.
+- Seeded kingdoms include rulers, resources, buildings, units, and patron state where selected.
+- Seeded resources are:
+  - gold: 2000
+  - food: 1500
+  - wood: 1500
+  - stone: 1200
+  - population: 250
+- Seeded units are:
+  - militia: 40
+  - scouts: 10
+  - spearmen: 15
+  - archers: 15
+  - cavalry: 5
+- Seeded kingdoms are aged beyond newbie protection for local raid smoke tests.
+- `northern@example.com` has boosted local buildings:
+  - farm level 2
+  - lumberyard level 2
+  - quarry level 2
+  - market level 2
+  - barracks level 2
+  - walls level 1
+- Added `scripts/smoke-api.sh`.
+- Added Makefile helpers:
+  - `seed-dev`
+  - `reset-db`
+  - `smoke-api`
+  - `test-backend`
+  - `test-frontend`
+  - `test-all`
+- Added local Go build cache support in Makefile with `GOCACHE ?= $(CURDIR)/.cache/go-build`.
+- Added `docs/SMOKE_TESTS.md`.
+- Added `docs/PLAYTEST_CHECKLIST.md`.
+- Updated README with local MVP verification commands and dev account notes.
 
 ## Phase Scope Note
 
 - No new gameplay systems were added.
 - No schema or migration changes were made.
-- No background workers, cron jobs, queues, Redis, WebSocket, or real-time combat were added.
-- No auth, kingdom creation, API response shape, frontend route, raid mechanic, patron mechanic, event mechanic, or report mechanic was changed.
-- Event seed data was reviewed but not modified; current event effects are already MVP-small enough for this pass.
-- This session did not start Phase 20.
+- No API response shapes were changed.
+- No frontend UI changes were made.
+- No gameplay balance values were changed.
+- No background workers, cron jobs, queues, Redis, WebSocket, analytics, production deployment, payments, admin panel, chat, alliances, or map/province systems were added.
+- `reset-db` is intentionally destructive and documented as local Docker development only.
+- This session did not start Phase 21.
 
 ## Changed Files
 
+- `Makefile`
 - `README.md`
 - `CODEX_HANDOFF.md`
-- `docs/BALANCE.md`
-- `backend/internal/gameconfig/resources.go`
-- `backend/internal/gameconfig/units.go`
-- `backend/internal/gameconfig/missions.go`
-- `backend/internal/service/army_service_test.go`
+- `backend/cmd/seed-dev/main.go`
+- `docs/SMOKE_TESTS.md`
+- `docs/PLAYTEST_CHECKLIST.md`
+- `scripts/smoke-api.sh`
 
 ## Commands Run
 
-- `gofmt -w backend/internal/gameconfig/resources.go backend/internal/gameconfig/units.go backend/internal/gameconfig/missions.go backend/internal/service/army_service_test.go`
+- `gofmt -w backend/cmd/seed-dev/main.go`
 - `cd backend && GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build go test ./...`
-- `cd frontend && npm run typecheck`
-- `cd frontend && npm run build`
-- `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make migrate-status`
+- `bash -n scripts/smoke-api.sh`
+- `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make seed-dev`
+- `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make seed-dev`
+- `docker compose exec -T postgres psql -U sumerki -d sumerki -c "select email, count(*) ..."`
+- `docker compose exec -T postgres psql -U sumerki -d sumerki -c "select k.name, k.patron, r.gold, ..."`
+- `docker compose exec -T postgres psql -U sumerki -d sumerki -c "select u.email, unit_type, amount ..."`
+- `docker compose exec -T postgres psql -U sumerki -d sumerki -c "select type, level ..."`
 - `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' JWT_SECRET='dev-secret' BACKEND_PORT=18080 GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build go run ./cmd/server`
-- `curl -s -X POST http://localhost:18080/api/auth/register ...`
-- `curl -s -X POST http://localhost:18080/api/kingdoms ...`
-- `curl -s http://localhost:18080/api/resources/me ...`
-- `curl -s http://localhost:18080/api/army/me ...`
-- `curl -s http://localhost:18080/api/missions/available ...`
-- `curl -s http://localhost:18080/api/events/me ...`
-- `curl -s -X POST http://localhost:18080/api/buildings/farm/upgrade ...`
-- `curl -s -X POST http://localhost:18080/api/army/train ...`
-- `curl -s -X POST http://localhost:18080/api/missions/start ...`
-- `curl -s -X POST http://localhost:18080/api/events/<EVENT_ID>/choose ...`
-- `curl -s http://localhost:18080/api/missions/me ...`
-- `curl -s http://localhost:18080/api/reports/me ...`
-- `curl -s http://localhost:18080/api/patron/options ...`
-- `curl -s http://localhost:18080/api/neighbors ...`
+- `API_BASE_URL='http://localhost:18080' make smoke-api`
+- `make test-backend`
+- `make test-frontend`
+- `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make migrate-status`
 
 ## Verification
 
-- Backend tests passed with local Go build cache.
+- `backend/cmd/seed-dev` compiles.
+- Backend tests passed.
 - Frontend typecheck passed.
 - Frontend production build passed.
+- `scripts/smoke-api.sh` passed shell syntax check.
+- `make seed-dev` completed successfully.
+- Re-running `make seed-dev` returned the same dev user and kingdom IDs, confirming idempotent behavior for the dev accounts.
+- SQL confirmed exactly one user row for each dev account.
+- SQL confirmed seeded kingdoms have the expected resource values.
+- SQL confirmed `northern@example.com` has the expected seeded unit amounts.
+- SQL confirmed `northern@example.com` has boosted building levels.
 - Goose status shows migrations `00001` through `00013` applied.
-- Live API smoke test confirmed:
-  - registered a new smoke-test user
-  - created a new smoke-test kingdom
-  - starting resources returned as `600/400/400/300/120`
-  - production returned as `30/45/37/25/1` per hour with level-1 economic buildings
-  - starting army returned as 10 militia and 3 scouts
-  - available missions returned `dry_ford_scouting` with 75-second duration
-  - farm upgrade started successfully
-  - 3 militia training started successfully
-  - `dry_ford_scouting` started with 3 scouts
-  - event choice resolved and applied effects
-  - mission lazily completed after its timer
-  - mission report was created and returned by reports API
-  - patron options were visible
-  - raid neighbors were visible and protected by newbie protection
+- Live API smoke test against `http://localhost:18080` completed successfully:
+  - auth login
+  - kingdom fetch
+  - ruler fetch
+  - resources fetch
+  - building upgrade
+  - army fetch
+  - unit training
+  - mission start
+  - missions fetch
+  - reports fetch
+  - patron options/status/pressure
+  - event choice
+  - raids fetch
+  - raid start
 
 ## What Works Now
 
-- A new player can take multiple meaningful actions immediately after kingdom creation.
-- Starting resources allow at least one basic economic upgrade and still leave room for unit training or barracks.
-- Starting army can run the first scouting mission at the recommended scout count.
-- The first scouting mission resolves quickly enough for local MVP testing.
-- Early mission losses are less likely to feel devastating.
-- Raid loot and raid protection remain limited and safe.
-- Tribute and pressure remain surplus-based and protected by minimum reserves.
-- Balance assumptions are documented in `docs/BALANCE.md`.
+- A developer can seed predictable local users and kingdoms with `make seed-dev`.
+- Running `make seed-dev` twice does not duplicate the four dev users or kingdoms.
+- Dev users can login with `password123`.
+- Seeded kingdoms have enough resources and units for missions and raids.
+- At least one seeded kingdom has patron pressure state.
+- At least one seeded account can start a mission.
+- At least one seeded account can view and choose events.
+- At least one seeded raid target is available after seeding.
+- `make smoke-api` verifies the core MVP API flow.
+- `make test-backend`, `make test-frontend`, and `make test-all` provide convenient local checks.
+- `make reset-db` provides a documented local destructive reset path.
+- README and smoke docs explain the full local verification flow.
 
 ## Known Limitations
 
-- Balance is first-pass MVP tuning.
-- Values are not production-ready.
-- No analytics-driven balancing exists yet.
-- No long-term economy simulation exists yet.
-- No monetization balancing exists yet.
-- Playtest feedback is needed.
-- Event effects were reviewed but not re-seeded in this phase.
-- Patron copy still says some obligations are future-facing even though pressure endpoints exist; this is messaging polish, not balance logic.
-- During live smoke, parallel reads of completed missions/reports produced duplicate mission reports. This appears to be an existing lazy-resolution race outside the Phase 19 balance scope.
+- Seed data is local-only and uses public dev passwords.
+- `reset-db` is destructive and assumes the local Docker PostgreSQL service/user/database from this repository.
+- `scripts/smoke-api.sh` requires `jq`.
+- Smoke API checks endpoint availability and basic happy paths; it does not wait for mission or raid timers to resolve.
+- Smoke API mutates local data by starting upgrades, training, missions, raids, and event choices.
+- Existing lazy mission/report duplicate behavior noted in Phase 19 was not changed.
 - The local Docker database is currently published on `15432`, so verification used `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable'`.
 
 ## Next Recommended Phase
 
-Start Phase 20 only when explicitly requested.
+Start Phase 21 only when explicitly requested.
