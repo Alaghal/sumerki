@@ -50,6 +50,27 @@
   "activity": {
     "title": "Лента дел",
     "noActivity": "Тихо",
+    "empty": "Нет срочных дел при дворе.",
+    "construction": "Стройка",
+    "training": "Обучение",
+    "missions": "Поход",
+    "raids": "Набег",
+    "events": "Событие",
+    "reports": "Отчёт",
+    "patron": "Покровитель",
+    "openCity": "Открыть город",
+    "openArmy": "Открыть войско",
+    "openMissions": "Открыть походы",
+    "openRaids": "Открыть набеги",
+    "openEvents": "Открыть события",
+    "openReports": "Открыть отчёты",
+    "openPatron": "Открыть покровителя",
+    "resolvesAt": "Завершится {{date}}",
+    "endsAt": "До {{date}}",
+    "nextTributeAt": "Сбор {{date}}",
+    "unreadReports": "Новых отчётов: {{count}}",
+    "activeEvents": "Событий: {{count}}",
+    "patronWarning": "Давление растёт",
     "activeUpgrades": "Улучшения",
     "activeMissions": "Походы",
     "activeRaids": "Набеги",
@@ -60,6 +81,40 @@
     "activeRaidsCount": "Набегов: {{count}}",
     "activeEventsCount": "Событий: {{count}}",
     "unreadReportsCount": "Новых отчётов: {{count}}"
+  },
+  "context": {
+    "title": "Выбранный узел",
+    "selected": "Статус",
+    "noSelection": "Узел не выбран",
+    "clickMapNode": "Выберите узел на карте.",
+    "city": {
+      "title": "Владение",
+      "description": "Двор, ресурсы и стройка."
+    },
+    "mission": {
+      "title": "Место похода",
+      "active": "Отряд уже в пути",
+      "available": "Можно отправить отряд",
+      "suggestedAction": "Выберите войска ниже и отправьте поход."
+    },
+    "neighbor": {
+      "title": "Сосед",
+      "canRaid": "Можно начать набег",
+      "cannotRaid": "Набег недоступен",
+      "unknown": "Сосед пока неизвестен"
+    },
+    "patron": {
+      "title": "Дорога покровителя",
+      "noPatron": "Покровитель не выбран",
+      "pressure": "Давление"
+    },
+    "events": {
+      "title": "Знамения",
+      "activeCount": "Активных событий"
+    },
+    "reports": {
+      "unreadCount": "Непрочитано"
+    }
   },
   "dashboard": {
     "title": "{{name}}",

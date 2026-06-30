@@ -50,11 +50,12 @@ This document describes current MVP and playtest limitations. It is not a roadma
 - Game Shell v1 and Local SVG Map v1 exist
 - the map is local and symbolic only
 - mode navigation is local UI state, not route-level world navigation
+- node-specific context summaries exist, but deeper node workflows are still basic
+- activity feed is more useful, but dense panels still need visual polish
 - no full province system
 - no territory capture
 - no pathfinding
 - no pan/zoom
-- map node context is basic until Phase 28
 - some UI may still be too dense
 - overflow and responsiveness need hardening
 - final art direction is not implemented

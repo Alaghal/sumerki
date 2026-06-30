@@ -97,23 +97,16 @@ Status: Completed
 
 ### Phase 28: Context Panels And Activity Feed
 
-Status: Planned
+Status: Completed
 
-* Move major actions into contextual panels:
-  * city context
-  * mission context
-  * raid target context
-  * patron context
-  * event context
-* Add bottom feed for:
-  * active building upgrades
-  * active training
-  * active missions
-  * active raids
-  * unread reports
-  * active events
+* Added selected-node context summaries to the right panel.
+* Kept existing mode panels and actions usable below the summaries.
+* Improved the activity feed with grouped actionable items.
+* Feed items can switch local modes.
 
 ### Phase 29: Responsive And Overflow Hardening
+
+Status: Planned
 
 * Fix layout overflow.
 * Ensure long text wraps.
