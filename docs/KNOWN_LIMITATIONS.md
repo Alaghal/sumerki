@@ -47,10 +47,14 @@ This document describes current MVP and playtest limitations. It is not a roadma
 
 ## UX Limitations
 
-- Game Shell v1 exists, but the center scene is still a placeholder
+- Game Shell v1 and Local SVG Map v1 exist
+- the map is local and symbolic only
 - mode navigation is local UI state, not route-level world navigation
-- local SVG map is not implemented yet
-- real map nodes are planned for Phase 27
+- no full province system
+- no territory capture
+- no pathfinding
+- no pan/zoom
+- map node context is basic until Phase 28
 - some UI may still be too dense
 - overflow and responsiveness need hardening
 - final art direction is not implemented

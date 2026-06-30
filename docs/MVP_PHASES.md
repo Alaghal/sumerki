@@ -432,16 +432,15 @@ The real local SVG map remains Phase 27.
 
 ## Phase 27: Local SVG Map v1
 
-Status: Planned
+Status: Completed
 
-* Add simple local map:
-  * player settlement
-  * Black Forest
-  * Old Kurgan
-  * Dry Ford
-  * neighbor kingdoms
-* Clicking map nodes opens context panels.
-* Use SVG/HTML, not Phaser/Pixi/Three.js.
+Added Local SVG Map v1 to the Game Shell center scene.
+
+The map shows the player settlement, Black Forest, Old Kurgan, Dry Ford, neighbor kingdoms, patron road, and omens/events. Map node clicks switch the local mode and right context panel using existing frontend state.
+
+This is a local symbolic map only. It does not add a province system, territory capture, pathfinding, pan/zoom, new backend endpoints, or new gameplay mechanics.
+
+Phase 28 remains context panel and activity feed refinement.
 
 ## Phase 28: Context Panels And Activity Feed
 
