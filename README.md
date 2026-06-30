@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 20: Smoke Tests and Seed Data.
+Phase 21: First Playtest Build.
 
-This phase adds local dev seed data, API smoke checks, and playtest documentation so the MVP loop can be verified without manual database edits.
+This phase prepares the MVP for the first internal manual playtest with focused tester instructions, feedback templates, known limitations, release notes, and playtest helper commands.
 
 ## Documentation
 
@@ -21,7 +21,11 @@ This phase adds local dev seed data, API smoke checks, and playtest documentatio
 - `docs/DOMAIN_MODEL.md`: draft domain model.
 - `docs/BALANCE.md`: first-pass MVP balance assumptions.
 - `docs/SMOKE_TESTS.md`: local smoke test flow.
+- `docs/PLAYTEST_GUIDE.md`: first internal playtest guide.
+- `docs/FEEDBACK_TEMPLATE.md`: structured playtest feedback template.
+- `docs/KNOWN_LIMITATIONS.md`: current MVP limitations.
 - `docs/PLAYTEST_CHECKLIST.md`: manual browser playtest checklist.
+- `docs/RELEASE_NOTES_PLAYTEST_001.md`: first playtest release notes.
 - `docs/phases/`: detailed phase notes.
 
 ## Planned Stack
@@ -143,6 +147,44 @@ Dev accounts use password `password123`:
 Dev seed data is local only. Do not use dev passwords in production.
 
 See `docs/SMOKE_TESTS.md` and `docs/PLAYTEST_CHECKLIST.md` for the full local verification flow.
+
+## First Playtest
+
+Quick start:
+
+```sh
+docker compose up -d postgres
+make playtest-setup
+make test-backend
+make test-frontend
+make backend-run
+```
+
+In another terminal:
+
+```sh
+make smoke-api
+cd frontend
+npm install
+npm run dev
+```
+
+Open the frontend URL printed by Vite, usually `http://localhost:5173`.
+
+Seed accounts use password `password123`:
+
+- `northern@example.com`
+- `lizard@example.com`
+- `posad@example.com`
+- `raider@example.com`
+
+Playtest docs:
+
+- `docs/PLAYTEST_GUIDE.md`
+- `docs/FEEDBACK_TEMPLATE.md`
+- `docs/KNOWN_LIMITATIONS.md`
+- `docs/PLAYTEST_CHECKLIST.md`
+- `docs/RELEASE_NOTES_PLAYTEST_001.md`
 
 ## Auth API
 

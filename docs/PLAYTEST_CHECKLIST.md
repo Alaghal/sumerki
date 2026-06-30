@@ -1,63 +1,50 @@
 # Playtest Checklist
 
-Use this checklist after running `make seed-dev` and starting the backend and frontend.
+Use this checklist for the first internal manual playtest.
 
-## Account
+## Pre-Flight
 
-- Login works.
-- Logout works.
-- Refresh keeps the session.
+- [ ] Database starts.
+- [ ] Migrations apply.
+- [ ] Seed works.
+- [ ] Backend tests pass.
+- [ ] Frontend typecheck/build passes.
+- [ ] `smoke-api` passes, or the known warning is documented.
 
-## Kingdom
+## Manual App Checklist
 
-- Kingdom is visible.
-- Ruler is visible.
-- Resources are visible.
+- [ ] Login works.
+- [ ] Logout works.
+- [ ] Refresh keeps the session.
+- [ ] Create kingdom works.
+- [ ] Ruler is visible.
+- [ ] Resources are visible.
+- [ ] Building upgrade works.
+- [ ] Resources update after spending.
+- [ ] Unit training works.
+- [ ] Trained units appear after lazy refresh.
+- [ ] Mission start works.
+- [ ] Sent units become unavailable.
+- [ ] Mission resolves.
+- [ ] Report appears.
+- [ ] Report can be read and marked read.
+- [ ] Patron options are visible.
+- [ ] Join patron works.
+- [ ] Break patron works.
+- [ ] Pressure is visible if implemented.
+- [ ] Events are visible.
+- [ ] Choosing an event applies effects.
+- [ ] Event report appears.
+- [ ] Neighbors are visible.
+- [ ] Blocked raid reasons make sense.
+- [ ] Raid can start when valid.
+- [ ] Raid resolves.
+- [ ] Attacker and defender reports appear.
 
-## Economy
+## UX Checks
 
-- Resources grow after refresh.
-- Building upgrade starts.
-- Resources update after spending.
-
-## Army
-
-- Unit training starts.
-- Trained units appear after lazy refresh.
-- Unavailable unit requirements are understandable.
-
-## Missions
-
-- Mission start works.
-- Sent units become unavailable.
-- Mission resolves after its timer.
-- Report appears.
-
-## Raids
-
-- Neighbors are visible.
-- Blocked reasons make sense.
-- Raid can start when a valid target exists.
-- Defender is not destroyed.
-- Protected resources remain.
-
-## Patron
-
-- Patron options are visible.
-- Join works.
-- Break works.
-- Pressure is visible.
-- Tribute does not reduce resources below protected minimums.
-
-## Events
-
-- Events are visible.
-- Choosing an event applies effects.
-- Event report appears.
-- Resolved event is not applied twice.
-
-## General
-
-- No blank pages.
-- Errors are readable.
-- Loading states are understandable.
+- [ ] No blank screens.
+- [ ] Loading states show.
+- [ ] Errors are readable.
+- [ ] Buttons are disabled when action is impossible.
+- [ ] Labels are understandable.
