@@ -2,22 +2,22 @@
 
 ## Current Phase
 
-Post-Playtest Roadmap Documentation.
+Phase 22: UX And i18n Strategy Docs.
 
 ## Status
 
-Roadmap updated to reflect UX/i18n strategy after Playtest 001.
+Phase 22 completed as a documentation-only strategy phase.
 
 ## Completed
 
-- Added `docs/POST_PLAYTEST_ROADMAP.md`.
-- Added `docs/UX_I18N_STRATEGY.md`.
-- Added `docs/I18N_PLAN.md`.
-- Added `docs/UI_COPY_RULES.md`.
-- Updated `docs/MVP_PHASES.md` with planned Phase 22 through Phase 31.
-- Updated `docs/KNOWN_LIMITATIONS.md` with UX and localization limitations.
-- Added accepted UX/i18n decisions to `docs/DECISIONS.md`.
-- Updated `README.md` with post-playtest roadmap links and next-work note.
+- Documented target UX game shell.
+- Documented i18n plan.
+- Documented UI copy rules.
+- Updated post-playtest roadmap.
+- Updated `docs/MVP_PHASES.md` with Phase 22 completed status.
+- Confirmed `docs/KNOWN_LIMITATIONS.md` includes UX and localization limitations.
+- Confirmed `docs/DECISIONS.md` includes map-first, i18n foundation, and SVG-first map decisions.
+- Confirmed `README.md` links to the Phase 22 docs and notes the UX/i18n direction.
 
 ## Changed Files
 
@@ -28,11 +28,11 @@ Roadmap updated to reflect UX/i18n strategy after Playtest 001.
 - `docs/I18N_PLAN.md`
 - `docs/UI_COPY_RULES.md`
 - `docs/MVP_PHASES.md`
-- `docs/KNOWN_LIMITATIONS.md`
-- `docs/DECISIONS.md`
 
 ## Commands Run
 
+- `rg "UX And i18n Strategy|Game Shell|i18next|Phase 22|UI Copy Rules" docs README.md`
+- `rg "0009|0010|0011" docs/DECISIONS.md`
 - `rg "POST_PLAYTEST_ROADMAP|UX_I18N_STRATEGY|I18N_PLAN|UI_COPY_RULES" README.md docs`
 - `rg "Phase 22|Phase 31|Post-Playtest" docs/MVP_PHASES.md`
 - `rg "Map-First|i18n|SVG" docs/DECISIONS.md`
@@ -46,19 +46,18 @@ No backend or frontend tests were required because this was documentation-only.
 
 ## What Works Now
 
-- Playtest 001 remains documented as complete.
-- The post-playtest direction is documented as UX/i18n before new gameplay systems.
-- The planned Phase 22 through Phase 31 path covers strategy docs, i18n foundation, copy migration, dashboard decomposition, game shell, SVG map, context panels, overflow hardening, localized event/report content, and Playtest 002 UX packaging.
-- README links to the new roadmap and copy/i18n documents.
-- Decisions record the map-first shell, i18n foundation, and SVG-first map choice.
+- Project has a documented UX/i18n direction after Playtest 001.
+- Phase 23 has clear prerequisites and scope.
+- Map-first shell is documented before code changes.
+- README links to the roadmap, strategy, i18n plan, and UI copy rules.
 
 ## Known Limitations
 
-- This only updates roadmap/docs.
 - No i18n code is implemented yet.
 - No game shell code is implemented yet.
-- Dashboard remains unchanged until Phase 23+.
+- No map UI is implemented yet.
+- Current dashboard remains unchanged.
 
 ## Next Recommended Step
 
-Start Phase 23: i18n Foundation ru/en, or run a screenshot-based UX review before coding.
+Start Phase 23: i18n Foundation ru/en.

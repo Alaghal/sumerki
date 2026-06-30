@@ -390,13 +390,9 @@ Phases 0 through 21 remain completed. Phases 22 through 31 are planned post-MVP 
 
 ## Phase 22: UX And i18n Strategy Docs
 
-Status: Planned
+Status: Completed
 
-* Write the UX target.
-* Write the localization strategy.
-* Define the game shell layout.
-* Define UI copy rules.
-* No code changes.
+Documented the target map-first game shell, localization strategy, i18n implementation plan, and UI copy rules before frontend implementation.
 
 ## Phase 23: i18n Foundation ru/en
 

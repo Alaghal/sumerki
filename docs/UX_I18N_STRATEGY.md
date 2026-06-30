@@ -1,27 +1,46 @@
 # UX And i18n Strategy
 
-## Problem
+## Current Problem
 
-The current Playtest 001 frontend is functionally complete but feels like a website/dashboard:
+Playtest 001 is functionally complete, but visually and structurally it still feels like a dashboard/site rather than a game.
 
-* too many cards on one page
-* systems are stacked sequentially
-* navigation does not switch meaningful modes
-* mixed Russian/English copy
-* technical labels leak into the player UI
-* layout can overflow
+Current UX issues:
+
+* too many cards on one long page
+* no true map-first game view
+* navigation does not switch meaningful modes yet
+* mixed Russian/English UI
+* technical identifiers should not be shown to players
+* some UI can overflow
+* the game needs stronger spatial and contextual presentation
+
+The interface currently answers:
+
+"Which backend systems have been implemented?"
+
+It should instead answer:
+
+"What is happening around my settlement, and what can I do now?"
 
 ## Target UX
 
-The main screen should become:
+The target interface should be a strategy-lite game shell:
 
-* Top: resource HUD
-* Left: mode navigation
-* Center: map or game scene
-* Right: context panel
-* Bottom: activity feed
+* top resource HUD
+* left mode navigation
+* central map or game scene
+* right context panel
+* bottom activity feed
 
-Example layout:
+The main screen should answer:
+
+"What is happening around my settlement, and what can I do now?"
+
+Not:
+
+"Which backend systems have been implemented?"
+
+## Game Shell Layout
 
 Top HUD:
 
@@ -31,10 +50,11 @@ Top HUD:
 * stone
 * population
 * kingdom name
+* culture
 * patron
-* alert count
+* alert/report count
 
-Left navigation:
+Left Navigation:
 
 * Map
 * City
@@ -45,68 +65,79 @@ Left navigation:
 * Patron
 * Raids
 
-Center:
+Center Scene:
 
 * local map
 * player settlement
 * PvE locations
 * neighbor kingdoms
 * route/status markers
+* active mission/raid indicators
 
-Right context:
+Right Context Panel:
 
 * selected object details
 * available actions
 * forms and buttons
+* selected city / mission / neighbor / patron / event / report context
 
-Bottom feed:
+Bottom Activity Feed:
 
-* active timers
-* new reports
+* active building upgrades
+* active unit training
+* active missions
+* active raids
+* unread reports
 * active events
-* raids/missions in progress
+* patron pressure warnings
 
-## Design Principle
+## UX Principles
 
-The main screen should answer:
+* show context, not all systems at once
+* hide technical implementation details
+* map-first where possible
+* make next useful action visible
+* use progressive disclosure
+* keep MVP interactions simple
+* avoid huge dashboards
+* prefer cards inside context panels, not endless stacked sections
+* keep timers and state visible
+* do not add new gameplay mechanics during UX shell work
 
-"What is happening around my settlement, and what can I do now?"
+## Map v1 Direction
 
-Not:
+Use SVG/HTML inside React for the first map.
 
-"Which backend systems have been implemented?"
+Do not use Phaser, Pixi, or Three.js for map v1.
 
-## Localization Principle
+The first map is not a full province system. It is a local node map with:
+
+* player settlement
+* Black Forest
+* Old Kurgan
+* Dry Ford
+* neighbor kingdoms
+
+Clicking a node opens the context panel.
+
+## Localization Strategy
 
 * Russian is default.
 * English is the second supported language.
-* UI must be ready for more languages later.
-* No player-facing string should be hardcoded in components after migration.
-* Enums should be translated through i18n keys.
-* API keys should not appear in the player UI.
+* More languages should be easy to add later.
+* No player-facing string should remain hardcoded after migration.
+* Enum/API keys should be translated through i18n.
+* Backend may still return Russian event/report text until the later content localization phase.
+* UI localization comes first; event/report content localization comes later.
 
 ## Technical i18n Direction
 
-Use:
+Recommended libraries:
 
 * i18next
 * react-i18next
 
-Suggested translation namespaces:
-
-* common
-* game
-* resources
-* buildings
-* units
-* missions
-* reports
-* patrons
-* events
-* raids
-* errors
-
-Suggested structure:
+Suggested translation folder structure:
 
 ```text
 frontend/src/i18n/
@@ -142,10 +173,22 @@ Language persistence:
 
 * localStorage key: `sumerki.ui.language`
 
-Default:
+Default language:
 
 * `ru`
 
-Fallback:
+Fallback language:
 
 * `en`
+
+## Implementation Phases
+
+* Phase 23: i18n Foundation ru/en
+* Phase 24: UI Copy Migration
+* Phase 25: Dashboard Decomposition
+* Phase 26: Game Shell v1
+* Phase 27: Local SVG Map v1
+* Phase 28: Context Panels And Activity Feed
+* Phase 29: Responsive And Overflow Hardening
+* Phase 30: Localized Event And Report Content
+* Phase 31: Playtest 002 UX Build

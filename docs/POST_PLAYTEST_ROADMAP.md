@@ -40,6 +40,8 @@ not:
 
 ### Phase 22: UX And i18n Strategy Docs
 
+Status: Completed
+
 * Write the UX target.
 * Write the localization strategy.
 * Define the game shell layout.

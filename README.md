@@ -6,7 +6,7 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Post-Playtest Roadmap Documentation.
+Phase 22: UX And i18n Strategy Docs.
 
 Playtest 001 is complete. The next planned work is UX/i18n: transforming the dashboard into a map-first game shell and adding Russian/English localization.
 
