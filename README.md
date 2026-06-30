@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 25: Dashboard Decomposition.
+Phase 26: Game Shell v1.
 
-Playtest 001 is complete. The frontend now has a Russian/English localization foundation, most current UI labels are localized, and the dashboard render sections are split into feature panels; event/report narrative localization is planned later.
+Playtest 001 is complete. The frontend now has a Russian/English localization foundation, most current UI labels are localized, and `/app` uses a first game-shell layout with HUD, local mode navigation, scene placeholder, context panel, and activity feed. The local SVG map is planned next.
 
 ## Documentation
 

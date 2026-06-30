@@ -79,17 +79,16 @@ Status: Completed
 
 ### Phase 26: Game Shell v1
 
-Status: Planned
+Status: Completed
 
-* Replace the pure dashboard layout with game shell:
-  * top resource HUD
-  * left mode navigation
-  * central scene area
-  * right context panel
-  * bottom activity feed
-* Do not add new gameplay mechanics.
+* Replaced the pure dashboard layout with Game Shell v1.
+* Added a top resource HUD, local mode navigation, central scene placeholder, right context panel, and bottom activity feed.
+* Kept existing gameplay behavior and API calls unchanged.
+* Kept the real SVG map out of scope for Phase 27.
 
 ### Phase 27: Local SVG Map v1
+
+Status: Planned
 
 * Add simple local map:
   * player settlement

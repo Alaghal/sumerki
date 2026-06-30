@@ -2,19 +2,22 @@
 
 ## Current Phase
 
-Phase 25: Dashboard Decomposition.
+Phase 26: Game Shell v1.
 
 ## Status
 
-Phase 25 completed.
+Phase 26 completed.
 
 ## Completed
 
-- Split the large DashboardPage render into focused feature panels.
-- Added dashboard feature components for header, refresh, kingdom, patron, resources, ruler, buildings, army, missions, raids, events, and reports.
-- Kept DashboardPage as the orchestration layer for session access, API loading, state ownership, refresh functions, and action handlers.
-- Preserved existing gameplay behavior, API calls, visual order, and i18n label handling.
-- Kept Game Shell, SVG map, mode navigation, backend changes, API shape changes, gameplay mechanics, and balance changes out of scope.
+- Added Game Shell v1 for the `/app` screen.
+- Added a top resource HUD with kingdom, culture, patron, resources, unread reports, and active events.
+- Added local mode navigation for map, city, army, missions, events, reports, patron, and raids.
+- Added a central scene placeholder that prepares the screen for Phase 27 Local SVG Map v1.
+- Added a right context panel that shows the existing mode-specific dashboard panels.
+- Added a bottom activity feed summarizing active upgrades, training, missions, raids, events, and unread reports.
+- Preserved existing dashboard/gameplay behavior, API calls, action handlers, and i18n behavior.
+- Kept backend changes, API shape changes, gameplay mechanics, balance changes, and the real SVG map out of scope.
 - Updated README, MVP phases, known limitations, post-playtest roadmap, and handoff.
 
 ## Changed Files
@@ -24,39 +27,45 @@ Phase 25 completed.
 - `docs/MVP_PHASES.md`
 - `docs/KNOWN_LIMITATIONS.md`
 - `docs/POST_PLAYTEST_ROADMAP.md`
-- `frontend/src/features/dashboard/DashboardPanels.tsx`
-- `frontend/src/features/dashboard/shared.ts`
+- `frontend/src/components/layout/AppShell.tsx`
+- `frontend/src/features/game/ActivityFeed.tsx`
+- `frontend/src/features/game/GameContextPanel.tsx`
+- `frontend/src/features/game/GameHud.tsx`
+- `frontend/src/features/game/GameModeNavigation.tsx`
+- `frontend/src/features/game/GameScenePlaceholder.tsx`
+- `frontend/src/features/game/GameShell.tsx`
+- `frontend/src/features/game/gameModes.ts`
+- `frontend/src/features/game/types.ts`
+- `frontend/src/i18n/resources/en/game.json`
+- `frontend/src/i18n/resources/ru/game.json`
 - `frontend/src/pages/DashboardPage.tsx`
 
 ## Commands Run
 
 - `cd frontend && npm run typecheck`
 - `cd frontend && npm run build`
-- `rg -n "DashboardPage" frontend/src/features frontend/src/pages`
+- `rg -n "GameShell|GameHud|GameModeNavigation|ActivityFeed|GameScenePlaceholder|GameContextPanel" frontend/src`
 - `rg -n "\"Kingdom\"|\"Culture\"|\"Patron\"|\"Player\"|\"Favor\"|\"Logout\"|\"No data\"" frontend/src`
-- `rg -n "northern_principality|black_forest_expedition|target_too_weak" frontend/src`
-- `rg -n "cultureLabels|patronLabels|standingLabels|pressureStatusLabels|healthLabels|missionTypeLabels|missionStatusLabels|missionResultLabels|reportTypeLabels|eventCategoryLabels|eventStatusLabels|powerEstimateLabels|raidBlockedReasonLabels" frontend/src/pages/DashboardPage.tsx frontend/src/features/dashboard`
 - `git diff --check`
 - `git status --short`
-- `git diff --stat`
 
 ## What Works Now
 
-- DashboardPage no longer contains inline JSX for every major gameplay section.
-- Ruler, resources, buildings, army, missions, reports, patron, events, and raids render through focused panel components.
-- Dashboard state and API behavior remain centralized in DashboardPage.
-- Russian/English i18n namespaces continue to drive current UI labels.
+- `/app` uses a game-style shell instead of the pure stacked dashboard layout.
+- Players can switch local game modes without changing routes.
+- The right context panel keeps current gameplay actions usable.
+- The resource HUD and activity feed summarize current settlement state using existing frontend data.
+- Russian/English i18n still works through the existing namespace setup.
 - Frontend typecheck and production build pass.
 
 ## Known Limitations
 
-- The UI still feels like a dashboard/site rather than a map-first game shell.
-- Game Shell is not implemented yet.
-- SVG map is not implemented yet.
-- Mode navigation is not implemented yet.
+- The center scene is still a placeholder.
+- Real SVG map nodes are not implemented yet.
+- Mode changes are frontend-local and do not represent real world navigation.
 - Backend-provided event/report narrative text remains in its original language.
-- Some internal enum strings remain in code/types/translation keys but should not appear as normal player UI.
+- Some panels may still feel dense until Phase 28 context-panel refinement.
 
 ## Next Recommended Step
 
-Phase 26: Game Shell v1.
+Phase 27: Local SVG Map v1.
