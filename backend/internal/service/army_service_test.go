@@ -145,8 +145,8 @@ func TestArmyCurrentReturnsInitialUnits(t *testing.T) {
 	if len(army.Units) != len(gameconfig.UnitOrder) {
 		t.Fatalf("expected %d unit rows, got %d", len(gameconfig.UnitOrder), len(army.Units))
 	}
-	if army.Summary.TotalUnits != 12 {
-		t.Fatalf("expected 12 starting units, got %d", army.Summary.TotalUnits)
+	if army.Summary.TotalUnits != 13 {
+		t.Fatalf("expected 13 starting units, got %d", army.Summary.TotalUnits)
 	}
 }
 

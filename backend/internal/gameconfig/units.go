@@ -34,7 +34,7 @@ var InitialUnitAmounts = map[string]int64{
 	"spearmen": 0,
 	"archers":  0,
 	"cavalry":  0,
-	"scouts":   2,
+	"scouts":   3,
 }
 
 var Units = map[string]UnitConfig{

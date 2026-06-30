@@ -9,11 +9,11 @@ type ResourceValues struct {
 }
 
 var StartingResources = ResourceValues{
-	Gold:       500,
-	Food:       300,
-	Wood:       300,
-	Stone:      200,
-	Population: 100,
+	Gold:       600,
+	Food:       400,
+	Wood:       400,
+	Stone:      300,
+	Population: 120,
 }
 
 var BaseProductionPerHour = ResourceValues{

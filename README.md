@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 18: First Event Content Pack.
+Phase 19: Balance Pass.
 
-This phase adds the first MVP-sized event content pack: 25 active event templates across economy, ruler, military, patron, and dark omen categories. It uses the existing Phase 17 event engine and does not add event chains, map/province events, dark god avatars, notifications, WebSocket, or background workers.
+This phase tunes first-session resources, starting army, and PvE mission pacing so a new player can take several meaningful actions without manual database edits. See `docs/BALANCE.md` for the first-pass MVP balance assumptions.
 
 ## Documentation
 
@@ -19,6 +19,7 @@ This phase adds the first MVP-sized event content pack: 25 active event template
 - `docs/DECISIONS.md`: architecture and product decision log.
 - `docs/API_CONTRACT.md`: draft backend API contract.
 - `docs/DOMAIN_MODEL.md`: draft domain model.
+- `docs/BALANCE.md`: first-pass MVP balance assumptions.
 - `docs/phases/`: detailed phase notes.
 
 ## Planned Stack
