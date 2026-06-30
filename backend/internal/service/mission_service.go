@@ -46,6 +46,10 @@ type MissionArmyService interface {
 	CurrentForKingdom(ctx context.Context, kingdomID string) (ArmyView, error)
 }
 
+type RaidResolver interface {
+	ResolveCompleted(ctx context.Context, kingdomID string) error
+}
+
 type MissionView struct {
 	Mission domain.Mission
 	Label   string
@@ -92,6 +96,7 @@ type MissionService struct {
 	reports   MissionReportRepository
 	army      MissionArmyService
 	resources *ResourcesService
+	raids     RaidResolver
 	now       func() time.Time
 }
 
@@ -104,6 +109,10 @@ func NewMissionService(kingdoms KingdomRepository, missions MissionRepository, r
 		resources: resources,
 		now:       time.Now,
 	}
+}
+
+func (s *MissionService) SetRaidResolver(raids RaidResolver) {
+	s.raids = raids
 }
 
 func (s *MissionService) Available(ctx context.Context, userID string) ([]gameconfig.MissionConfig, error) {
@@ -142,6 +151,11 @@ func (s *MissionService) Reports(ctx context.Context, userID string, limit int, 
 	}
 	if err := s.ResolveCompleted(ctx, kingdom.ID); err != nil {
 		return MissionReportsResult{}, err
+	}
+	if s.raids != nil {
+		if err := s.raids.ResolveCompleted(ctx, kingdom.ID); err != nil {
+			return MissionReportsResult{}, err
+		}
 	}
 
 	reports, err := s.reports.ListByKingdomID(ctx, kingdom.ID, limit, offset)

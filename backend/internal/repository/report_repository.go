@@ -19,13 +19,17 @@ func NewReportRepository(db *sql.DB) *ReportRepository {
 }
 
 func (r *ReportRepository) CreateMissionReport(ctx context.Context, kingdomID string, missionID string, title string, body string, result string, rewardsJSON []byte, lossesJSON []byte, phasesJSON []byte) (domain.MissionReport, error) {
+	return r.CreateReport(ctx, kingdomID, &missionID, "pve_mission", title, body, result, rewardsJSON, lossesJSON, phasesJSON)
+}
+
+func (r *ReportRepository) CreateReport(ctx context.Context, kingdomID string, missionID *string, reportType string, title string, body string, result string, rewardsJSON []byte, lossesJSON []byte, phasesJSON []byte) (domain.MissionReport, error) {
 	const query = `
-		INSERT INTO mission_reports (kingdom_id, mission_id, title, body, result, rewards_json, losses_json, phases_json)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		INSERT INTO mission_reports (kingdom_id, mission_id, type, title, body, result, rewards_json, losses_json, phases_json)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		RETURNING id::text, kingdom_id::text, mission_id::text, type, title, body, result, rewards_json, losses_json, phases_json, is_read, created_at
 	`
 
-	return scanMissionReport(r.db.QueryRowContext(ctx, query, kingdomID, missionID, title, body, result, rewardsJSON, lossesJSON, phasesJSON))
+	return scanMissionReport(r.db.QueryRowContext(ctx, query, kingdomID, missionID, reportType, title, body, result, rewardsJSON, lossesJSON, phasesJSON))
 }
 
 func (r *ReportRepository) ListByKingdomID(ctx context.Context, kingdomID string, limit int, offset int) ([]domain.MissionReport, error) {

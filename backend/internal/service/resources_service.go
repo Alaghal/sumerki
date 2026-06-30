@@ -166,6 +166,71 @@ func (s *ResourcesService) Grant(ctx context.Context, kingdomID string, reward g
 	}, nil
 }
 
+func (s *ResourcesService) TransferRaidLoot(ctx context.Context, attackerKingdomID string, defenderKingdomID string, percent int64) (gameconfig.ResourceValues, error) {
+	return s.transferRaidLoot(ctx, attackerKingdomID, defenderKingdomID, percent, true)
+}
+
+func (s *ResourcesService) TransferRaidStalemateLoot(ctx context.Context, attackerKingdomID string, defenderKingdomID string, percent int64) (gameconfig.ResourceValues, error) {
+	return s.transferRaidLoot(ctx, attackerKingdomID, defenderKingdomID, percent, false)
+}
+
+func (s *ResourcesService) transferRaidLoot(ctx context.Context, attackerKingdomID string, defenderKingdomID string, percent int64, includeStone bool) (gameconfig.ResourceValues, error) {
+	defenderResult, err := s.CurrentForKingdom(ctx, defenderKingdomID)
+	if err != nil {
+		return gameconfig.ResourceValues{}, err
+	}
+	attackerResult, err := s.CurrentForKingdom(ctx, attackerKingdomID)
+	if err != nil {
+		return gameconfig.ResourceValues{}, err
+	}
+
+	defender := defenderResult.Resources
+	attacker := attackerResult.Resources
+	loot := raidLoot(defender, gameconfig.ProtectedRaidResources, percent)
+	if !includeStone {
+		loot.Stone = 0
+	}
+
+	defender.Gold -= loot.Gold
+	defender.Food -= loot.Food
+	defender.Wood -= loot.Wood
+	defender.Stone -= loot.Stone
+	attacker.Gold += loot.Gold
+	attacker.Food += loot.Food
+	attacker.Wood += loot.Wood
+	attacker.Stone += loot.Stone
+
+	if _, err := s.resources.UpdateCalculated(ctx, defender); err != nil {
+		return gameconfig.ResourceValues{}, err
+	}
+	if _, err := s.resources.UpdateCalculated(ctx, attacker); err != nil {
+		return gameconfig.ResourceValues{}, err
+	}
+
+	return loot, nil
+}
+
+func raidLoot(resources domain.Resources, protected gameconfig.ResourceValues, percent int64) gameconfig.ResourceValues {
+	return gameconfig.ResourceValues{
+		Gold:  lootForResource(resources.Gold, protected.Gold, percent),
+		Food:  lootForResource(resources.Food, protected.Food, percent),
+		Wood:  lootForResource(resources.Wood, protected.Wood, percent),
+		Stone: lootForResource(resources.Stone, protected.Stone, percent),
+	}
+}
+
+func lootForResource(value int64, protected int64, percent int64) int64 {
+	if value <= protected {
+		return 0
+	}
+	loot := value * percent / 100
+	maxLoot := value - protected
+	if loot > maxLoot {
+		return maxLoot
+	}
+	return loot
+}
+
 func (s *ResourcesService) productionForKingdom(ctx context.Context, kingdomID string) (gameconfig.ResourceValues, error) {
 	production := gameconfig.BaseProductionPerHour
 	if s.productionProvider == nil {

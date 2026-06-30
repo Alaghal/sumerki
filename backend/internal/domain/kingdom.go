@@ -8,6 +8,8 @@ type Kingdom struct {
 	Name      string
 	Culture   string
 	Patron    *string
+	Dread     int
+	Honor     int
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

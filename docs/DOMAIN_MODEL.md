@@ -32,6 +32,8 @@ Fields:
 - `name`: kingdom name
 - `culture`: selected starting culture
 - `patron`: selected patron, nullable before patron choice
+- `dread`: simple aggression/infamy value
+- `honor`: reserved simple reputation value
 - `createdAt`: kingdom creation timestamp
 - `updatedAt`: last update timestamp
 
@@ -324,21 +326,73 @@ Rules:
 
 ## Raid
 
-Represents simple PvP activity.
+Represents asynchronous PvP activity between kingdoms.
+
+Fields:
+
+- `id`: UUID
+- `attackerKingdomId`: attacking kingdom UUID
+- `defenderKingdomId`: defending kingdom UUID
+- `status`: `active` or `completed`
+- `startedAt`: raid start timestamp
+- `arrivesAt`: lazy completion timestamp
+- `completedAt`: nullable completion timestamp
+- `result`: nullable raid result
+- `lootJson`: resource loot payload
+- `attackerLossesJson`: attacker unit losses payload
+- `defenderLossesJson`: defender pressure/loss payload
+- `resultJson`: full result payload
+- `createdAt`: row creation timestamp
+- `updatedAt`: last update timestamp
 
 Rules:
 
-- A kingdom sends units to raid another kingdom.
-- The raid resolves into rewards, losses, and a report.
-- Real-time combat is out of scope.
+- A kingdom sends available units to raid another kingdom.
+- Sent attacker units are subtracted immediately and unavailable until the raid resolves.
+- Defender units are snapshotted for scoring but are not removed before the raid.
+- Raid completion is resolved lazily when raids or reports are read, or when another raid starts.
+- Result is deterministic in Phase 15: `attacker_success`, `defender_success`, or `bloody_stalemate`.
+- Attacker survivors are returned on completion.
+- Successful raids steal limited gold, food, wood, and stone only.
+- Population is never stolen.
+- Defender resources cannot be stolen below protected minimums.
+- Defender city and buildings cannot be destroyed or captured.
+- Weak-player protection blocks raids against new kingdoms, much weaker targets, repeated same-target raids, and over-farmed defenders.
+- Starting and resolving raids increases attacker dread.
+- Patron state can add small defensive flavor modifiers, but no patron armies or costs are implemented.
+- No territory capture, sieges, alliances, diplomacy, map routes, real-time combat, revenge, bounties, NPC retaliation, or patron military help are included in Phase 15.
+
+## RaidUnit
+
+Represents units allocated or snapshotted for a raid.
+
+Fields:
+
+- `id`: UUID
+- `raidId`: raid UUID
+- `side`: `attacker` or `defender`
+- `unitType`: unit type
+- `amountSent`: units sent or snapshotted
+- `amountLost`: units lost in raid result
+- `amountReturned`: surviving units returned or remaining in snapshot
+- `createdAt`: row creation timestamp
+- `updatedAt`: last update timestamp
+
+Rules:
+
+- Attacker raid unit rows represent unavailable sent units.
+- Defender raid unit rows are a snapshot used for scoring and reports.
+- Defender losses are intentionally very limited and not applied to defender `kingdom_units` in Phase 15.
 
 ## Report
 
 Represents the result of a mission, raid, battle, or event.
 
-Phase 13 report type:
+Phase 15 report types:
 
 - `pve_mission`
+- `pvp_raid_attacker`
+- `pvp_raid_defender`
 
 Fields:
 
@@ -349,7 +403,7 @@ Fields:
 - `title`: report title
 - `body`: readable report body
 - `phasesJson`: ordered narrative phase payload
-- `result`: `success`, `partial_success`, or `failure`
+- `result`: mission or raid result
 - `rewardsJson`: resource rewards payload
 - `lossesJson`: unit losses payload
 - `isRead`: read/unread flag
@@ -364,7 +418,8 @@ Rules:
 - Reports can be marked read idempotently.
 - Report ownership is scoped to the authenticated user's kingdom.
 - Report delivery is pull-based through the API; there are no comments, notifications, WebSocket, or background jobs in Phase 13.
-- Raid reports and event reports are later phases.
+- Raid reports are created for both attacker and defender when a raid resolves.
+- Event reports are a later phase.
 
 ## Event
 

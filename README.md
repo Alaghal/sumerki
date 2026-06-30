@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 14: Patron System v1.
+Phase 15: Simple PvP Raids with Protection.
 
-This phase adds patron options, patron status, joining, breaking, and dashboard patron visibility. It does not include tribute, debt, pressure, military help, PvP protection, events, payments, chat, or background workers.
+This phase adds asynchronous PvP raids, neighbor discovery, basic weak-player protection, limited resource stealing, dread gain, and raid reports. It does not include territory capture, city destruction, alliances, map travel, real-time combat, patron military help, revenge, bounties, payments, chat, or background workers.
 
 ## Documentation
 
@@ -266,6 +266,31 @@ curl -X POST http://localhost:8080/api/reports/<REPORT_ID>/read \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
+## Raids API
+
+Get neighbors:
+
+```sh
+curl http://localhost:8080/api/neighbors \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+Start raid:
+
+```sh
+curl -X POST http://localhost:8080/api/raids/start \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -d '{"defenderKingdomId":"<TARGET_KINGDOM_ID>","units":[{"unitType":"militia","amount":5},{"unitType":"scouts","amount":1}]}'
+```
+
+Get raids:
+
+```sh
+curl http://localhost:8080/api/raids/me \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
 ## Frontend
 
 The frontend reads `VITE_API_BASE_URL` and defaults to `http://localhost:8080`.
@@ -303,26 +328,20 @@ Expected flow:
 
 1. Register a new account.
 2. Create a kingdom.
-3. Open `/app`.
-4. View patron options.
-5. Choose Empire of Dusk.
-6. Confirm the dashboard shows Empire of Dusk.
-7. Break patron relation.
-8. Confirm the dashboard shows no patron.
-9. Choose Old Pact.
-10. Call `GET /api/resources/me` with the returned token if you want to inspect the resources API directly.
-11. Call `GET /api/buildings/me` to inspect the starting buildings.
-12. Start an upgrade with `POST /api/buildings/farm/upgrade`.
-13. Call `GET /api/army/me` to inspect starting units.
-14. Train militia with `POST /api/army/train`.
-15. Call `GET /api/missions/available` to inspect PvE mission options.
-16. Start a mission with `POST /api/missions/start`.
-17. Wait for the mission timer.
-18. Call `GET /api/missions/me` again to resolve lazy completion.
-19. Call `GET /api/reports/me` to read the mission report list with unread count.
-20. Call `GET /api/reports/{id}` to read narrative phases.
-21. Call `POST /api/reports/{id}/read` to mark it read.
-22. Open `/app` and see the real kingdom, ruler, resource, building, army, patron, missions, and reports cards.
+3. Create user B and kingdom B.
+4. Login as user A.
+5. Open `/app`.
+6. View patron options and choose a patron if desired.
+7. Call `GET /api/neighbors` or view the dashboard raid neighbors.
+8. Start a raid against kingdom B.
+9. Call `GET /api/army/me` and confirm sent units are unavailable.
+10. Wait for the raid timer.
+11. Call `GET /api/raids/me` to resolve lazy completion.
+12. View reports for attacker.
+13. Login as user B.
+14. View defender report.
+15. Confirm defender was not destroyed and protected resources remain.
+16. Continue the settlement loop with resources, buildings, army, missions, and reports.
 
 The frontend stores the MVP JWT in `localStorage` under `sumerki.auth.token`. Refreshing the page restores the session through `GET /api/me`.
 
