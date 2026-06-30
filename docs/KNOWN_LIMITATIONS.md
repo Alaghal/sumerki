@@ -68,3 +68,10 @@ This document describes current MVP and playtest limitations. It is not a roadma
 - report shell, type, result, and template titles are localized where stable report type/result keys exist
 - backend-generated report narrative may remain in its original language when no stable content key is available
 - additional languages still require translation files, event/report namespace content, and registration
+
+## Playtest 002 Limitations
+
+- Playtest 002 is local-development focused.
+- Seed data is local-only and uses public dev passwords.
+- Smoke API checks mutate local data.
+- No new gameplay systems were added for Playtest 002.

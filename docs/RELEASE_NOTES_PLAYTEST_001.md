@@ -1,5 +1,7 @@
 # Playtest 001 Release Notes
 
+For the next internal UX-focused build, see `docs/RELEASE_NOTES_PLAYTEST_002.md`.
+
 ## Included
 
 - auth

@@ -1,56 +1,42 @@
-# Sumerki First Playtest Guide
+# Sumerki Playtest 002 Guide
 
 ## Purpose
 
-This is the first internal MVP playtest for Sumerki. It is meant to test the core loop, not judge a finished game.
+Playtest 002 evaluates UX and game feel after Game Shell, Local SVG Map, context panels, activity feed, responsive hardening, and Russian/English localization.
 
-Core loop:
+Main question:
 
-- login/register
-- create a kingdom
-- inspect ruler
-- watch resources
-- upgrade a building
-- train units
-- send a mission
-- read a report
-- choose a patron
-- resolve an event
-- try a raid if available
+Does Sumerki now feel more like a map-first strategy-lite game instead of a dashboard of systems?
 
 ## What To Test
 
-Focus on:
-
-- clarity
-- pacing
-- whether you know what to do next
-- whether timers feel too slow or too fast
-- whether resource costs feel fair
-- whether mission reports are interesting
-- whether raids feel threatening but not account-killing
-- whether patron pressure feels understandable
-- whether events feel atmospheric and meaningful
+- Does the main screen feel like a strategy game?
+- Is the resource HUD useful?
+- Is the local map understandable?
+- Do map nodes make sense?
+- Does clicking nodes show useful context?
+- Does mode navigation make sense?
+- Is the activity feed useful?
+- Does RU/EN switching work?
+- Does English feel readable?
+- Does Russian still feel atmospheric?
+- Does the UI avoid horizontal overflow on your screen?
+- Are reports/events understandable?
+- Can you still complete the core gameplay loop?
 
 ## What Not To Judge Yet
 
-These areas are intentionally unfinished or out of scope for the first MVP:
-
-- no alliances
-- no province map
-- no diplomacy
-- no market
-- no chat
-- no payments
-- no polished art
-- no mobile optimization
-- no advanced combat
-- no dark god avatar system
-- no NPC retaliation
+- final art direction
+- full mobile UX
+- province strategy
+- alliances
+- diplomacy depth
+- production deployment
+- economy balance as final
 
 ## Recommended Playtest Length
 
-Use a 20 to 40 minute first session.
+Use a 20 to 40 minute session.
 
 An optional second check after mission, raid, or training timers complete is useful. Do not assume the game is running on production hosting or available in the background.
 
@@ -62,8 +48,7 @@ Compact setup:
 
 ```sh
 docker compose up -d postgres
-make migrate-up
-make seed-dev
+make playtest-setup
 make backend-run
 ```
 
@@ -90,21 +75,27 @@ All seeded accounts use password `password123`.
 - `posad@example.com`
 - `raider@example.com`
 
-## Playtest Route
+## Suggested Playtest Route
 
-1. Login or register.
-2. Create a kingdom if needed.
-3. Look at the dashboard.
-4. Upgrade one building.
-5. Train militia or scouts.
-6. Send a PvE mission.
-7. Resolve an event.
-8. Choose a patron.
-9. Check patron pressure if available.
-10. Try viewing neighbors.
-11. Start a raid only if there is a valid target.
-12. Read reports.
-13. Refresh the page and check state persists.
+1. Start local environment.
+2. Login with a seeded account or create a new account.
+3. Open `/app`.
+4. Switch language to Russian, then English, then back.
+5. Look at the HUD and say what each resource means.
+6. Click the settlement node.
+7. Click each mission node.
+8. Start a mission if possible.
+9. Click neighbor nodes.
+10. Try to understand whether a raid is possible.
+11. Click patron road.
+12. Check patron pressure.
+13. Click omens/events.
+14. Resolve an event.
+15. Open reports.
+16. Read at least one report.
+17. Use activity feed to switch modes.
+18. Resize the browser or test a narrow screen if practical.
+19. Continue the normal loop: building, training, mission, event, report, raid.
 
 ## Feedback Format
 

@@ -482,8 +482,12 @@ Phase 31 remains Playtest 002 UX Build.
 
 ## Phase 31: Playtest 002 UX Build
 
-Status: Planned
+Status: Completed
 
-* Package the UX/i18n improvements for a second playtest.
-* Update playtest guide, release notes, known limitations, checklist, and feedback template.
-* Focus on whether the game now feels like a strategy game rather than a dashboard.
+Packaged the UX/i18n/map improvements for Playtest 002.
+
+Added Playtest 002 release notes and updated the playtest guide, checklist, feedback template, README, known limitations, and post-playtest roadmap.
+
+The second internal playtest focuses on game feel, Game Shell, Local SVG Map, context panels, activity feed, RU/EN localization, and responsive layout.
+
+Next work should be driven by Playtest 002 feedback rather than committing to a Phase 32 feature now.

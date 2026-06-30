@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 30: Localized Event And Report Content.
+Phase 31: Playtest 002 UX Build.
 
-Playtest 001 is complete. The frontend now has a Russian/English localization foundation, most current UI labels are localized, and `/app` uses a first game-shell layout with a symbolic local SVG map. MVP event content now uses Russian/English frontend translations when stable event and choice keys exist, and report shell/template text is localized where stable report type/result keys are available. Backend narrative fallback remains possible when reports do not expose stable content keys.
+Playtest 002 is packaged for internal UX testing. It focuses on Game Shell, Local SVG Map, context panels, activity feed, responsive layout, and Russian/English localization.
 
 ## Documentation
 
@@ -21,11 +21,12 @@ Playtest 001 is complete. The frontend now has a Russian/English localization fo
 - `docs/DOMAIN_MODEL.md`: draft domain model.
 - `docs/BALANCE.md`: first-pass MVP balance assumptions.
 - `docs/SMOKE_TESTS.md`: local smoke test flow.
-- `docs/PLAYTEST_GUIDE.md`: first internal playtest guide.
-- `docs/FEEDBACK_TEMPLATE.md`: structured playtest feedback template.
+- `docs/PLAYTEST_GUIDE.md`: Playtest 002 internal playtest guide.
+- `docs/FEEDBACK_TEMPLATE.md`: structured Playtest 002 feedback template.
 - `docs/KNOWN_LIMITATIONS.md`: current MVP limitations.
-- `docs/PLAYTEST_CHECKLIST.md`: manual browser playtest checklist.
+- `docs/PLAYTEST_CHECKLIST.md`: Playtest 002 manual browser checklist.
 - `docs/RELEASE_NOTES_PLAYTEST_001.md`: first playtest release notes.
+- `docs/RELEASE_NOTES_PLAYTEST_002.md`: second playtest release notes.
 - `docs/POST_PLAYTEST_ROADMAP.md`: planned UX/i18n roadmap after Playtest 001.
 - `docs/UX_I18N_STRATEGY.md`: target game-shell UX and localization strategy.
 - `docs/I18N_PLAN.md`: practical ru/en localization implementation plan.
@@ -152,7 +153,7 @@ Dev seed data is local only. Do not use dev passwords in production.
 
 See `docs/SMOKE_TESTS.md` and `docs/PLAYTEST_CHECKLIST.md` for the full local verification flow.
 
-## First Playtest
+## Playtest 002
 
 Quick start:
 
@@ -173,7 +174,7 @@ npm install
 npm run dev
 ```
 
-Open the frontend URL printed by Vite, usually `http://localhost:5173`.
+Open the frontend URL printed by Vite, usually `http://localhost:5173`, then open `/app`.
 
 Seed accounts use password `password123`:
 
@@ -182,15 +183,28 @@ Seed accounts use password `password123`:
 - `posad@example.com`
 - `raider@example.com`
 
-Playtest docs:
+Playtest 002 focus:
+
+- Game Shell
+- Local SVG Map
+- context panel
+- activity feed
+- RU/EN localization
+- responsive layout
+
+Playtest 002 docs:
 
 - `docs/PLAYTEST_GUIDE.md`
 - `docs/FEEDBACK_TEMPLATE.md`
 - `docs/KNOWN_LIMITATIONS.md`
 - `docs/PLAYTEST_CHECKLIST.md`
+- `docs/RELEASE_NOTES_PLAYTEST_002.md`
+
+Previous playtest notes:
+
 - `docs/RELEASE_NOTES_PLAYTEST_001.md`
 
-Post-Playtest 001 UX/i18n docs:
+UX/i18n roadmap docs:
 
 - `docs/POST_PLAYTEST_ROADMAP.md`
 - `docs/UX_I18N_STRATEGY.md`

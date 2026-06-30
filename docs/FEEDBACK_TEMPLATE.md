@@ -1,4 +1,4 @@
-# Sumerki Playtest Feedback
+# Sumerki Playtest 002 Feedback
 
 ## Tester
 
@@ -6,7 +6,8 @@
 - Date:
 - Browser:
 - OS:
-- Screen size:
+- Screen width/device:
+- Selected language:
 - Played with seeded account or new account:
 - Session length:
 
@@ -19,8 +20,64 @@
 Rating 1-5:
 
 - onboarding clarity:
-- dashboard clarity:
 - visual readability:
+- next-action clarity:
+
+## UX / Game Feel
+
+- Did the game feel more like a strategy game than a website dashboard?
+- What made it feel game-like?
+- What still felt like an admin panel?
+- Did the map help you understand the world?
+- What did you expect to be clickable but was not?
+
+Rating 1-5:
+
+- game feel:
+- map clarity:
+- context panel usefulness:
+- activity feed usefulness:
+- navigation clarity:
+
+## Map
+
+- Did you understand what each node means?
+- Which node did you click first?
+- Were mission nodes clear?
+- Were neighbor nodes clear?
+- Did map indicators make sense?
+- Did the map feel too symbolic, too busy, or okay?
+
+## Context Panel
+
+- After clicking a map node, did the right panel show what you expected?
+- Was the most useful action visible?
+- Was the panel too dense?
+- Which context was confusing?
+
+## Activity Feed
+
+- Did the feed help you understand what is happening?
+- Did you click feed items?
+- Were feed items useful or noisy?
+- What should appear in the feed but does not?
+
+## Localization
+
+- Which language did you use?
+- Did switching RU/EN work?
+- Did any text stay in the wrong language?
+- Did English sound natural enough?
+- Did Russian keep the intended mood?
+- Did any raw key appear, such as `events:...`, `missionKey`, or an enum value?
+
+## Responsive Layout
+
+- Browser width or device:
+- Did anything overflow horizontally?
+- Did buttons or inputs become hard to use?
+- Was the map usable at your screen size?
+- Was the context panel usable?
 
 ## Economy
 
@@ -75,18 +132,20 @@ Rating 1-5:
 - patron tension:
 - fairness:
 
-## Events
+## Events And Reports
 
 - Did events feel atmospheric?
 - Were choices understandable?
-- Did effects feel too strong or too weak?
+- Did event effects feel too strong or too weak?
 - Which event did you remember?
+- Were reports readable in your selected language?
 
 Rating 1-5:
 
 - event quality:
 - choice clarity:
 - atmosphere:
+- report readability:
 
 ## Bugs
 
@@ -97,10 +156,10 @@ For each bug:
 - Steps to reproduce:
 - Screenshot/logs if available:
 
-## Final Thoughts
+## Final UX Question
 
+- Would you play another 20 minutes tomorrow?
+- What one UI change would most improve the game?
 - What was the best moment?
 - What was the worst moment?
-- What would make you come back tomorrow?
 - What should be removed or simplified?
-- Would you play another 20 minutes?

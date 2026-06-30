@@ -2,79 +2,66 @@
 
 ## Current Phase
 
-Phase 30: Localized Event And Report Content.
+Phase 31: Playtest 002 UX Build.
 
 ## Status
 
-Phase 30 completed.
+Phase 31 completed.
 
 ## Completed
 
-- Added Russian and English translations for the current MVP event content where stable `eventKey` and `choiceKey` values exist.
-- Localized event titles, bodies, choice labels, choice descriptions, and resolved result text through frontend i18n.
-- Added safe frontend fallback helpers for event/report content:
-  - frontend i18n by stable key
-  - backend-provided text
-  - generic localized fallback
-- Localized report shell/template title content where stable report type/result keys exist.
-- Localized common report phase labels where stable backend phase titles exist.
-- Updated activity feed and map context summary to use localized event/report titles where practical.
-- Preserved backend behavior, event effects, report generation, API response shapes, data contracts, balance, and gameplay mechanics.
-- Kept backend, migrations, scripts, Docker, province systems, territory capture, pathfinding, pan/zoom, canvas, Phaser, Pixi, and Three.js out of scope.
-- Updated README, MVP phases, known limitations, post-playtest roadmap, i18n plan, and handoff.
+- Added Playtest 002 release notes focused on UX, game feel, localization, responsive layout, Game Shell, Local SVG Map, context panels, and activity feed.
+- Updated the playtest guide, checklist, and feedback template for Playtest 002.
+- Updated README playtest documentation links and local playtest instructions to point at Playtest 002.
+- Updated known limitations with Playtest 002-specific constraints.
+- Marked Phase 31 complete in the MVP phase plan and post-playtest roadmap.
+- Added a forward link from Playtest 001 release notes to Playtest 002 release notes.
+- Updated the visible frontend playtest label in English and Russian i18n resources to `Playtest 002`.
+- Preserved backend, migrations, scripts, Docker, gameplay systems, gameplay config, auth, resources, buildings, rulers, armies, combat, events, patrons, canvas, Phaser, Pixi, and Three.js out of scope.
 
 ## Changed Files
 
 - `CODEX_HANDOFF.md`
 - `README.md`
-- `docs/I18N_PLAN.md`
+- `docs/FEEDBACK_TEMPLATE.md`
 - `docs/KNOWN_LIMITATIONS.md`
 - `docs/MVP_PHASES.md`
+- `docs/PLAYTEST_CHECKLIST.md`
+- `docs/PLAYTEST_GUIDE.md`
 - `docs/POST_PLAYTEST_ROADMAP.md`
-- `frontend/src/features/dashboard/DashboardPanels.tsx`
-- `frontend/src/features/game/ActivityFeed.tsx`
-- `frontend/src/features/map/MapNodeContextSummary.tsx`
-- `frontend/src/i18n/resources/en/events.json`
-- `frontend/src/i18n/resources/en/reports.json`
-- `frontend/src/i18n/resources/ru/events.json`
-- `frontend/src/i18n/resources/ru/reports.json`
-- `frontend/src/pages/DashboardPage.tsx`
-- `frontend/src/utils/localizedContent.ts`
+- `docs/RELEASE_NOTES_PLAYTEST_001.md`
+- `docs/RELEASE_NOTES_PLAYTEST_002.md`
+- `frontend/src/i18n/resources/en/game.json`
+- `frontend/src/i18n/resources/ru/game.json`
 
 ## Commands Run
 
+- `rg -n "Playtest 002|RELEASE_NOTES_PLAYTEST_002|Game Shell|Local SVG Map|RU/EN|responsive" README.md docs/PLAYTEST_GUIDE.md docs/FEEDBACK_TEMPLATE.md docs/PLAYTEST_CHECKLIST.md docs/RELEASE_NOTES_PLAYTEST_002.md docs/POST_PLAYTEST_ROADMAP.md docs/MVP_PHASES.md docs/KNOWN_LIMITATIONS.md`
+- `rg -n "Playtest 001" README.md docs/PLAYTEST_GUIDE.md docs/FEEDBACK_TEMPLATE.md docs/PLAYTEST_CHECKLIST.md`
+- `rg -n "Playtest 001" frontend/src/i18n/resources/en/game.json frontend/src/i18n/resources/ru/game.json`
+- `rg -n "playtestLabel" frontend/src/i18n/resources/en/game.json frontend/src/i18n/resources/ru/game.json`
 - `cd frontend && npm run typecheck`
 - `cd frontend && npm run build`
-- `rg -n "event\\.title|event\\.body|choice\\.label|choice\\.description|event\\.result\\.(title|body)|report\\.title|phase\\.title" frontend/src`
-- `rg -n "events:content|reports:templates|getLocalizedEvent|getLocalizedReport|defaultValue" frontend/src`
-- `rg -n "black_milk_morning|cracked_granary_roof|imperial_tax_scribe" frontend/src frontend/src/i18n`
 - `rg -n "Phaser|Pixi|Three|canvas" frontend/src`
-- Browser check: English event panel shows translated title/body/choice/result text and no raw i18n keys.
-- Browser check: Russian event panel shows translated title/body/choice/result text and no raw i18n keys.
-- Browser check: English and Russian report panels show localized type/result/template titles and no raw i18n keys.
+- `git diff --check`
+- `git status --short`
 
 ## What Works Now
 
-- Current event UI can switch between Russian and English when stable event and choice keys are available.
-- Active event titles, bodies, choice labels, and choice descriptions are localized.
-- Resolved event selected choice labels and result text are localized by `eventKey` and `selectedChoiceKey`.
-- Activity feed and map context summaries use localized event/report titles where practical.
-- Report UI uses localized type/result/template labels where stable report type/result keys exist.
-- Missing translations safely fall back to backend text or generic localized copy, not raw i18n keys.
-- Existing gameplay actions remain usable.
-- Russian/English language switcher still works.
+- Playtest 002 has release notes, a guide, a manual checklist, and a feedback template.
+- README points testers to the Playtest 002 docs and the `/app` playtest route.
+- The frontend playtest label now reads `Playtest 002` in both English and Russian resource files.
+- Phase planning docs show Phase 31 as complete and defer the next phase decision until Playtest 002 feedback is triaged.
 - Frontend typecheck and production build pass.
 
 ## Known Limitations
 
-- Some backend-generated report narrative remains in the original language because report responses do not expose stable mission/event/report content keys.
-- Additional languages still require translating event/report namespace content and registering the language.
-- Map remains symbolic and local.
-- There is no province system.
-- There is no territory capture.
-- There is no pathfinding or pan/zoom.
-- Playtest 002 packaging is still Phase 31.
+- Playtest 002 is still local-development focused.
+- Seed accounts and smoke-test data are local-only.
+- No backend, database, migration, Docker, script, gameplay system, or gameplay config changes were made in Phase 31.
+- The release package does not add new mechanics; it packages the current UX/i18n/map state for feedback.
+- Browser UI was not re-smoked in this session; verification was done with docs greps, label greps, typecheck, and production build.
 
 ## Next Recommended Step
 
-Phase 31: Playtest 002 UX Build.
+Triage Playtest 002 feedback before committing to a Phase 32 feature. Recommended buckets: critical UX fixes, visual polish/art direction, balance v2, and any optional larger track only after feedback justifies it.

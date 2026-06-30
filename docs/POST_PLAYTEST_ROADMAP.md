@@ -126,9 +126,30 @@ Status: Completed
 
 ### Phase 31: Playtest 002 UX Build
 
+Status: Completed
+
 * Package the UX/i18n improvements for a second playtest.
 * Update playtest guide, release notes, known limitations, checklist, and feedback template.
 * Focus on whether the game now feels like a strategy game rather than a dashboard.
+
+## After Playtest 002
+
+Next work should be driven by Playtest 002 feedback.
+
+Recommended next tracks:
+
+1. Playtest 002 feedback triage
+2. Critical UX fixes
+3. Visual polish / art direction pass
+4. Balance v2 if feedback shows pacing problems
+5. Optional larger tracks:
+   - Retention / LiveOps-lite
+   - Alliances v1
+   - Province Map v1
+   - Dark Path v1
+   - Production readiness
+
+Do not commit to a Phase 32 feature yet unless explicitly requested.
 
 ## Future Big Tracks After UX/i18n
 
