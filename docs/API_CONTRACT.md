@@ -1230,6 +1230,192 @@ Errors:
 
 - `kingdom_not_found`
 
+### `GET /api/patron/pressure`
+
+Returns the authenticated kingdom's current patron pressure state after lazy resolution. If no patron is selected, `pressure` is `null`.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "pressure": {
+    "patron": "empire_of_dusk",
+    "patronLabel": "Империя Заката",
+    "pressureLevel": 35,
+    "crisisStatus": "warning",
+    "tributeDebt": {
+      "gold": 40,
+      "food": 10
+    },
+    "contributionDebt": {
+      "food": 0
+    },
+    "nextTributeAt": "2026-06-30T08:00:00Z",
+    "delayUntil": null,
+    "summary": "Империя ждёт дань, но не может забрать неприкосновенный запас.",
+    "availableActions": [
+      "pay_tribute",
+      "break_patron",
+      "ask_delay"
+    ],
+    "protectedMinimums": {
+      "gold": 150,
+      "food": 150,
+      "wood": 100,
+      "stone": 75,
+      "population": null
+    }
+  }
+}
+```
+
+Errors:
+
+- `kingdom_not_found`
+
+### `POST /api/patron/pay-tribute`
+
+Resolves patron pressure lazily, then pays available tribute or Old Pact contribution from resources above protected minimums.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Response:
+
+```json
+{
+  "pressure": {
+    "patron": "empire_of_dusk",
+    "patronLabel": "Империя Заката",
+    "pressureLevel": 20,
+    "crisisStatus": "none",
+    "tributeDebt": {
+      "gold": 0,
+      "food": 0
+    },
+    "contributionDebt": {
+      "food": 0
+    },
+    "nextTributeAt": "2026-06-30T09:00:00Z",
+    "delayUntil": null,
+    "summary": "Империя ждёт дань, но не может забрать неприкосновенный запас.",
+    "availableActions": [
+      "break_patron"
+    ],
+    "protectedMinimums": {
+      "gold": 150,
+      "food": 150,
+      "wood": 100,
+      "stone": 75,
+      "population": null
+    }
+  },
+  "resources": {
+    "kingdomId": "uuid",
+    "gold": 150,
+    "food": 150,
+    "wood": 100,
+    "stone": 75,
+    "population": 50,
+    "productionPerHour": {
+      "gold": 10,
+      "food": 15,
+      "wood": 8,
+      "stone": 5,
+      "population": 0
+    },
+    "lastCalculatedAt": "2026-06-30T08:00:00Z",
+    "updatedAt": "2026-06-30T08:00:00Z"
+  }
+}
+```
+
+Errors:
+
+- `kingdom_not_found`
+- `no_patron_selected`
+- `no_tribute_due`
+
+### `POST /api/patron/crisis-choice`
+
+Applies a simple pressure crisis choice. Supported choices are `ask_delay` and `break_patron`.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Request:
+
+```json
+{
+  "choice": "ask_delay"
+}
+```
+
+Response for `ask_delay`:
+
+```json
+{
+  "pressure": {
+    "patron": "empire_of_dusk",
+    "patronLabel": "Империя Заката",
+    "pressureLevel": 40,
+    "crisisStatus": "delayed",
+    "tributeDebt": {
+      "gold": 40,
+      "food": 10
+    },
+    "contributionDebt": {
+      "food": 0
+    },
+    "nextTributeAt": "2026-06-30T08:00:00Z",
+    "delayUntil": "2026-06-30T10:00:00Z",
+    "summary": "Имперский сборщик получил отсрочку, но запомнил слабость двора.",
+    "availableActions": [
+      "pay_tribute",
+      "break_patron"
+    ],
+    "protectedMinimums": {
+      "gold": 150,
+      "food": 150,
+      "wood": 100,
+      "stone": 75,
+      "population": null
+    }
+  }
+}
+```
+
+Response for `break_patron`:
+
+```json
+{
+  "pressure": null,
+  "kingdom": {
+    "id": "uuid",
+    "patron": null
+  }
+}
+```
+
+Errors:
+
+- `kingdom_not_found`
+- `no_patron_selected`
+- `invalid_crisis_choice`
+- `crisis_choice_not_available`
+
 ## Enumerations
 
 Cultures:

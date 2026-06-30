@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 15: Simple PvP Raids with Protection.
+Phase 16: Tribute and Pressure.
 
-This phase adds asynchronous PvP raids, neighbor discovery, basic weak-player protection, limited resource stealing, dread gain, and raid reports. It does not include territory capture, city destruction, alliances, map travel, real-time combat, patron military help, revenge, bounties, payments, chat, or background workers.
+This phase adds lazy patron pressure for the Empire of Dusk and Old Pact: tribute debt, soft contribution debt, crisis status, delay requests, tribute payment, and relation breaking. It does not include NPC retaliation, patron armies, alliances, map travel, real-time combat, payments, chat, WebSocket, or background workers.
 
 ## Documentation
 
@@ -166,6 +166,29 @@ Break patron:
 ```sh
 curl -X POST http://localhost:8080/api/patron/break \
   -H "Authorization: Bearer <TOKEN>"
+```
+
+Get patron pressure:
+
+```sh
+curl http://localhost:8080/api/patron/pressure \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+Pay available tribute or contribution above protected reserves:
+
+```sh
+curl -X POST http://localhost:8080/api/patron/pay-tribute \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+Ask for a delay during a pressure crisis:
+
+```sh
+curl -X POST http://localhost:8080/api/patron/crisis-choice \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -d '{"choice":"ask_delay"}'
 ```
 
 ## Ruler API
@@ -332,16 +355,17 @@ Expected flow:
 4. Login as user A.
 5. Open `/app`.
 6. View patron options and choose a patron if desired.
-7. Call `GET /api/neighbors` or view the dashboard raid neighbors.
-8. Start a raid against kingdom B.
-9. Call `GET /api/army/me` and confirm sent units are unavailable.
-10. Wait for the raid timer.
-11. Call `GET /api/raids/me` to resolve lazy completion.
-12. View reports for attacker.
-13. Login as user B.
-14. View defender report.
-15. Confirm defender was not destroyed and protected resources remain.
-16. Continue the settlement loop with resources, buildings, army, missions, and reports.
+7. View patron pressure and pay tribute or ask for a delay when available.
+8. Call `GET /api/neighbors` or view the dashboard raid neighbors.
+9. Start a raid against kingdom B.
+10. Call `GET /api/army/me` and confirm sent units are unavailable.
+11. Wait for the raid timer.
+12. Call `GET /api/raids/me` to resolve lazy completion.
+13. View reports for attacker.
+14. Login as user B.
+15. View defender report.
+16. Confirm defender was not destroyed and protected resources remain.
+17. Continue the settlement loop with resources, buildings, army, missions, patrons, and reports.
 
 The frontend stores the MVP JWT in `localStorage` under `sumerki.auth.token`. Refreshing the page restores the session through `GET /api/me`.
 

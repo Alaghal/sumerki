@@ -174,6 +174,36 @@ func (s *ResourcesService) TransferRaidStalemateLoot(ctx context.Context, attack
 	return s.transferRaidLoot(ctx, attackerKingdomID, defenderKingdomID, percent, false)
 }
 
+func (s *ResourcesService) SpendAboveProtected(ctx context.Context, kingdomID string, due gameconfig.ResourceValues, protected gameconfig.ResourceValues) (gameconfig.ResourceValues, ResourcesResult, error) {
+	result, err := s.CurrentForKingdom(ctx, kingdomID)
+	if err != nil {
+		return gameconfig.ResourceValues{}, ResourcesResult{}, err
+	}
+
+	resources := result.Resources
+	paid := gameconfig.ResourceValues{
+		Gold:  payableAboveProtected(resources.Gold, protected.Gold, due.Gold),
+		Food:  payableAboveProtected(resources.Food, protected.Food, due.Food),
+		Wood:  payableAboveProtected(resources.Wood, protected.Wood, due.Wood),
+		Stone: payableAboveProtected(resources.Stone, protected.Stone, due.Stone),
+	}
+
+	resources.Gold -= paid.Gold
+	resources.Food -= paid.Food
+	resources.Wood -= paid.Wood
+	resources.Stone -= paid.Stone
+
+	updated, err := s.resources.UpdateCalculated(ctx, resources)
+	if err != nil {
+		return gameconfig.ResourceValues{}, ResourcesResult{}, err
+	}
+
+	return paid, ResourcesResult{
+		Resources:         updated,
+		ProductionPerHour: result.ProductionPerHour,
+	}, nil
+}
+
 func (s *ResourcesService) transferRaidLoot(ctx context.Context, attackerKingdomID string, defenderKingdomID string, percent int64, includeStone bool) (gameconfig.ResourceValues, error) {
 	defenderResult, err := s.CurrentForKingdom(ctx, defenderKingdomID)
 	if err != nil {
@@ -229,6 +259,17 @@ func lootForResource(value int64, protected int64, percent int64) int64 {
 		return maxLoot
 	}
 	return loot
+}
+
+func payableAboveProtected(value int64, protected int64, due int64) int64 {
+	if due <= 0 || value <= protected {
+		return 0
+	}
+	available := value - protected
+	if available < due {
+		return available
+	}
+	return due
 }
 
 func (s *ResourcesService) productionForKingdom(ctx context.Context, kingdomID string) (gameconfig.ResourceValues, error) {

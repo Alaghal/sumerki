@@ -98,11 +98,11 @@ Values:
 - `empire_of_dusk`
 - `old_pact`
 
-Phase 14 patron choices:
+MVP patron choices:
 
 - `independent`: no tribute, no protection, full freedom
-- `empire_of_dusk`: order and protection flavor only in v1
-- `old_pact`: oath and defensive-help flavor only in v1
+- `empire_of_dusk`: order, tribute debt, and pressure
+- `old_pact`: oath and soft contribution obligation
 
 Rules:
 
@@ -110,8 +110,8 @@ Rules:
 - `kingdom.patron` is null before first choice.
 - Choosing `independent` stores `independent`.
 - Breaking a patron relation clears `kingdom.patron` to null.
-- Phase 14 has no tribute, debt, pressure, military help, PvP protection, patron quests, patron orders, cooldowns, or switching penalties.
-- Tribute and pressure are future phases.
+- Empire tribute and Old Pact contribution pressure are resolved lazily.
+- No patron military help, patron quests, patron orders, cooldowns, switching penalties, NPC raids, or retaliation are included in the MVP pressure system.
 
 ## PatronRelation
 
@@ -138,6 +138,39 @@ Rules:
 - Breaking a relation sets `leftAt` and clears `kingdom.patron`.
 - Existing kingdoms with non-null `kingdom.patron` can be backfilled into a matching relation.
 - Patron state is owned by the authenticated user's kingdom; clients never submit `kingdomId`.
+
+## PatronPressureState
+
+Represents lazy tribute pressure for one kingdom.
+
+Fields:
+
+- `id`: UUID
+- `kingdomId`: kingdom UUID
+- `patron`: patron key
+- `tributeDebtGold`: unpaid Empire gold tribute
+- `tributeDebtFood`: unpaid Empire food tribute
+- `contributionDebtFood`: unpaid Old Pact food contribution
+- `pressureLevel`: integer from 0 to 100
+- `crisisStatus`: `none`, `warning`, `active`, or `delayed`
+- `crisisStartedAt`: nullable crisis start timestamp reserved for later polish
+- `nextTributeAt`: next lazy tribute or contribution resolution timestamp
+- `lastResolvedAt`: last pressure resolution timestamp
+- `delayUntil`: nullable delay timestamp after asking for more time
+- `createdAt`: row creation timestamp
+- `updatedAt`: last update timestamp
+
+Rules:
+
+- Each kingdom has at most one pressure state row.
+- `independent` has no tribute, contribution debt, or pressure.
+- `empire_of_dusk` periodically takes tribute from surplus gold and food above protected minimums; unpaid amounts become debt and can raise pressure.
+- `old_pact` tracks a soft food contribution debt and caps pressure at a low level.
+- Paying tribute or contribution spends only resources above protected minimums.
+- Asking for delay sets `crisisStatus` to `delayed`, sets `delayUntil`, and increases pressure slightly.
+- Breaking the patron relation clears pressure and debt.
+- Tribute, contribution, and pressure are resolved lazily on patron pressure reads, tribute payments, crisis choices, patron joins, and patron status reads.
+- No background workers, cron jobs, Redis, queues, real-time ticking, NPC retaliation, patron armies, or dark god events are used.
 
 ## Resource
 
