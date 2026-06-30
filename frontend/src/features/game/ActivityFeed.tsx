@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import type { Army, Building, KingdomEvent, Mission, MissionReport, PatronPressure, Raid } from '../../api/client';
+import { getLocalizedEventTitle, getLocalizedReportTitle } from '../../utils/localizedContent';
 import type { GameMode } from './types';
 
 type ActivityFeedProps = {
@@ -28,7 +29,7 @@ export function ActivityFeed({
   reports,
   unreadReportsCount,
 }: ActivityFeedProps) {
-  const { t } = useTranslation(['buildings', 'game', 'missions', 'patrons', 'reports', 'units']);
+  const { t } = useTranslation(['buildings', 'events', 'game', 'missions', 'patrons', 'reports', 'units']);
   const activeUpgrades = buildings.filter((building) => building.isUpgrading);
   const activeTraining = army?.trainingOrders ?? [];
   const latestReport = reports[0];
@@ -67,14 +68,14 @@ export function ActivityFeed({
             detail: t('game:activity.activeEventsCount', { count: activeEvents.length }),
             mode: 'events' as const,
             title: t('game:activity.events'),
-            value: activeEvents[0].title,
+            value: getLocalizedEventTitle(t, activeEvents[0]),
           },
         ]
       : []),
     ...(unreadReportsCount > 0
       ? [
           {
-            detail: latestReport?.title ?? t('game:activity.unreadReportsCount', { count: unreadReportsCount }),
+            detail: latestReport ? getLocalizedReportTitle(t, latestReport) : t('game:activity.unreadReportsCount', { count: unreadReportsCount }),
             mode: 'reports' as const,
             title: t('game:activity.reports'),
             value: t('game:activity.unreadReports', { count: unreadReportsCount }),

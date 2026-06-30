@@ -170,10 +170,6 @@ export function DashboardPage() {
       .join(', ');
   }
 
-  function eventChoiceLabel(event: KingdomEvent) {
-    return event.choices.find((choice) => choice.key === event.selectedChoiceKey)?.label ?? t('common:states.unknown');
-  }
-
   function handleMapNodeSelect(node: LocalMapNode, neighborID?: string) {
     setSelectedMapNodeID(node.id);
     setCurrentMode(node.mode);
@@ -1074,7 +1070,6 @@ export function DashboardPage() {
     <EventsPanel
       choosingEventID={choosingEventID}
       error={eventsError}
-      eventChoiceLabel={eventChoiceLabel}
       events={events}
       formatDate={formatDate}
       loading={eventsLoading}

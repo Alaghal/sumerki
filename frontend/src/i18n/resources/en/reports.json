@@ -33,5 +33,51 @@
   "consequences": "Consequences",
   "noReports": "No reports yet. Send a party on its first expedition.",
   "loadingDetails": "Loading details...",
-  "refresh": "Refresh reports"
+  "refresh": "Refresh reports",
+  "templates": {
+    "fallback": {
+      "title": "Report"
+    },
+    "pve_mission": {
+      "title": {
+        "success": "Mission completed successfully",
+        "partial_success": "Mission brought mixed news",
+        "failure": "Mission ended badly"
+      }
+    },
+    "pvp_raid_attacker": {
+      "title": {
+        "attacker_success": "Raid succeeded",
+        "defender_success": "Raid was repelled",
+        "bloody_stalemate": "Raid ended in blood",
+        "repelled_by_protection": "Raid stopped by protection"
+      }
+    },
+    "pvp_raid_defender": {
+      "title": {
+        "attacker_success": "Enemy broke through",
+        "defender_success": "Defense held",
+        "bloody_stalemate": "The walls took blood",
+        "repelled_by_protection": "Protection stopped the raid"
+      }
+    },
+    "event": {
+      "title": {
+        "success": "Event resolved",
+        "partial_success": "Event left a mark",
+        "failure": "Event turned grim",
+        "attacker_success": "Event resolved",
+        "defender_success": "Event resolved",
+        "bloody_stalemate": "Event resolved",
+        "repelled_by_protection": "Event resolved"
+      }
+    }
+  },
+  "phaseTitles": {
+    "Событие": "Event",
+    "Выбор": "Choice",
+    "Последствия": "Consequences",
+    "Возвращение": "Return",
+    "unknown": "Report phase"
+  }
 }

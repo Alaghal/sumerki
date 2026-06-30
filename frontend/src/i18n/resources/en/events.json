@@ -23,5 +23,421 @@
   "selectedChoice": "Choice: {{choice}}",
   "result": "Result",
   "effects": "Effects",
-  "refresh": "Refresh events"
+  "refresh": "Refresh events",
+  "unknown": {
+    "title": "Unknown event",
+    "body": "The court has received troubling news, but the details are not yet recorded.",
+    "choice": "Unknown choice",
+    "choiceDescription": "The consequences of this choice are not recorded.",
+    "resultTitle": "Event result",
+    "resultBody": "The consequences have been entered into the court ledger."
+  },
+  "content": {
+    "found_old_idol": {
+      "title": "Old Idol in the Woods",
+      "body": "Woodcutters found a black idol tangled in the roots. People argue whether to sell it to merchants or give it to the volkhvs.",
+      "choices": {
+        "sell_to_merchants": {
+          "label": "Sell it to merchants",
+          "description": "Merchants ask few questions when the price is good.",
+          "result": {
+            "title": "The idol went with the merchants",
+            "body": "The merchants took the find without many words. The treasury grew heavier, but the elders look toward the forest with more worry."
+          }
+        },
+        "give_to_volkhvs": {
+          "label": "Give it to the volkhvs",
+          "description": "The volkhvs will accept the sign and feed the people after the rite.",
+          "result": {
+            "title": "The volkhvs accepted the idol",
+            "body": "The idol vanished in herbal smoke. People speak more quietly, but the court looks more devout."
+          }
+        }
+      }
+    },
+    "ruler_bad_dream": {
+      "title": "The Ruler's Dream",
+      "body": "The ruler woke before dawn. A headless wolf had stood in the dream by the town gates.",
+      "choices": {
+        "calm_the_court": {
+          "label": "Calm the court",
+          "description": "Say that dreams have no power over the living.",
+          "result": { "title": "The court is calmed", "body": "The ruler met the people with a steady face. Fear retreated, and the court's word grew firmer." }
+        },
+        "use_the_omen": {
+          "label": "Use the omen",
+          "description": "Let enemies hear that even dreams serve your will.",
+          "result": { "title": "The omen became a weapon", "body": "The dream was retold until neighbors remembered their gates and locks. The court grew quieter." }
+        }
+      }
+    },
+    "volunteers_at_gate": {
+      "title": "Volunteers at the Gate",
+      "body": "Several young people came to the gate and ask to join the militia.",
+      "choices": {
+        "accept_volunteers": {
+          "label": "Accept the volunteers",
+          "description": "Feed them and put them into the militia line.",
+          "result": { "title": "New people in the ranks", "body": "The volunteers received stew and spears. The line stands thicker now." }
+        },
+        "send_home": {
+          "label": "Send them home",
+          "description": "Let them serve the settlement through work instead.",
+          "result": { "title": "The volunteers returned home", "body": "The youths left without resentment. By evening their families sent a little food to the stores." }
+        }
+      }
+    },
+    "patron_envoy": {
+      "title": "Patron Envoy",
+      "body": "An envoy has arrived at the gate. He speaks softly, but the seal on his letter feels heavy.",
+      "choices": {
+        "receive_politely": {
+          "label": "Receive him politely",
+          "description": "Meet the envoy with bread, salt, and a heavy smile.",
+          "result": { "title": "The envoy is pleased", "body": "The envoy left with gifts and the proper words. The seal on the letter seemed a little lighter." }
+        },
+        "keep_distance": {
+          "label": "Keep your distance",
+          "description": "Hear the envoy out without too many bows.",
+          "result": { "title": "The court kept its face", "body": "The envoy left coldly, but the people noticed that the court did not rush to bend its neck." }
+        }
+      }
+    },
+    "black_birds_over_walls": {
+      "title": "Black Birds over the Walls",
+      "body": "Black birds sat on the walls all night. In the morning, people found claw marks on the granary doors.",
+      "choices": {
+        "burn_incense": {
+          "label": "Burn incense",
+          "description": "Spend provisions on a cleansing rite.",
+          "result": { "title": "Smoke rose above the walls", "body": "The birds vanished before noon. People still whisper, but they thank the court for the rite." }
+        },
+        "ignore_omen": {
+          "label": "Ignore the omen",
+          "description": "Let the birds sit until hunger moves them on.",
+          "result": { "title": "The sign went unanswered", "body": "The birds flew off on their own. People decided the court does not fear even ill wings." }
+        }
+      }
+    },
+    "cracked_granary_roof": {
+      "title": "Cracked Granary Roof",
+      "body": "After a night of rain, the granary roof began to leak. If you wait, the grain will start to spoil.",
+      "choices": {
+        "repair_now": {
+          "label": "Repair it now",
+          "description": "Spend wood and preserve the stores.",
+          "result": { "title": "The granary is saved", "body": "The roof holds. People grumble about the work, but the grain stayed dry." }
+        },
+        "ignore_leak": {
+          "label": "Wait",
+          "description": "Save the wood, but risk the stores.",
+          "result": { "title": "Damp stores", "body": "The boards stayed in storage, but some of the grain blackened from the damp." }
+        }
+      }
+    },
+    "lucky_market_day": {
+      "title": "Lucky Market Day",
+      "body": "Foreign merchants have come to market. Their purses are heavy and their questions careful.",
+      "choices": {
+        "sell_surplus": {
+          "label": "Sell surplus",
+          "description": "Trade some food and wood for gold.",
+          "result": { "title": "A ringing bargain", "body": "The merchants left satisfied. The treasury grew heavier, and the stores a little emptier." }
+        },
+        "refuse_trade": {
+          "label": "Guard the stores",
+          "description": "Refuse the deal and keep your provisions.",
+          "result": { "title": "Closed gates", "body": "The merchants went on to the neighbors. In town, people look toward winter with calmer eyes." }
+        }
+      }
+    },
+    "stone_in_old_well": {
+      "title": "Stone in the Old Well",
+      "body": "Workers cleaning the old well found stonework below. It may hide an ancient passage, or only good stone.",
+      "choices": {
+        "dismantle_stone": {
+          "label": "Dismantle the masonry",
+          "description": "Gain stone for building.",
+          "result": { "title": "Stone brought up", "body": "The masonry was taken apart without any discovery. Still, carts returned with solid stone." }
+        },
+        "seal_well": {
+          "label": "Seal the well",
+          "description": "Do not trouble an old place.",
+          "result": { "title": "The well is closed", "body": "The elders approved. No one knows what lay beneath the stonework, and that suits them." }
+        }
+      }
+    },
+    "forest_tax_dispute": {
+      "title": "Forest Tax Dispute",
+      "body": "Woodcutters are arguing with the treasurer. They say the new tax will leave their families without bread.",
+      "choices": {
+        "lower_tax": {
+          "label": "Lower the tax",
+          "description": "Lose gold, but keep the peace.",
+          "result": { "title": "Axes ring again", "body": "The woodcutters returned to work. The treasurer is displeased, but the people remember the court's softness." }
+        },
+        "enforce_tax": {
+          "label": "Take what is due",
+          "description": "Gain gold at the cost of resentment.",
+          "result": { "title": "The tax is collected", "body": "The treasury filled. In the woods, people now work silently and look at the ground." }
+        }
+      }
+    },
+    "ruler_public_judgment": {
+      "title": "Judgment at the Gate",
+      "body": "Two families dispute land by the stream. Both demand that the ruler decide the matter personally.",
+      "choices": {
+        "judge_by_oath": {
+          "label": "Judge by oath",
+          "description": "Strengthen honor, but offend one side.",
+          "result": { "title": "The oath decides", "body": "Not everyone accepted the ruling, but no one dared argue with a spoken oath." }
+        },
+        "judge_by_payment": {
+          "label": "Take compensation",
+          "description": "Fill the treasury and close the dispute by authority.",
+          "result": { "title": "The dispute is bought", "body": "The land was divided by charter, and the treasury grew heavier. People speak more softly by the stream now." }
+        }
+      }
+    },
+    "ruler_fever": {
+      "title": "The Ruler's Fever",
+      "body": "The ruler woke burning with fever. Healers argue: rest, or show the people that the court is not weak.",
+      "choices": {
+        "let_rest": {
+          "label": "Let the ruler rest",
+          "description": "Spend food and herbs while preserving the court's face.",
+          "result": { "title": "A quiet chamber", "body": "The court fell quiet for a day. By evening the fever eased, though rumors had already crossed the market." }
+        },
+        "appear_publicly": {
+          "label": "Appear in public",
+          "description": "Show strength, but risk health.",
+          "result": { "title": "A pale appearance", "body": "The people saw the ruler at the gate. He stood straight, though his hands shook beneath the cloak." }
+        }
+      }
+    },
+    "court_whispers": {
+      "title": "Court Whispers",
+      "body": "Advisers say someone has been meeting foreign merchants too often.",
+      "choices": {
+        "investigate_quietly": {
+          "label": "Investigate quietly",
+          "description": "Spend gold on a secret check.",
+          "result": { "title": "A quiet inquiry", "body": "The trail leads to a minor clerk. The court did not have to stage a public storm." }
+        },
+        "make_example": {
+          "label": "Make an example",
+          "description": "Strengthen fear, but lose trust.",
+          "result": { "title": "A loud punishment", "body": "People understood the hint. Now the court speaks less, but listens more carefully." }
+        }
+      }
+    },
+    "ruler_generous_feast": {
+      "title": "Feast for the Court",
+      "body": "After good days, the warriors ask for a feast. The treasurer hisses that winter is near.",
+      "choices": {
+        "hold_feast": {
+          "label": "Hold the feast",
+          "description": "Spend food and gold for loyalty.",
+          "result": { "title": "A warm hall", "body": "That evening, songs in the hall rose louder than the wind. By morning the treasury was thinner, but faces had softened." }
+        },
+        "refuse_feast": {
+          "label": "Refuse",
+          "description": "Save resources and show strictness.",
+          "result": { "title": "Empty tables", "body": "The warriors dispersed in silence. No one argued, but there was no singing that night." }
+        }
+      }
+    },
+    "rusty_spears_found": {
+      "title": "Rusty Spears",
+      "body": "A bundle of spears was found in an old shed. The iron is poor, but even poor iron serves in militia hands.",
+      "choices": {
+        "repair_spears": {
+          "label": "Repair the spears",
+          "description": "Spend wood and gain spearmen.",
+          "result": { "title": "The spears are straightened", "body": "The smith cursed the rust, but by evening three new spears stood by the wall." }
+        },
+        "melt_parts": {
+          "label": "Sell them for scrap",
+          "description": "Gain a little gold and stone through trade.",
+          "result": { "title": "The old iron is sold", "body": "The spears went to merchants as scrap. The army did not grow, but the treasury rang." }
+        }
+      }
+    },
+    "young_hunters_offer": {
+      "title": "Young Hunters",
+      "body": "Several hunters offer to serve as scouts. They know the forest, but listen poorly to orders.",
+      "choices": {
+        "accept_hunters": {
+          "label": "Accept the hunters",
+          "description": "Gain scouts by spending food.",
+          "result": { "title": "Tracks accepted", "body": "The hunters swore service. Their eyes still turn more often to the forest than to the gate." }
+        },
+        "refuse_hunters": {
+          "label": "Refuse",
+          "description": "Save provisions.",
+          "result": { "title": "The forest took its own", "body": "The hunters left without a bow. By morning there were more unfamiliar tracks in the woods." }
+        }
+      }
+    },
+    "militia_drill": {
+      "title": "Militia Drill",
+      "body": "The voivode asks for a day of drill. Work will stop, but people will learn to hold formation.",
+      "choices": {
+        "hold_drill": {
+          "label": "Hold the drill",
+          "description": "Spend food, gain militia and honor.",
+          "result": { "title": "Formation at the gate", "body": "By evening arms were tired, but the spears no longer pointed every which way." }
+        },
+        "skip_drill": {
+          "label": "Do not distract them",
+          "description": "Keep food and work moving.",
+          "result": { "title": "Work comes first", "body": "The voivode is displeased. The fields and lumberyards, at least, did not stand empty." }
+        }
+      }
+    },
+    "deserter_at_night": {
+      "title": "Deserter in the Night",
+      "body": "At night, the guard caught a militiaman. He meant to leave for kin beyond the river.",
+      "choices": {
+        "forgive_deserter": {
+          "label": "Forgive him",
+          "description": "Keep the man, but weaken fear.",
+          "result": { "title": "Fear forgiven", "body": "He was returned to the ranks. Some call it mercy, others weakness." }
+        },
+        "punish_deserter": {
+          "label": "Punish him",
+          "description": "Strengthen fear, but lose a fighter.",
+          "result": { "title": "Night punishment", "body": "After the punishment, no one spoke by the fires. In the morning, the line stood straighter than usual." }
+        }
+      }
+    },
+    "imperial_tax_scribe": {
+      "title": "Imperial Scribe",
+      "body": "A scribe of the Empire of Dusk asks to compare household lists. He smiles as if he already knows the answer.",
+      "choices": {
+        "cooperate": {
+          "label": "Hand over the lists",
+          "description": "Improve relations with the Empire at the cost of local trust.",
+          "result": { "title": "The lists are accepted", "body": "The scribe left satisfied. People noticed how long his quill scratched over the paper." }
+        },
+        "delay_scribe": {
+          "label": "Delay him",
+          "description": "Keep face before the people, but chill relations with the Empire.",
+          "result": { "title": "The ink did not dry", "body": "The scribe rode away with an empty folder. He made no threats, but his silence was worse than one." }
+        }
+      }
+    },
+    "imperial_road_offer": {
+      "title": "Road Plan",
+      "body": "An Imperial master offers to improve the road to market. For the work, he asks stone and obedience to deadlines.",
+      "choices": {
+        "accept_road_plan": {
+          "label": "Accept the plan",
+          "description": "Spend stone, gain gold and favor.",
+          "result": { "title": "A straight road", "body": "The road is better now. Carts roll more easily, and so do foreign boots." }
+        },
+        "refuse_road_plan": {
+          "label": "Refuse",
+          "description": "Keep the stone, but cool the Empire.",
+          "result": { "title": "A crooked track", "body": "The master rolled up his plan. The old roads remain old, but they remain yours." }
+        }
+      }
+    },
+    "old_pact_oath_stone": {
+      "title": "Oath Stone",
+      "body": "The volkhvs of the Old Pact ask to renew the oath at the old stone. The people wait for a sign.",
+      "choices": {
+        "renew_oath": {
+          "label": "Renew the oath",
+          "description": "Spend food and strengthen favor.",
+          "result": { "title": "The oath speaks", "body": "The words settled on the stone heavy and even. Even the wind paused for a moment." }
+        },
+        "avoid_rite": {
+          "label": "Avoid the rite",
+          "description": "Save provisions, but weaken the Pact's trust.",
+          "result": { "title": "The stone is silent", "body": "The rite was postponed. The volkhvs said nothing, and everyone noticed their silence." }
+        }
+      }
+    },
+    "old_pact_refugees": {
+      "title": "People from the Border",
+      "body": "Refugees have come from the Border. The Old Pact asks you to take in at least some families.",
+      "choices": {
+        "accept_families": {
+          "label": "Accept the families",
+          "description": "Spend food, gain population and favor.",
+          "result": { "title": "New hearths", "body": "Smoke rises again from empty huts. The children fear loud sounds, but already help carry water." }
+        },
+        "refuse_families": {
+          "label": "Close the gates",
+          "description": "Save food, but lose trust.",
+          "result": { "title": "The gates are closed", "body": "The people went farther down the road. Their tracks stayed visible in the mud for a long time." }
+        }
+      }
+    },
+    "black_milk_morning": {
+      "title": "Black Milk",
+      "body": "In the morning, one family brought a bucket of milk the color of soot. The cow is healthy, but no one wants to drink it.",
+      "choices": {
+        "burn_the_milk": {
+          "label": "Burn the milk",
+          "description": "Spend food and calm the people.",
+          "result": { "title": "Black smoke", "body": "The milk was burned beyond the wall. The smell was strange, but people dispersed more calmly." }
+        },
+        "sell_to_stranger": {
+          "label": "Sell it to a stranger",
+          "description": "Gain gold and ill whispers.",
+          "result": { "title": "A strange bargain", "body": "The stranger paid without haggling. After he left, there were no tracks in the snow." }
+        }
+      }
+    },
+    "whispering_grain": {
+      "title": "Whispers in the Grain",
+      "body": "People hear whispering in the storehouse when grain is poured. No one can repeat the words.",
+      "choices": {
+        "bless_granary": {
+          "label": "Cleanse the granary",
+          "description": "Spend food and gold to quiet fear.",
+          "result": { "title": "Quiet grain", "body": "After the rite, the granary fell silent. The rats vanished too, which troubles the keeper." }
+        },
+        "ignore_whispers": {
+          "label": "Do not listen",
+          "description": "Save resources and accept the unease.",
+          "result": { "title": "The whisper remains", "body": "The grain still rustles too much like speech. But the bread made from it is filling." }
+        }
+      }
+    },
+    "red_moon_over_walls": {
+      "title": "Red Moon",
+      "body": "The moon rose red, like coal under ash. The watch asks for a double guard.",
+      "choices": {
+        "double_watch": {
+          "label": "Double the watch",
+          "description": "Spend food, gain militia and peace of mind.",
+          "result": { "title": "Night under guard", "body": "The night passed without attack. At dawn, everyone pretended they had not expected worse." }
+        },
+        "let_them_sleep": {
+          "label": "Let them sleep",
+          "description": "Save food, but deepen your dark reputation.",
+          "result": { "title": "A quiet night", "body": "No one died. But in the morning, red dust was found on the gates." }
+        }
+      }
+    },
+    "child_names_shadow": {
+      "title": "The Shadow Calls a Name",
+      "body": "A child by the well said a shadow called their name. Adults argue whether it was only the wind.",
+      "choices": {
+        "close_well_day": {
+          "label": "Close the well",
+          "description": "Lose a little food and calm the people.",
+          "result": { "title": "Water under lock", "body": "The well was closed until morning. In the night, the chain on the lid rang by itself." }
+        },
+        "mock_fear": {
+          "label": "Mock the fear",
+          "description": "Strengthen hardness, but lose honor.",
+          "result": { "title": "Laughter at the well", "body": "People laughed too loudly. The child no longer goes to the water alone." }
+        }
+      }
+    }
+  }
 }

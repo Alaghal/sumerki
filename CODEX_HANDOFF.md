@@ -2,84 +2,79 @@
 
 ## Current Phase
 
-Phase 29: Responsive And Overflow Hardening.
+Phase 30: Localized Event And Report Content.
 
 ## Status
 
-Phase 29 completed.
+Phase 30 completed.
 
 ## Completed
 
-- Hardened `/app` against horizontal overflow in the app shell, top bar, shared cards/buttons, game shell, HUD, mode navigation, context panel, activity feed, local SVG map, map legend, and node context summaries.
-- Updated dense dashboard rows to wrap instead of forcing single-line label/value layouts.
-- Made unit training, mission, and raid input grids stack on narrow screens.
-- Adjusted local map sizing and node labels so the SVG map scales inside its container on narrow viewports.
-- Changed activity feed text from truncation to wrapping for readability.
-- Added the missing `navigation.missions` label in English and Russian so mode navigation no longer falls back to a raw i18n key.
-- Preserved existing gameplay actions, API calls, backend behavior, balance, and data contracts.
-- Kept new gameplay mechanics, province systems, territory capture, pathfinding, pan/zoom, canvas, Phaser, Pixi, and Three.js out of scope.
-- Updated README, MVP phases, known limitations, post-playtest roadmap, and handoff.
+- Added Russian and English translations for the current MVP event content where stable `eventKey` and `choiceKey` values exist.
+- Localized event titles, bodies, choice labels, choice descriptions, and resolved result text through frontend i18n.
+- Added safe frontend fallback helpers for event/report content:
+  - frontend i18n by stable key
+  - backend-provided text
+  - generic localized fallback
+- Localized report shell/template title content where stable report type/result keys exist.
+- Localized common report phase labels where stable backend phase titles exist.
+- Updated activity feed and map context summary to use localized event/report titles where practical.
+- Preserved backend behavior, event effects, report generation, API response shapes, data contracts, balance, and gameplay mechanics.
+- Kept backend, migrations, scripts, Docker, province systems, territory capture, pathfinding, pan/zoom, canvas, Phaser, Pixi, and Three.js out of scope.
+- Updated README, MVP phases, known limitations, post-playtest roadmap, i18n plan, and handoff.
 
 ## Changed Files
 
 - `CODEX_HANDOFF.md`
 - `README.md`
-- `docs/MVP_PHASES.md`
+- `docs/I18N_PLAN.md`
 - `docs/KNOWN_LIMITATIONS.md`
+- `docs/MVP_PHASES.md`
 - `docs/POST_PLAYTEST_ROADMAP.md`
-- `frontend/src/components/layout/AppShell.tsx`
-- `frontend/src/components/layout/TopBar.tsx`
-- `frontend/src/components/ui/Button.tsx`
-- `frontend/src/components/ui/Card.tsx`
 - `frontend/src/features/dashboard/DashboardPanels.tsx`
 - `frontend/src/features/game/ActivityFeed.tsx`
-- `frontend/src/features/game/GameContextPanel.tsx`
-- `frontend/src/features/game/GameHud.tsx`
-- `frontend/src/features/game/GameModeNavigation.tsx`
-- `frontend/src/features/game/GameShell.tsx`
-- `frontend/src/features/map/LocalMap.tsx`
-- `frontend/src/features/map/MapLegend.tsx`
 - `frontend/src/features/map/MapNodeContextSummary.tsx`
-- `frontend/src/i18n/resources/en/game.json`
-- `frontend/src/i18n/resources/ru/game.json`
+- `frontend/src/i18n/resources/en/events.json`
+- `frontend/src/i18n/resources/en/reports.json`
+- `frontend/src/i18n/resources/ru/events.json`
+- `frontend/src/i18n/resources/ru/reports.json`
+- `frontend/src/pages/DashboardPage.tsx`
+- `frontend/src/utils/localizedContent.ts`
 
 ## Commands Run
 
 - `cd frontend && npm run typecheck`
 - `cd frontend && npm run build`
-- `rg -n "overflow|break-words|min-w-0|max-w-full|flex-wrap|whitespace" frontend/src/features frontend/src/components frontend/src/pages`
+- `rg -n "event\\.title|event\\.body|choice\\.label|choice\\.description|event\\.result\\.(title|body)|report\\.title|phase\\.title" frontend/src`
+- `rg -n "events:content|reports:templates|getLocalizedEvent|getLocalizedReport|defaultValue" frontend/src`
+- `rg -n "black_milk_morning|cracked_granary_roof|imperial_tax_scribe" frontend/src frontend/src/i18n`
 - `rg -n "Phaser|Pixi|Three|canvas" frontend/src`
-- `rg -n "sm:grid-cols-5|sm:grid-cols-\\[1fr_8rem_auto\\]|max-w-\\[14rem\\] truncate|flex justify-between gap-4|flex items-center justify-between gap-4|truncate" frontend/src/features frontend/src/components frontend/src/pages`
-- `git diff --check`
-- `git status --short`
-- Browser check: `/app` at 390px, 768px, and 1280px with `documentElement.scrollWidth === clientWidth`.
-- Browser check: clicked all 8 mode navigation buttons at 390px with no horizontal overflow.
-- Browser check: language switcher changed nav labels between English and Russian at 390px with no horizontal overflow.
+- Browser check: English event panel shows translated title/body/choice/result text and no raw i18n keys.
+- Browser check: Russian event panel shows translated title/body/choice/result text and no raw i18n keys.
+- Browser check: English and Russian report panels show localized type/result/template titles and no raw i18n keys.
 
 ## What Works Now
 
-- `/app` has no detected horizontal overflow at 390px, 768px, or 1280px in the in-app browser.
-- HUD resources wrap into responsive columns.
-- Mode navigation wraps safely and works on narrow screens.
-- The symbolic SVG map scales inside its container, with smaller node labels on narrow screens.
-- Context panel content wraps safely and remains scrollable on large viewports.
-- Activity feed items wrap instead of truncating important text.
-- Dense panels wrap label/value rows and stack unit input forms on narrow screens.
-- Long event/report text inherits safe wrapping from shared card/context containers.
+- Current event UI can switch between Russian and English when stable event and choice keys are available.
+- Active event titles, bodies, choice labels, and choice descriptions are localized.
+- Resolved event selected choice labels and result text are localized by `eventKey` and `selectedChoiceKey`.
+- Activity feed and map context summaries use localized event/report titles where practical.
+- Report UI uses localized type/result/template labels where stable report type/result keys exist.
+- Missing translations safely fall back to backend text or generic localized copy, not raw i18n keys.
 - Existing gameplay actions remain usable.
-- Russian/English i18n still works.
+- Russian/English language switcher still works.
 - Frontend typecheck and production build pass.
 
 ## Known Limitations
 
-- Map is still symbolic and local.
+- Some backend-generated report narrative remains in the original language because report responses do not expose stable mission/event/report content keys.
+- Additional languages still require translating event/report namespace content and registering the language.
+- Map remains symbolic and local.
 - There is no province system.
 - There is no territory capture.
 - There is no pathfinding or pan/zoom.
-- Backend-provided event/report narrative text remains in its original language.
-- Responsive hardening is first-pass and still needs broader real-device playtesting.
-- Some dense panels may still need visual design polish.
+- Playtest 002 packaging is still Phase 31.
 
 ## Next Recommended Step
 
-Phase 30: Localized Event And Report Content.
+Phase 31: Playtest 002 UX Build.

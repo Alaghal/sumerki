@@ -33,5 +33,51 @@
   "consequences": "Последствия",
   "noReports": "Отчётов пока нет. Отправьте отряд в первую экспедицию.",
   "loadingDetails": "Загрузка деталей...",
-  "refresh": "Обновить отчёты"
+  "refresh": "Обновить отчёты",
+  "templates": {
+    "fallback": {
+      "title": "Донесение"
+    },
+    "pve_mission": {
+      "title": {
+        "success": "Поход завершён успешно",
+        "partial_success": "Поход дал смешанные вести",
+        "failure": "Поход завершился неудачей"
+      }
+    },
+    "pvp_raid_attacker": {
+      "title": {
+        "attacker_success": "Набег удался",
+        "defender_success": "Набег отбили",
+        "bloody_stalemate": "Набег захлебнулся кровью",
+        "repelled_by_protection": "Набег сорван защитой"
+      }
+    },
+    "pvp_raid_defender": {
+      "title": {
+        "attacker_success": "Враг прорвался",
+        "defender_success": "Защита выстояла",
+        "bloody_stalemate": "Стены встретили кровь",
+        "repelled_by_protection": "Защита остановила набег"
+      }
+    },
+    "event": {
+      "title": {
+        "success": "Событие решено",
+        "partial_success": "Событие оставило след",
+        "failure": "Событие обернулось бедой",
+        "attacker_success": "Событие решено",
+        "defender_success": "Событие решено",
+        "bloody_stalemate": "Событие решено",
+        "repelled_by_protection": "Событие решено"
+      }
+    }
+  },
+  "phaseTitles": {
+    "Событие": "Событие",
+    "Выбор": "Выбор",
+    "Последствия": "Последствия",
+    "Возвращение": "Возвращение",
+    "unknown": "Фаза отчёта"
+  }
 }

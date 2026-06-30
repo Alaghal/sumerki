@@ -468,13 +468,17 @@ No backend, API, balance, gameplay mechanic, province system, territory capture,
 
 ## Phase 30: Localized Event And Report Content
 
-Status: Planned
+Status: Completed
 
-* Localize event and report text.
-* Prefer frontend translation by event/report keys where practical.
-* Keep backend compatible.
-* Add English text for current MVP event pack and report templates.
-* Keep Russian as default.
+Added Russian and English frontend translations for the current MVP event pack where stable `eventKey` and `choiceKey` values exist.
+
+Event titles, bodies, choice labels, choice descriptions, and resolved choice result text now use frontend i18n with backend text fallback.
+
+Report type/result/template titles and common report phase labels now use frontend i18n where stable report type/result keys exist. Full backend-generated report narrative still falls back to backend text when no stable mission/event/report content key is exposed by the API.
+
+Backend event effects, report generation, API response shapes, data contracts, balance, and gameplay mechanics were preserved.
+
+Phase 31 remains Playtest 002 UX Build.
 
 ## Phase 31: Playtest 002 UX Build
 
