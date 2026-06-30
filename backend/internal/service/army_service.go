@@ -229,6 +229,37 @@ func (s *ArmyService) ReturnFromMission(ctx context.Context, kingdomID string, u
 	return nil
 }
 
+func (s *ArmyService) ApplyUnitDeltaForKingdom(ctx context.Context, kingdomID string, units map[string]int64) (ArmyView, error) {
+	if err := s.EnsureForKingdom(ctx, kingdomID); err != nil {
+		return ArmyView{}, err
+	}
+	if err := s.completeFinished(ctx, kingdomID); err != nil {
+		return ArmyView{}, err
+	}
+	for unitType, delta := range units {
+		if delta == 0 {
+			continue
+		}
+		if !gameconfig.IsUnitType(unitType) {
+			return ArmyView{}, ErrInvalidUnitType
+		}
+		if delta < 0 {
+			unit, err := s.army.FindUnitByKingdomIDAndType(ctx, kingdomID, unitType)
+			if err != nil {
+				return ArmyView{}, err
+			}
+			delta = -minInt64(unit.Amount, -delta)
+		}
+		if delta == 0 {
+			continue
+		}
+		if err := s.army.AdjustUnitAmount(ctx, kingdomID, unitType, delta); err != nil {
+			return ArmyView{}, err
+		}
+	}
+	return s.CurrentForKingdom(ctx, kingdomID)
+}
+
 func (s *ArmyService) completeFinished(ctx context.Context, kingdomID string) error {
 	return s.army.CompleteFinishedTraining(ctx, kingdomID, s.now())
 }

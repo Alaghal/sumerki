@@ -6,10 +6,12 @@ import {
   breakPatron,
   Building,
   BuildingType,
+  chooseEvent,
   choosePatronCrisis,
   getAvailableMissions,
   getMyArmy,
   getMyBuildings,
+  getMyEvents,
   getMyMissions,
   getMyPatron,
   getMyRaids,
@@ -21,6 +23,7 @@ import {
   getPatronPressure,
   getReport,
   joinPatron,
+  KingdomEvent,
   markReportRead,
   Mission,
   MissionReport,
@@ -139,6 +142,27 @@ const missionResultLabels = {
   repelled_by_protection: 'Набег сорван',
 };
 
+const reportTypeLabels = {
+  pve_mission: 'Поход',
+  pvp_raid_attacker: 'Набег',
+  pvp_raid_defender: 'Защита',
+  event: 'Событие',
+};
+
+const eventCategoryLabels = {
+  economy: 'Хозяйство',
+  ruler: 'Правитель',
+  military: 'Войско',
+  patron: 'Покровитель',
+  dark_omen: 'Тёмное знамение',
+};
+
+const eventStatusLabels = {
+  active: 'Доступно',
+  resolved: 'Решено',
+  expired: 'Истекло',
+};
+
 const powerEstimateLabels = {
   much_weaker: 'Намного слабее',
   weaker: 'Слабее',
@@ -201,6 +225,10 @@ export function DashboardPage() {
   const [selectedRaidTargetID, setSelectedRaidTargetID] = useState<string | null>(null);
   const [raidInputs, setRaidInputs] = useState<Partial<Record<UnitType, number>>>({});
   const [isStartingRaid, setIsStartingRaid] = useState(false);
+  const [events, setEvents] = useState<KingdomEvent[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
+  const [eventsError, setEventsError] = useState('');
+  const [choosingEventID, setChoosingEventID] = useState<string | null>(null);
 
   async function loadRuler() {
     if (!token || !kingdom) {
@@ -356,8 +384,26 @@ export function DashboardPage() {
     }
   }
 
+  async function loadEvents() {
+    if (!token || !kingdom) {
+      return;
+    }
+
+    setEventsLoading(true);
+    setEventsError('');
+
+    try {
+      const response = await getMyEvents(token);
+      setEvents(response.events);
+    } catch {
+      setEventsError('Не удалось загрузить события.');
+    } finally {
+      setEventsLoading(false);
+    }
+  }
+
   async function refreshCity() {
-    await Promise.all([loadRuler(), loadResources(), loadBuildings(), loadArmy(), loadMissions(), loadReports(), loadPatron(), loadRaids()]);
+    await Promise.all([loadRuler(), loadResources(), loadBuildings(), loadArmy(), loadMissions(), loadReports(), loadPatron(), loadRaids(), loadEvents()]);
   }
 
   async function handleUpgrade(buildingType: BuildingType) {
@@ -520,6 +566,31 @@ export function DashboardPage() {
       setRaidsError(toUserMessage(caughtError));
     } finally {
       setIsStartingRaid(false);
+    }
+  }
+
+  async function handleChooseEvent(eventID: string, choiceKey: string) {
+    if (!token) {
+      return;
+    }
+
+    setChoosingEventID(eventID);
+    setEventsError('');
+
+    try {
+      const response = await chooseEvent(eventID, choiceKey, token);
+      setEvents((current) => current.map((event) => (event.id === eventID ? response.event : event)));
+      if (response.resources) {
+        setResources(response.resources);
+      }
+      if (response.army) {
+        setArmy(response.army);
+      }
+      await Promise.all([loadEvents(), loadResources(), loadArmy(), loadPatron(), loadReports()]);
+    } catch (caughtError) {
+      setEventsError(toUserMessage(caughtError));
+    } finally {
+      setChoosingEventID(null);
     }
   }
 
@@ -885,6 +956,40 @@ export function DashboardPage() {
     }
 
     loadInitialReports();
+
+    return () => {
+      isActive = false;
+    };
+  }, [kingdom, token]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadInitialEvents() {
+      if (!token || !kingdom) {
+        return;
+      }
+
+      setEventsLoading(true);
+      setEventsError('');
+
+      try {
+        const response = await getMyEvents(token);
+        if (isActive) {
+          setEvents(response.events);
+        }
+      } catch {
+        if (isActive) {
+          setEventsError('Не удалось загрузить события.');
+        }
+      } finally {
+        if (isActive) {
+          setEventsLoading(false);
+        }
+      }
+    }
+
+    loadInitialEvents();
 
     return () => {
       isActive = false;
@@ -1509,6 +1614,91 @@ export function DashboardPage() {
               ) : null}
             </div>
           </Card>
+          <Card title="События">
+            <div className="grid gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="text-sm text-stone-400">Дворовые вести и тревожные выборы</p>
+                <Button className="justify-self-start" disabled={eventsLoading} onClick={loadEvents} type="button">
+                  Обновить события
+                </Button>
+              </div>
+              {eventsLoading ? <p>Загрузка событий...</p> : null}
+              {eventsError ? <p className="text-red-300">{eventsError}</p> : null}
+              {!eventsLoading && events.length === 0 ? (
+                <p className="text-sm text-stone-400">Событий пока нет. Обновите двор позже.</p>
+              ) : null}
+              {!eventsLoading && events.filter((event) => event.status === 'active').length > 0 ? (
+                <div className="grid gap-3">
+                  {events
+                    .filter((event) => event.status === 'active')
+                    .map((event) => (
+                      <div className="rounded border border-dusk-gold bg-dusk-950 p-3" key={event.id}>
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <p className="text-xs uppercase tracking-wide text-dusk-gold">{eventCategoryLabels[event.category]}</p>
+                            <h3 className="mt-1 font-semibold text-stone-100">{event.title}</h3>
+                          </div>
+                          <div className="text-right text-sm text-stone-400">
+                            <div>{eventStatusLabels[event.status]}</div>
+                            <div>До {new Date(event.expiresAt).toLocaleString('ru-RU')}</div>
+                          </div>
+                        </div>
+                        <p className="mt-2 text-sm text-stone-400">{event.body}</p>
+                        <div className="mt-3 grid gap-2">
+                          {event.choices.map((choice) => (
+                            <div className="rounded border border-stone-800 bg-dusk-900 p-3" key={`${event.id}-${choice.key}`}>
+                              <div className="flex flex-wrap items-start justify-between gap-3">
+                                <div>
+                                  <h4 className="font-semibold text-stone-100">{choice.label}</h4>
+                                  <p className="mt-1 text-sm text-stone-400">{choice.description}</p>
+                                </div>
+                                <Button
+                                  disabled={choosingEventID === event.id}
+                                  onClick={() => handleChooseEvent(event.id, choice.key)}
+                                  type="button"
+                                >
+                                  {choosingEventID === event.id ? 'Выбираем...' : 'Выбрать'}
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ) : null}
+              {!eventsLoading && events.filter((event) => event.status !== 'active').length > 0 ? (
+                <div className="grid gap-3">
+                  <h3 className="font-semibold text-stone-100">Решённые события</h3>
+                  {events
+                    .filter((event) => event.status !== 'active')
+                    .map((event) => (
+                      <div className="rounded border border-stone-800 bg-dusk-950 p-3" key={event.id}>
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <p className="text-xs uppercase tracking-wide text-stone-500">{eventCategoryLabels[event.category]}</p>
+                            <h3 className="mt-1 font-semibold text-stone-100">{event.title}</h3>
+                          </div>
+                          <div className="text-right text-sm text-stone-400">
+                            <div>{eventStatusLabels[event.status]}</div>
+                            {event.resolvedAt ? <div>{new Date(event.resolvedAt).toLocaleString('ru-RU')}</div> : null}
+                          </div>
+                        </div>
+                        {event.selectedChoiceKey ? (
+                          <p className="mt-2 text-sm text-stone-500">Выбор: {event.selectedChoiceKey}</p>
+                        ) : null}
+                        {event.result ? (
+                          <div className="mt-2">
+                            <h4 className="font-semibold text-stone-100">{event.result.title}</h4>
+                            <p className="mt-1 text-sm text-stone-400">{event.result.body}</p>
+                          </div>
+                        ) : null}
+                      </div>
+                    ))}
+                </div>
+              ) : null}
+            </div>
+          </Card>
           <Card title="Reports">
             <div className="grid gap-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1534,6 +1724,7 @@ export function DashboardPage() {
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
                               <h3 className="font-semibold text-stone-100">{report.title}</h3>
+                              <span className="text-xs text-stone-500">{reportTypeLabels[report.type]}</span>
                               <span className={report.isRead ? 'text-xs text-stone-500' : 'text-xs text-dusk-gold'}>
                                 {report.isRead ? 'Прочитано' : 'Новое'}
                               </span>

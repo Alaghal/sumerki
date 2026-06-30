@@ -16,6 +16,8 @@ export type Kingdom = {
   name: string;
   culture: Culture;
   patron: Patron | null;
+  dread: number;
+  honor: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -193,7 +195,7 @@ export type Mission = {
 
 export type MissionReport = {
   id: string;
-  type: 'pve_mission' | 'pvp_raid_attacker' | 'pvp_raid_defender';
+  type: 'pve_mission' | 'pvp_raid_attacker' | 'pvp_raid_defender' | 'event';
   title: string;
   body: string;
   phases: ReportPhase[];
@@ -259,6 +261,46 @@ export type PatronPressure = {
   protectedMinimums: Partial<ResourceValues> & {
     population: number | null;
   };
+};
+
+export type EventCategory = 'economy' | 'ruler' | 'military' | 'patron' | 'dark_omen';
+export type EventStatus = 'active' | 'resolved' | 'expired';
+
+export type EventChoice = {
+  key: string;
+  label: string;
+  description: string;
+};
+
+export type EventAppliedEffects = {
+  resourceDelta?: Partial<ResourceValues>;
+  unitDelta?: Partial<Record<UnitType, number>>;
+  kingdomDelta?: {
+    dread?: number;
+    honor?: number;
+  };
+  patronFavorDelta?: number;
+};
+
+export type EventResult = {
+  title: string;
+  body: string;
+  appliedEffects: EventAppliedEffects;
+};
+
+export type KingdomEvent = {
+  id: string;
+  eventKey: string;
+  category: EventCategory;
+  title: string;
+  body: string;
+  status: EventStatus;
+  generatedAt: string;
+  expiresAt: string;
+  resolvedAt: string | null;
+  selectedChoiceKey: string | null;
+  choices: EventChoice[];
+  result: EventResult | null;
 };
 
 export type Neighbor = {
@@ -394,6 +436,18 @@ type StartRaidRequest = {
 type StartRaidResponse = {
   raid: Raid;
   army: Army;
+};
+
+type EventsResponse = {
+  events: KingdomEvent[];
+  activeCount: number;
+};
+
+type ChooseEventResponse = {
+  event: KingdomEvent;
+  resources?: Resources;
+  army?: Army;
+  kingdom: Kingdom;
 };
 
 type PatronOptionsResponse = {
@@ -664,6 +718,18 @@ export function startRaid(defenderKingdomId: string, units: StartRaidRequest['un
   return request<StartRaidResponse>('/api/raids/start', {
     method: 'POST',
     body: { defenderKingdomId, units } satisfies StartRaidRequest,
+    token,
+  });
+}
+
+export function getMyEvents(token?: string) {
+  return request<EventsResponse>('/api/events/me', { token });
+}
+
+export function chooseEvent(eventId: string, choiceKey: string, token?: string) {
+  return request<ChooseEventResponse>(`/api/events/${eventId}/choose`, {
+    method: 'POST',
+    body: { choiceKey },
     token,
   });
 }

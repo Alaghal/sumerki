@@ -27,6 +27,8 @@ type kingdomResponse struct {
 	Name      string    `json:"name"`
 	Culture   string    `json:"culture"`
 	Patron    *string   `json:"patron"`
+	Dread     int       `json:"dread"`
+	Honor     int       `json:"honor"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
@@ -99,6 +101,8 @@ func newKingdomResponse(kingdom domain.Kingdom) kingdomResponse {
 		Name:      kingdom.Name,
 		Culture:   kingdom.Culture,
 		Patron:    kingdom.Patron,
+		Dread:     kingdom.Dread,
+		Honor:     kingdom.Honor,
 		CreatedAt: kingdom.CreatedAt,
 		UpdatedAt: kingdom.UpdatedAt,
 	}

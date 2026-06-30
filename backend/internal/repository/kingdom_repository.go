@@ -126,6 +126,25 @@ func (r *KingdomRepository) AddDread(ctx context.Context, kingdomID string, amou
 	return nil
 }
 
+func (r *KingdomRepository) ApplyReputationDelta(ctx context.Context, kingdomID string, dreadDelta int, honorDelta int) (domain.Kingdom, error) {
+	const query = `
+		UPDATE kingdoms
+		SET dread = GREATEST(0, dread + $2),
+			honor = GREATEST(0, honor + $3),
+			updated_at = now()
+		WHERE id = $1
+		RETURNING id::text, user_id::text, name, culture, patron, dread, honor, created_at, updated_at
+	`
+	kingdom, err := scanKingdom(r.db.QueryRowContext(ctx, query, kingdomID, dreadDelta, honorDelta))
+	if errors.Is(err, sql.ErrNoRows) {
+		return domain.Kingdom{}, ErrKingdomNotFound
+	}
+	if err != nil {
+		return domain.Kingdom{}, err
+	}
+	return kingdom, nil
+}
+
 func (r *KingdomRepository) UpdatePatronByID(ctx context.Context, kingdomID string, patron *string) (domain.Kingdom, error) {
 	const query = `
 		UPDATE kingdoms

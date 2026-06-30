@@ -21,6 +21,11 @@ const errorMessages: Record<string, string> = {
   invalid_unit_amount: 'Количество войск должно быть целым и неотрицательным.',
   insufficient_units: 'Недостаточно доступных войск.',
   mission_requirements_not_met: 'Требования похода не выполнены.',
+  event_expired: 'Событие истекло.',
+  event_already_resolved: 'Событие уже решено.',
+  invalid_event_choice: 'Неверный выбор.',
+  event_choice_not_available: 'Этот выбор недоступен.',
+  event_not_found: 'Событие не найдено.',
 };
 
 export function toUserMessage(error: unknown): string {

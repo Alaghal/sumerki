@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 16: Tribute and Pressure.
+Phase 17: Event Engine.
 
-This phase adds lazy patron pressure for the Empire of Dusk and Old Pact: tribute debt, soft contribution debt, crisis status, delay requests, tribute payment, and relation breaking. It does not include NPC retaliation, patron armies, alliances, map travel, real-time combat, payments, chat, WebSocket, or background workers.
+This phase adds reusable choice-based events with lazy generation, lazy expiry, safe resource/unit/reputation/patron effects, event reports, and a dashboard Events section. It does not include the full event content pack, event chains, map/province events, dark god avatars, notifications, WebSocket, or background workers.
 
 ## Documentation
 
@@ -314,6 +314,24 @@ curl http://localhost:8080/api/raids/me \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
+## Events API
+
+Get current events:
+
+```sh
+curl http://localhost:8080/api/events/me \
+  -H "Authorization: Bearer <TOKEN>"
+```
+
+Choose an event option:
+
+```sh
+curl -X POST http://localhost:8080/api/events/<EVENT_ID>/choose \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -d '{"choiceKey":"sell_to_merchants"}'
+```
+
 ## Frontend
 
 The frontend reads `VITE_API_BASE_URL` and defaults to `http://localhost:8080`.
@@ -356,16 +374,21 @@ Expected flow:
 5. Open `/app`.
 6. View patron options and choose a patron if desired.
 7. View patron pressure and pay tribute or ask for a delay when available.
-8. Call `GET /api/neighbors` or view the dashboard raid neighbors.
-9. Start a raid against kingdom B.
-10. Call `GET /api/army/me` and confirm sent units are unavailable.
-11. Wait for the raid timer.
-12. Call `GET /api/raids/me` to resolve lazy completion.
-13. View reports for attacker.
-14. Login as user B.
-15. View defender report.
-16. Confirm defender was not destroyed and protected resources remain.
-17. Continue the settlement loop with resources, buildings, army, missions, patrons, and reports.
+8. Call `GET /api/events/me` or view dashboard events.
+9. Choose an event option.
+10. Verify resources, army, patron, or kingdom effects if applicable.
+11. Verify an event report appears in reports.
+12. Refresh events and confirm the resolved event is not applied again.
+13. Call `GET /api/neighbors` or view the dashboard raid neighbors.
+14. Start a raid against kingdom B.
+15. Call `GET /api/army/me` and confirm sent units are unavailable.
+16. Wait for the raid timer.
+17. Call `GET /api/raids/me` to resolve lazy completion.
+18. View reports for attacker.
+19. Login as user B.
+20. View defender report.
+21. Confirm defender was not destroyed and protected resources remain.
+22. Continue the settlement loop with resources, buildings, army, missions, patrons, events, and reports.
 
 The frontend stores the MVP JWT in `localStorage` under `sumerki.auth.token`. Refreshing the page restores the session through `GET /api/me`.
 
