@@ -166,6 +166,30 @@ func (s *ResourcesService) Grant(ctx context.Context, kingdomID string, reward g
 	}, nil
 }
 
+func (s *ResourcesService) ApplyDeltaForKingdom(ctx context.Context, kingdomID string, delta gameconfig.ResourceValues) (ResourcesResult, error) {
+	result, err := s.CurrentForKingdom(ctx, kingdomID)
+	if err != nil {
+		return ResourcesResult{}, err
+	}
+
+	resources := result.Resources
+	resources.Gold = maxInt64(0, resources.Gold+delta.Gold)
+	resources.Food = maxInt64(0, resources.Food+delta.Food)
+	resources.Wood = maxInt64(0, resources.Wood+delta.Wood)
+	resources.Stone = maxInt64(0, resources.Stone+delta.Stone)
+	resources.Population = maxInt64(1, resources.Population+delta.Population)
+
+	updated, err := s.resources.UpdateCalculated(ctx, resources)
+	if err != nil {
+		return ResourcesResult{}, err
+	}
+
+	return ResourcesResult{
+		Resources:         updated,
+		ProductionPerHour: result.ProductionPerHour,
+	}, nil
+}
+
 func (s *ResourcesService) TransferRaidLoot(ctx context.Context, attackerKingdomID string, defenderKingdomID string, percent int64) (gameconfig.ResourceValues, error) {
 	return s.transferRaidLoot(ctx, attackerKingdomID, defenderKingdomID, percent, true)
 }

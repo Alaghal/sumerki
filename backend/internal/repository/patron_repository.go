@@ -76,6 +76,24 @@ func (r *PatronRepository) BackfillForKingdom(ctx context.Context, kingdomID str
 	return r.FindByKingdomID(ctx, kingdomID)
 }
 
+func (r *PatronRepository) AdjustFavor(ctx context.Context, kingdomID string, delta int) (domain.PatronRelation, error) {
+	const query = `
+		UPDATE patron_relations
+		SET favor = LEAST(100, GREATEST(-100, favor + $2)),
+			updated_at = now()
+		WHERE kingdom_id = $1 AND left_at IS NULL
+		RETURNING id::text, kingdom_id::text, patron, favor, standing, joined_at, left_at, created_at, updated_at
+	`
+	relation, err := scanPatronRelation(r.db.QueryRowContext(ctx, query, kingdomID, delta))
+	if errors.Is(err, sql.ErrNoRows) {
+		return domain.PatronRelation{}, ErrPatronRelationNotFound
+	}
+	if err != nil {
+		return domain.PatronRelation{}, err
+	}
+	return relation, nil
+}
+
 func scanPatronRelation(row scanner) (domain.PatronRelation, error) {
 	var relation domain.PatronRelation
 	var leftAt sql.NullTime

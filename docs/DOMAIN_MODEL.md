@@ -426,6 +426,7 @@ Phase 15 report types:
 - `pve_mission`
 - `pvp_raid_attacker`
 - `pvp_raid_defender`
+- `event`
 
 Fields:
 
@@ -452,13 +453,117 @@ Rules:
 - Report ownership is scoped to the authenticated user's kingdom.
 - Report delivery is pull-based through the API; there are no comments, notifications, WebSocket, or background jobs in Phase 13.
 - Raid reports are created for both attacker and defender when a raid resolves.
-- Event reports are a later phase.
+- Event reports are created when event choices resolve.
 
-## Event
+## GameEvent
+
+Catalog template for a choice-based event.
+
+Fields:
+
+- `id`: UUID
+- `eventKey`: stable event key
+- `category`: `economy`, `ruler`, `military`, `patron`, or `dark_omen`
+- `title`: event title
+- `body`: event setup text
+- `triggerType`: currently `pool`
+- `weight`: positive integer reserved for future weighted selection
+- `isActive`: whether the template can be generated
+- `cooldownSeconds`: per-kingdom cooldown before the same event key can appear again
+- `expiresAfterSeconds`: lifetime for generated event instances
+- `conditionsJson`: simple generation conditions
+- `createdAt`: row creation timestamp
+- `updatedAt`: last update timestamp
+
+## EventChoice
+
+Choice available for a `GameEvent`.
+
+Fields:
+
+- `id`: UUID
+- `gameEventId`: game event UUID
+- `choiceKey`: stable choice key within the event
+- `label`: choice button text
+- `description`: short choice description
+- `effectsJson`: configured effects payload
+- `resultTitle`: report/result title after choosing
+- `resultBody`: report/result body after choosing
+- `createdAt`: row creation timestamp
+- `updatedAt`: last update timestamp
+
+Rules:
+
+- Choice keys are unique per game event.
+- Unknown effects are ignored by the MVP service after JSON decoding.
+
+## KingdomEvent
+
+Generated event instance for one kingdom.
+
+Fields:
+
+- `id`: UUID
+- `kingdomId`: kingdom UUID
+- `gameEventId`: game event UUID
+- `status`: `active`, `resolved`, or `expired`
+- `generatedAt`: generation timestamp
+- `expiresAt`: expiry timestamp
+- `resolvedAt`: nullable resolution timestamp
+- `selectedChoiceKey`: nullable selected choice key
+- `resultJson`: nullable result payload with applied effects
+- `createdAt`: row creation timestamp
+- `updatedAt`: last update timestamp
+
+Rules:
+
+- Events are generated and expired lazily on event reads and choice commands.
+- Each kingdom can have up to three active events.
+- The same event key cannot be active twice for one kingdom.
+- The same event key is not regenerated during its cooldown window after generation.
+- Expired events cannot be chosen and are not deleted.
+- Resolved events cannot be chosen again, preventing duplicate effect application.
+
+## Event Effects
+
+Optional `effectsJson` keys:
+
+- `resourceDelta`: `gold`, `food`, `wood`, `stone`, `population`
+- `unitDelta`: `militia`, `spearmen`, `archers`, `cavalry`, `scouts`
+- `kingdomDelta`: `dread`, `honor`
+- `patronFavorDelta`: integer favor change
+
+Rules:
+
+- Resource deltas can be positive or negative.
+- Resources and units never go below zero from event effects.
+- Population never goes below one.
+- Unit deltas affect only currently available units, not units away on missions or raids.
+- Dread and honor never go below zero.
+- Patron favor is clamped from -100 to 100.
+- Patron favor effects are ignored if the kingdom has no active patron relation.
+- Tribute, debt, raid, and mission effects are not included in Phase 17.
+
+## Event Conditions
+
+Supported `conditionsJson` key:
+
+- `requiresPatron`: `any`, `none`, `independent`, `empire_of_dusk`, or `old_pact`
+
+Rules:
+
+- Missing conditions mean the event is eligible.
+- `any` requires a non-null kingdom patron.
+- `none` requires no selected patron.
+- A specific patron value requires an exact match.
+- No complex conditions, map/province events, chains, recurring chains, or dark god avatar logic are included in Phase 17.
+
+## Event Content
 
 Represents a simple narrative or strategic choice.
 
 Rules:
 
-- Events offer a small set of choices.
-- Choices can grant resources, modify production, affect units, or influence patron alignment.
+- Phase 17 seeds only five smoke-test events, one per category.
+- The full 20 to 30 event content pack is reserved for Phase 18.
+- Event reports use simple local text and three phases: `Событие`, `Выбор`, and `Последствия`.

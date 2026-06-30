@@ -1060,6 +1060,144 @@ Errors:
 - `kingdom_not_found`
 - `report_not_found`
 
+## Events
+
+### `GET /api/events/me`
+
+Returns current active events and recent resolved or expired events for the authenticated user's kingdom. The read lazily expires stale events and lazily generates new active events up to the MVP active limit.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Query params:
+
+- `includeResolved`: optional boolean, default `true`
+- `limit`: optional integer, default `20`, max `50`
+
+Response:
+
+```json
+{
+  "events": [
+    {
+      "id": "uuid",
+      "eventKey": "found_old_idol",
+      "category": "economy",
+      "title": "Старый идол в лесу",
+      "body": "Лесорубы нашли в корнях чёрный идол...",
+      "status": "active",
+      "generatedAt": "2026-06-30T08:00:00Z",
+      "expiresAt": "2026-07-01T08:00:00Z",
+      "resolvedAt": null,
+      "selectedChoiceKey": null,
+      "choices": [
+        {
+          "key": "sell_to_merchants",
+          "label": "Продать купцам",
+          "description": "Купцы не задают вопросов, если цена хорошая."
+        }
+      ],
+      "result": null
+    }
+  ],
+  "activeCount": 1
+}
+```
+
+Errors:
+
+- `kingdom_not_found`
+
+### `POST /api/events/{id}/choose`
+
+Resolves one active event choice for the authenticated user's kingdom. Effects are applied once, safely clamped so resources and units do not go below zero and population does not go below one. Resolved and expired events cannot be chosen.
+
+Requires:
+
+```http
+Authorization: Bearer <token>
+```
+
+Request:
+
+```json
+{
+  "choiceKey": "sell_to_merchants"
+}
+```
+
+Response:
+
+```json
+{
+  "event": {
+    "id": "uuid",
+    "eventKey": "found_old_idol",
+    "category": "economy",
+    "title": "Старый идол в лесу",
+    "body": "Лесорубы нашли в корнях чёрный идол...",
+    "status": "resolved",
+    "generatedAt": "2026-06-30T08:00:00Z",
+    "expiresAt": "2026-07-01T08:00:00Z",
+    "resolvedAt": "2026-06-30T08:05:00Z",
+    "selectedChoiceKey": "sell_to_merchants",
+    "choices": [],
+    "result": {
+      "title": "Идол ушёл с купцами",
+      "body": "Купцы забрали находку без лишних слов. В казне стало тяжелее, но старики смотрят на лес тревожнее.",
+      "appliedEffects": {
+        "resourceDelta": {
+          "gold": 80
+        },
+        "kingdomDelta": {
+          "honor": -1
+        }
+      }
+    }
+  },
+  "resources": {
+    "kingdomId": "uuid",
+    "gold": 580,
+    "food": 300,
+    "wood": 300,
+    "stone": 200,
+    "population": 100,
+    "productionPerHour": {
+      "gold": 20,
+      "food": 30,
+      "wood": 25,
+      "stone": 15,
+      "population": 1
+    },
+    "lastCalculatedAt": "2026-06-30T08:05:00Z",
+    "updatedAt": "2026-06-30T08:05:00Z"
+  },
+  "kingdom": {
+    "id": "uuid",
+    "userId": "uuid",
+    "name": "Воронья Сечь",
+    "culture": "northern_principality",
+    "patron": null,
+    "dread": 0,
+    "honor": 0,
+    "createdAt": "2026-06-29T00:00:00Z",
+    "updatedAt": "2026-06-30T08:05:00Z"
+  }
+}
+```
+
+Errors:
+
+- `kingdom_not_found`
+- `event_not_found`
+- `event_expired`
+- `event_already_resolved`
+- `invalid_event_choice`
+- `event_choice_not_available`
+
 ## Patron
 
 ### `GET /api/patron/options`
@@ -1484,6 +1622,7 @@ Report types:
 - `pve_mission`
 - `pvp_raid_attacker`
 - `pvp_raid_defender`
+- `event`
 
 Raid results:
 
