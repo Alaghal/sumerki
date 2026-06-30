@@ -15,6 +15,52 @@
     "events": "Events",
     "raids": "Raids"
   },
+  "shell": {
+    "title": "Game Court",
+    "subtitle": "Kingdom map and orders",
+    "context": "Context",
+    "scene": "Scene",
+    "modes": "Modes",
+    "mapComingSoon": "Map arrives in Phase 27.",
+    "mapPlaceholderTitle": "Settlement Outskirts",
+    "mapPlaceholderDescription": "Map arrives in Phase 27. For now this is a sketch of the surrounding ground and nearby directions.",
+    "nodes": {
+      "blackForest": "Black Forest",
+      "oldKurgan": "Old Kurgan",
+      "dryFord": "Dry Ford",
+      "neighbors": "Neighbors: {{count}}"
+    }
+  },
+  "modes": {
+    "map": { "summary": "A broad view of the settlement, nearby threats, and current activity." },
+    "city": { "summary": "Court, ruler, and buildings are gathered in the right context panel." },
+    "army": { "summary": "Army and unit training are available in the right context panel." },
+    "missions": { "summary": "Missions and party dispatch are available in the right context panel." },
+    "events": { "summary": "Court events and choices are available in the right context panel." },
+    "reports": { "summary": "Reports, details, and read state are available in the right context panel." },
+    "patron": { "summary": "Patron status, influence, and crisis actions are available in the right context panel." },
+    "raids": { "summary": "Neighbors, raids, and raid parties are available in the right context panel." }
+  },
+  "hud": {
+    "resources": "Resources",
+    "alerts": "Alerts",
+    "unreadReports": "Reports: {{count}}",
+    "activeEvents": "Events: {{count}}"
+  },
+  "activity": {
+    "title": "Activity Feed",
+    "noActivity": "Quiet",
+    "activeUpgrades": "Upgrades",
+    "activeMissions": "Missions",
+    "activeRaids": "Raids",
+    "activeEvents": "Events",
+    "activeUpgradesCount": "Upgrades: {{count}}",
+    "activeTrainingCount": "Training: {{count}}",
+    "activeMissionsCount": "Missions: {{count}}",
+    "activeRaidsCount": "Raids: {{count}}",
+    "activeEventsCount": "Events: {{count}}",
+    "unreadReportsCount": "Unread reports: {{count}}"
+  },
   "dashboard": {
     "title": "{{name}}",
     "subtitle": "Settlement dashboard for {{email}}",

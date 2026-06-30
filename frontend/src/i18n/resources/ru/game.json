@@ -15,6 +15,52 @@
     "events": "События",
     "raids": "Набеги"
   },
+  "shell": {
+    "title": "Игровой двор",
+    "subtitle": "Карта и приказы владения",
+    "context": "Контекст",
+    "scene": "Местность",
+    "modes": "Режимы",
+    "mapComingSoon": "Карта появится в Phase 27.",
+    "mapPlaceholderTitle": "Окрестности владения",
+    "mapPlaceholderDescription": "Карта появится в Phase 27. Пока здесь виден набросок местности и ближайших направлений.",
+    "nodes": {
+      "blackForest": "Чёрный Лес",
+      "oldKurgan": "Старый Курган",
+      "dryFord": "Сухой Брод",
+      "neighbors": "Соседи: {{count}}"
+    }
+  },
+  "modes": {
+    "map": { "summary": "Общий обзор владения, ближайших угроз и текущих дел." },
+    "city": { "summary": "Городской двор, правитель и здания собраны в правом контексте." },
+    "army": { "summary": "Войско и обучение доступны в правом контексте." },
+    "missions": { "summary": "Походы и отправка отрядов доступны в правом контексте." },
+    "events": { "summary": "Дворовые события и выборы доступны в правом контексте." },
+    "reports": { "summary": "Отчёты, подробности и отметка прочитанного доступны в правом контексте." },
+    "patron": { "summary": "Покровитель, влияние и кризисные действия доступны в правом контексте." },
+    "raids": { "summary": "Соседи, набеги и отряды доступны в правом контексте." }
+  },
+  "hud": {
+    "resources": "Ресурсы",
+    "alerts": "Сводка",
+    "unreadReports": "Отчёты: {{count}}",
+    "activeEvents": "События: {{count}}"
+  },
+  "activity": {
+    "title": "Лента дел",
+    "noActivity": "Тихо",
+    "activeUpgrades": "Улучшения",
+    "activeMissions": "Походы",
+    "activeRaids": "Набеги",
+    "activeEvents": "События",
+    "activeUpgradesCount": "Улучшений: {{count}}",
+    "activeTrainingCount": "Обучение: {{count}}",
+    "activeMissionsCount": "Походов: {{count}}",
+    "activeRaidsCount": "Набегов: {{count}}",
+    "activeEventsCount": "Событий: {{count}}",
+    "unreadReportsCount": "Новых отчётов: {{count}}"
+  },
   "dashboard": {
     "title": "{{name}}",
     "subtitle": "Двор владения {{email}}",

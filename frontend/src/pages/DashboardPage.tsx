@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -50,7 +50,6 @@ import { useSession } from '../context/SessionContext';
 import {
   ArmyPanel,
   BuildingsPanel,
-  DashboardHeader,
   DashboardRefreshButton,
   EventsPanel,
   KingdomPanel,
@@ -62,6 +61,11 @@ import {
   RulerPanel,
 } from '../features/dashboard/DashboardPanels';
 import { costRows, ResourceKey, resourceRows, unitTypes } from '../features/dashboard/shared';
+import { ActivityFeed } from '../features/game/ActivityFeed';
+import { GameHud } from '../features/game/GameHud';
+import { GameScenePlaceholder } from '../features/game/GameScenePlaceholder';
+import { GameShell } from '../features/game/GameShell';
+import type { GameMode } from '../features/game/types';
 
 export function DashboardPage() {
   const { i18n, t } = useTranslation([
@@ -127,6 +131,7 @@ export function DashboardPage() {
   const [eventsLoading, setEventsLoading] = useState(true);
   const [eventsError, setEventsError] = useState('');
   const [choosingEventID, setChoosingEventID] = useState<string | null>(null);
+  const [currentMode, setCurrentMode] = useState<GameMode>('map');
 
   function formatDate(value: string) {
     return new Date(value).toLocaleString(i18n.language === 'en' ? 'en-US' : 'ru-RU');
@@ -944,103 +949,184 @@ export function DashboardPage() {
     unitList,
   };
 
-  return (
-    <AppShell>
-      <div className="grid gap-4">
-        <DashboardHeader kingdom={kingdom} user={user} />
+  const activeEvents = events.filter((event) => event.status === 'active');
+  const activeMissions = missions.filter((mission) => mission.status === 'active');
+  const activeRaids = raids.filter((raid) => raid.status === 'active');
+  const upgradingBuildings = buildings.filter((building) => building.isUpgrading);
+
+  const patronPanel = (
+    <PatronPanel
+      crisisChoice={crisisChoice}
+      error={patronError}
+      formatters={formatters}
+      isBreakingPatron={isBreakingPatron}
+      isPayingTribute={isPayingTribute}
+      joiningPatron={joiningPatron}
+      loading={patronLoading}
+      onBreakPatron={handleBreakPatron}
+      onCrisisChoice={handleCrisisChoice}
+      onJoinPatron={handleJoinPatron}
+      onPayTribute={handlePayTribute}
+      onRefresh={loadPatron}
+      options={patronOptions}
+      pressure={patronPressure}
+      status={patronStatus}
+    />
+  );
+
+  const resourcesPanel = (
+    <ResourcesPanel error={resourcesError} formatters={formatters} loading={resourcesLoading} onRefresh={loadResources} resources={resources} />
+  );
+
+  const buildingsPanel = (
+    <BuildingsPanel
+      buildings={buildings}
+      error={buildingsError}
+      formatters={formatters}
+      loading={buildingsLoading}
+      onUpgrade={handleUpgrade}
+      upgradingType={upgradingType}
+    />
+  );
+
+  const armyPanel = (
+    <ArmyPanel
+      army={army}
+      error={armyError}
+      formatters={formatters}
+      isTraining={isTraining}
+      loading={armyLoading}
+      onTrain={handleTrain}
+      onTrainingAmountChange={setTrainingAmount}
+      onTrainingTypeChange={setTrainingType}
+      trainingAmount={trainingAmount}
+      trainingType={trainingType}
+    />
+  );
+
+  const missionsPanel = (
+    <MissionsPanel
+      availableMissions={availableMissions}
+      error={missionsError}
+      formatters={formatters}
+      loading={missionsLoading}
+      missionInputs={missionInputs}
+      missions={missions}
+      onMissionUnitAmountChange={setMissionUnitAmount}
+      onRefresh={refreshMissions}
+      onStartMission={handleStartMission}
+      startingMissionKey={startingMissionKey}
+    />
+  );
+
+  const raidsPanel = (
+    <RaidsPanel
+      error={raidsError}
+      formatters={formatters}
+      isStartingRaid={isStartingRaid}
+      loading={raidsLoading}
+      neighbors={neighbors}
+      onRaidUnitAmountChange={setRaidUnitAmount}
+      onRefresh={refreshRaids}
+      onSelectRaidTargetID={setSelectedRaidTargetID}
+      onStartRaid={handleStartRaid}
+      raidInputs={raidInputs}
+      raids={raids}
+      selectedRaidTargetID={selectedRaidTargetID}
+    />
+  );
+
+  const eventsPanel = (
+    <EventsPanel
+      choosingEventID={choosingEventID}
+      error={eventsError}
+      eventChoiceLabel={eventChoiceLabel}
+      events={events}
+      formatDate={formatDate}
+      loading={eventsLoading}
+      onChooseEvent={handleChooseEvent}
+      onRefresh={loadEvents}
+    />
+  );
+
+  const reportsPanel = (
+    <ReportsPanel
+      error={reportsError}
+      formatters={formatters}
+      loading={reportsLoading}
+      loadingReportID={loadingReportID}
+      markingReportID={markingReportID}
+      onMarkReportRead={handleMarkReportRead}
+      onRefresh={loadReports}
+      onToggleReportDetails={toggleReportDetails}
+      reports={reports}
+      selectedReportID={selectedReportID}
+      unreadReportsCount={unreadReportsCount}
+    />
+  );
+
+  const contextPanelByMode: Record<GameMode, ReactNode> = {
+    army: armyPanel,
+    city: (
+      <>
+        <KingdomPanel kingdom={kingdom} patronStatus={patronStatus} user={user} />
+        <RulerPanel error={rulerError} loading={rulerLoading} ruler={ruler} />
+        {buildingsPanel}
+      </>
+    ),
+    events: eventsPanel,
+    map: (
+      <>
         <DashboardRefreshButton onRefresh={refreshCity} />
-        <div className="grid gap-4 lg:grid-cols-2">
-          <KingdomPanel kingdom={kingdom} patronStatus={patronStatus} user={user} />
-          <PatronPanel
-            crisisChoice={crisisChoice}
-            error={patronError}
-            formatters={formatters}
-            isBreakingPatron={isBreakingPatron}
-            isPayingTribute={isPayingTribute}
-            joiningPatron={joiningPatron}
-            loading={patronLoading}
-            onBreakPatron={handleBreakPatron}
-            onCrisisChoice={handleCrisisChoice}
-            onJoinPatron={handleJoinPatron}
-            onPayTribute={handlePayTribute}
-            onRefresh={loadPatron}
-            options={patronOptions}
-            pressure={patronPressure}
-            status={patronStatus}
-          />
-          <ResourcesPanel error={resourcesError} formatters={formatters} loading={resourcesLoading} onRefresh={loadResources} resources={resources} />
-          <RulerPanel error={rulerError} loading={rulerLoading} ruler={ruler} />
-          <BuildingsPanel
-            buildings={buildings}
-            error={buildingsError}
-            formatters={formatters}
-            loading={buildingsLoading}
-            onUpgrade={handleUpgrade}
-            upgradingType={upgradingType}
-          />
-          <ArmyPanel
+        <KingdomPanel kingdom={kingdom} patronStatus={patronStatus} user={user} />
+        {resourcesPanel}
+      </>
+    ),
+    missions: missionsPanel,
+    patron: patronPanel,
+    raids: raidsPanel,
+    reports: reportsPanel,
+  };
+
+  return (
+    <AppShell showSidebar={false}>
+      <GameShell
+        activity={
+          <ActivityFeed
+            activeEvents={activeEvents}
+            activeMissions={activeMissions}
+            activeRaids={activeRaids}
             army={army}
-            error={armyError}
-            formatters={formatters}
-            isTraining={isTraining}
-            loading={armyLoading}
-            onTrain={handleTrain}
-            onTrainingAmountChange={setTrainingAmount}
-            onTrainingTypeChange={setTrainingType}
-            trainingAmount={trainingAmount}
-            trainingType={trainingType}
-          />
-          <MissionsPanel
-            availableMissions={availableMissions}
-            error={missionsError}
-            formatters={formatters}
-            loading={missionsLoading}
-            missionInputs={missionInputs}
-            missions={missions}
-            onMissionUnitAmountChange={setMissionUnitAmount}
-            onRefresh={refreshMissions}
-            onStartMission={handleStartMission}
-            startingMissionKey={startingMissionKey}
-          />
-          <RaidsPanel
-            error={raidsError}
-            formatters={formatters}
-            isStartingRaid={isStartingRaid}
-            loading={raidsLoading}
-            neighbors={neighbors}
-            onRaidUnitAmountChange={setRaidUnitAmount}
-            onRefresh={refreshRaids}
-            onSelectRaidTargetID={setSelectedRaidTargetID}
-            onStartRaid={handleStartRaid}
-            raidInputs={raidInputs}
-            raids={raids}
-            selectedRaidTargetID={selectedRaidTargetID}
-          />
-          <EventsPanel
-            choosingEventID={choosingEventID}
-            error={eventsError}
-            eventChoiceLabel={eventChoiceLabel}
-            events={events}
-            formatDate={formatDate}
-            loading={eventsLoading}
-            onChooseEvent={handleChooseEvent}
-            onRefresh={loadEvents}
-          />
-          <ReportsPanel
-            error={reportsError}
-            formatters={formatters}
-            loading={reportsLoading}
-            loadingReportID={loadingReportID}
-            markingReportID={markingReportID}
-            onMarkReportRead={handleMarkReportRead}
-            onRefresh={loadReports}
-            onToggleReportDetails={toggleReportDetails}
-            reports={reports}
-            selectedReportID={selectedReportID}
+            buildings={buildings}
             unreadReportsCount={unreadReportsCount}
           />
-        </div>
-      </div>
+        }
+        context={contextPanelByMode[currentMode]}
+        currentMode={currentMode}
+        hud={
+          <GameHud
+            activeEventsCount={activeEvents.length}
+            kingdom={kingdom}
+            patronStatus={patronStatus}
+            resourceLabel={resourceLabel}
+            resources={resources}
+            resourcesLoading={resourcesLoading}
+            unreadReportsCount={unreadReportsCount}
+          />
+        }
+        onModeChange={setCurrentMode}
+        scene={
+          <GameScenePlaceholder
+            activeEvents={activeEvents}
+            activeMissions={activeMissions}
+            activeRaids={activeRaids}
+            currentMode={currentMode}
+            kingdom={kingdom}
+            neighbors={neighbors}
+            upgradingBuildings={upgradingBuildings}
+          />
+        }
+      />
     </AppShell>
   );
 }

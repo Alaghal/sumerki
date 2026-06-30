@@ -47,11 +47,10 @@ This document describes current MVP and playtest limitations. It is not a roadma
 
 ## UX Limitations
 
-- current interface still feels like a dashboard/site
-- dashboard sections are decomposed into feature panels, but the page is not yet a game shell
-- navigation is not yet a true game-mode navigation
-- map-first game shell is not implemented yet
+- Game Shell v1 exists, but the center scene is still a placeholder
+- mode navigation is local UI state, not route-level world navigation
 - local SVG map is not implemented yet
+- real map nodes are planned for Phase 27
 - some UI may still be too dense
 - overflow and responsiveness need hardening
 - final art direction is not implemented
