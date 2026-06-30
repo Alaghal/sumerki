@@ -1,0 +1,27 @@
+{
+  "categories": {
+    "economy": "Economy",
+    "ruler": "Ruler",
+    "military": "Military",
+    "patron": "Patron",
+    "dark_omen": "Dark omen"
+  },
+  "status": {
+    "active": "Available",
+    "resolved": "Resolved",
+    "expired": "Expired"
+  },
+  "section": { "title": "Events" },
+  "loading": "Loading events...",
+  "loadError": "Could not load events.",
+  "subtitle": "Court news and troubling choices",
+  "choose": "Choose",
+  "choosing": "Choosing...",
+  "noEvents": "No events yet. Check the court again later.",
+  "expiresAt": "Until {{date}}",
+  "resolvedEvents": "Resolved events",
+  "selectedChoice": "Choice: {{choice}}",
+  "result": "Result",
+  "effects": "Effects",
+  "refresh": "Refresh events"
+}

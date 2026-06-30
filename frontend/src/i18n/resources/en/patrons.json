@@ -1,0 +1,48 @@
+{
+  "independent": { "name": "Independence" },
+  "empire_of_dusk": { "name": "Empire of Dusk" },
+  "old_pact": { "name": "Old Pact" },
+  "standing": {
+    "hostile": "Hostile",
+    "cold": "Cold",
+    "neutral": "Neutral",
+    "warm": "Warm",
+    "loyal": "Loyal"
+  },
+  "pressure": {
+    "status": {
+      "none": "Calm",
+      "warning": "Warning",
+      "active": "Crisis",
+      "delayed": "Delayed"
+    }
+  },
+  "section": { "title": "Patron" },
+  "loading": "Loading patron...",
+  "loadError": "Could not load patron.",
+  "notChosen": "No patron chosen",
+  "choosePath": "Choose a political path for the realm.",
+  "favor": "Favor",
+  "pressureTitle": "Pressure",
+  "pressureLevel": "{{level}} / 100",
+  "tributeDebt": "Tribute debt",
+  "contributionDebt": "Contribution debt",
+  "nextTribute": "Next tribute",
+  "delayUntil": "Delay until",
+  "protectedMinimums": "Protected minimums",
+  "payTribute": "Pay tribute",
+  "payingTribute": "Paying...",
+  "askDelay": "Ask for delay",
+  "askingDelay": "Asking...",
+  "breakTie": "Break tie",
+  "breakingTie": "Breaking...",
+  "breakDuringCrisis": "Break during crisis",
+  "refresh": "Refresh patron",
+  "noNextTribute": "None",
+  "noDelay": "No delay",
+  "chosen": "Chosen",
+  "choose": "Choose",
+  "join": "Join",
+  "currentEffects": "Now",
+  "futureEffects": "Later"
+}

@@ -58,8 +58,7 @@ This document describes current MVP and playtest limitations. It is not a roadma
 ## Localization Limitations
 
 - Russian/English i18n foundation exists
-- full UI copy migration is still Phase 24
-- some dashboard and gameplay UI copy is still hardcoded
-- event/report text localization is still Phase 30
+- most current UI shell and gameplay labels are migrated
+- backend-provided event/report narrative text is not fully localized
 - backend-provided text remains in its original language
-- additional languages are not added yet, but the structure supports them
+- additional languages still require translation files and registration

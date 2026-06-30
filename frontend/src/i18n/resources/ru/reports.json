@@ -1,0 +1,37 @@
+{
+  "types": {
+    "pve_mission": "Поход",
+    "pvp_raid_attacker": "Набег",
+    "pvp_raid_defender": "Защита",
+    "event": "Событие"
+  },
+  "results": {
+    "success": "Успех",
+    "partial_success": "Частичный успех",
+    "failure": "Провал",
+    "attacker_success": "Набег успешен",
+    "defender_success": "Защитник отбился",
+    "bloody_stalemate": "Кровавая ничья",
+    "repelled_by_protection": "Набег сорван"
+  },
+  "section": { "title": "Отчёты" },
+  "loading": "Загрузка отчётов...",
+  "loadError": "Не удалось загрузить отчёты.",
+  "unread": "Непрочитано: {{count}}",
+  "new": "Новое",
+  "read": "Прочитано",
+  "markRead": "Отметить прочитанным",
+  "markingRead": "Отмечается...",
+  "open": "Открыть отчёт",
+  "close": "Скрыть детали",
+  "phases": "Фазы",
+  "noPhases": "Подробные фазы не записаны.",
+  "unitsSent": "Войска",
+  "unitsLost": "Потери",
+  "loot": "Добыча",
+  "rewards": "Награды",
+  "consequences": "Последствия",
+  "noReports": "Отчётов пока нет. Отправьте отряд в первую экспедицию.",
+  "loadingDetails": "Загрузка деталей...",
+  "refresh": "Обновить отчёты"
+}

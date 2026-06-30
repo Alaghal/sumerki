@@ -5,12 +5,14 @@
     "loading": "Загрузка..."
   },
   "language": {
+    "label": "Язык",
     "ru": "Русский",
     "en": "English"
   },
   "states": {
     "loading": "Загрузка...",
     "error": "Ошибка",
-    "empty": "Пусто"
+    "empty": "Пусто",
+    "unknown": "Неизвестно"
   }
 }

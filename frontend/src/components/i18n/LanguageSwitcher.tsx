@@ -10,7 +10,7 @@ export function LanguageSwitcher() {
   }
 
   return (
-    <div aria-label="Language" className="flex items-center gap-1 rounded border border-stone-700 p-1">
+    <div aria-label={t('language.label')} className="flex items-center gap-1 rounded border border-stone-700 p-1">
       {supportedLanguages.map((language) => {
         const isActive = i18n.language === language.code;
         return (

@@ -1,0 +1,48 @@
+{
+  "independent": { "name": "Независимость" },
+  "empire_of_dusk": { "name": "Империя Заката" },
+  "old_pact": { "name": "Старый Договор" },
+  "standing": {
+    "hostile": "Враждебно",
+    "cold": "Холодно",
+    "neutral": "Нейтрально",
+    "warm": "Тепло",
+    "loyal": "Верно"
+  },
+  "pressure": {
+    "status": {
+      "none": "Спокойно",
+      "warning": "Предупреждение",
+      "active": "Кризис",
+      "delayed": "Отсрочка"
+    }
+  },
+  "section": { "title": "Покровитель" },
+  "loading": "Загрузка покровителя...",
+  "loadError": "Не удалось загрузить покровителя.",
+  "notChosen": "Покровитель не выбран",
+  "choosePath": "Выберите политический путь для княжества.",
+  "favor": "Влияние",
+  "pressureTitle": "Давление",
+  "pressureLevel": "{{level}} / 100",
+  "tributeDebt": "Долг дани",
+  "contributionDebt": "Обязательство",
+  "nextTribute": "Следующий сбор",
+  "delayUntil": "Отсрочка до",
+  "protectedMinimums": "Неприкосновенный запас",
+  "payTribute": "Заплатить",
+  "payingTribute": "Платим...",
+  "askDelay": "Попросить отсрочку",
+  "askingDelay": "Просим...",
+  "breakTie": "Разорвать связь",
+  "breakingTie": "Разрывается...",
+  "breakDuringCrisis": "Разорвать через кризис",
+  "refresh": "Обновить покровителя",
+  "noNextTribute": "Нет",
+  "noDelay": "Нет отсрочки",
+  "chosen": "Выбрано",
+  "choose": "Выбрать",
+  "join": "Присоединиться",
+  "currentEffects": "Сейчас",
+  "futureEffects": "Позже"
+}

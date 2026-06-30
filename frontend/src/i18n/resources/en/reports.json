@@ -1,0 +1,37 @@
+{
+  "types": {
+    "pve_mission": "Mission",
+    "pvp_raid_attacker": "Raid",
+    "pvp_raid_defender": "Defense",
+    "event": "Event"
+  },
+  "results": {
+    "success": "Success",
+    "partial_success": "Partial success",
+    "failure": "Failure",
+    "attacker_success": "Raid successful",
+    "defender_success": "Defender held",
+    "bloody_stalemate": "Bloody stalemate",
+    "repelled_by_protection": "Raid repelled"
+  },
+  "section": { "title": "Reports" },
+  "loading": "Loading reports...",
+  "loadError": "Could not load reports.",
+  "unread": "Unread: {{count}}",
+  "new": "New",
+  "read": "Read",
+  "markRead": "Mark read",
+  "markingRead": "Marking...",
+  "open": "Open report",
+  "close": "Close details",
+  "phases": "Phases",
+  "noPhases": "Detailed phases were not recorded.",
+  "unitsSent": "Units",
+  "unitsLost": "Losses",
+  "loot": "Loot",
+  "rewards": "Rewards",
+  "consequences": "Consequences",
+  "noReports": "No reports yet. Send a party on its first expedition.",
+  "loadingDetails": "Loading details...",
+  "refresh": "Refresh reports"
+}

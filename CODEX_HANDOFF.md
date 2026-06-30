@@ -2,23 +2,21 @@
 
 ## Current Phase
 
-Phase 23: i18n Foundation ru/en.
+Phase 24: UI Copy Migration.
 
 ## Status
 
-Phase 23 completed with a minimal Russian/English frontend localization foundation.
+Phase 24 completed.
 
 ## Completed
 
-- Installed `i18next` and `react-i18next`.
-- Added `frontend/src/i18n/index.ts` with default Russian language, English fallback, supported language metadata, and `localStorage` persistence at `sumerki.ui.language`.
-- Added initial translation namespaces for `common`, `game`, `auth`, `kingdom`, and `errors`.
-- Imported the i18n setup before app render.
-- Added a TopBar language switcher.
-- Migrated TopBar, Sidebar, Login, Register, Create Kingdom, and basic Dashboard header/kingdom-card copy to i18n.
-- Kept full DashboardPage/gameplay copy migration out of scope for Phase 24.
-- Updated README, MVP phases, and known limitations for Phase 23.
-- Updated post-playtest roadmap with Phase 23 completed status.
+- Added gameplay translation namespaces for resources, buildings, units, missions, reports, patrons, events, and raids.
+- Registered the new namespaces in the i18n setup.
+- Migrated DashboardPage player-facing gameplay labels to i18n.
+- Reduced mixed Russian/English UI in the current screens.
+- Replaced known resource/building/unit/mission/patron/event/raid enum labels with translated labels.
+- Kept backend event/report narrative localization out of scope for Phase 30.
+- Updated README, MVP phases, known limitations, post-playtest roadmap, and handoff.
 
 ## Changed Files
 
@@ -27,36 +25,37 @@ Phase 23 completed with a minimal Russian/English frontend localization foundati
 - `docs/MVP_PHASES.md`
 - `docs/KNOWN_LIMITATIONS.md`
 - `docs/POST_PLAYTEST_ROADMAP.md`
-- `frontend/package.json`
-- `frontend/package-lock.json`
 - `frontend/src/api/errors.ts`
 - `frontend/src/components/i18n/LanguageSwitcher.tsx`
-- `frontend/src/components/layout/Sidebar.tsx`
-- `frontend/src/components/layout/TopBar.tsx`
 - `frontend/src/i18n/index.ts`
-- `frontend/src/i18n/resources/en/auth.json`
 - `frontend/src/i18n/resources/en/common.json`
-- `frontend/src/i18n/resources/en/errors.json`
 - `frontend/src/i18n/resources/en/game.json`
-- `frontend/src/i18n/resources/en/kingdom.json`
-- `frontend/src/i18n/resources/ru/auth.json`
+- `frontend/src/i18n/resources/en/buildings.json`
+- `frontend/src/i18n/resources/en/events.json`
+- `frontend/src/i18n/resources/en/missions.json`
+- `frontend/src/i18n/resources/en/patrons.json`
+- `frontend/src/i18n/resources/en/raids.json`
+- `frontend/src/i18n/resources/en/reports.json`
+- `frontend/src/i18n/resources/en/resources.json`
+- `frontend/src/i18n/resources/en/units.json`
 - `frontend/src/i18n/resources/ru/common.json`
-- `frontend/src/i18n/resources/ru/errors.json`
 - `frontend/src/i18n/resources/ru/game.json`
-- `frontend/src/i18n/resources/ru/kingdom.json`
-- `frontend/src/main.tsx`
-- `frontend/src/pages/CreateKingdomPage.tsx`
+- `frontend/src/i18n/resources/ru/buildings.json`
+- `frontend/src/i18n/resources/ru/events.json`
+- `frontend/src/i18n/resources/ru/missions.json`
+- `frontend/src/i18n/resources/ru/patrons.json`
+- `frontend/src/i18n/resources/ru/raids.json`
+- `frontend/src/i18n/resources/ru/reports.json`
+- `frontend/src/i18n/resources/ru/resources.json`
+- `frontend/src/i18n/resources/ru/units.json`
 - `frontend/src/pages/DashboardPage.tsx`
-- `frontend/src/pages/LoginPage.tsx`
-- `frontend/src/pages/RegisterPage.tsx`
 
 ## Commands Run
 
-- `npm install i18next react-i18next`
 - `npm run typecheck`
 - `npm run build`
-- `rg "sumerki.ui.language|fallbackLng|LanguageSwitcher|useTranslation" frontend/src`
-- `rg "Phase 23|i18n Foundation|UI Copy Migration" README.md docs/MVP_PHASES.md docs/KNOWN_LIMITATIONS.md CODEX_HANDOFF.md`
+- `rg -n "cultureLabels|patronLabels|standingLabels|pressureStatusLabels|healthLabels|missionTypeLabels|missionStatusLabels|missionResultLabels|reportTypeLabels|eventCategoryLabels|eventStatusLabels|powerEstimateLabels|raidBlockedReasonLabels" frontend/src/pages/DashboardPage.tsx`
+- `rg -n "\"Kingdom\"|\"Culture\"|\"Patron\"|\"Player\"|\"Favor\"|\"Logout\"|\"No data\"|northern_principality|black_forest_expedition|target_too_weak" frontend/src`
 - `git diff --check`
 - `git status --short`
 
@@ -66,18 +65,18 @@ Phase 23 completed with a minimal Russian/English frontend localization foundati
 - Russian is the default UI language and English is the fallback.
 - Selected language persists in `localStorage` under `sumerki.ui.language`.
 - TopBar includes a language switcher.
-- Shell/auth/create-kingdom/basic dashboard copy can switch between Russian and English.
-- Existing API error mapping continues through the new `errors` namespace.
+- Current UI labels switch between Russian and English more consistently.
+- Gameplay labels are mostly translated through i18n namespaces.
+- Additional languages can add equivalent namespace files.
 
 ## Known Limitations
 
-- Not all dashboard copy is migrated yet.
-- Event/report content is not localized yet.
-- Backend-provided text remains in its original language.
-- Additional languages are not added yet, but the structure supports them.
-- No game shell code is implemented yet.
-- No map UI is implemented yet.
+- DashboardPage is still structurally large and should be decomposed in Phase 25.
+- Game Shell is not implemented yet.
+- SVG map is not implemented yet.
+- Backend-provided event/report narrative text remains in its original language.
+- Some internal enum strings remain in code/types/translation keys but should not appear as normal player UI.
 
 ## Next Recommended Step
 
-Phase 24: UI Copy Migration.
+Phase 25: Dashboard Decomposition.

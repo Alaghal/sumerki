@@ -1,0 +1,37 @@
+{
+  "types": {
+    "expedition": "Expedition",
+    "scouting": "Scouting"
+  },
+  "status": {
+    "active": "Active",
+    "completed": "Completed"
+  },
+  "black_forest_expedition": { "name": "Black Forest" },
+  "old_kurgan_expedition": { "name": "Old Kurgan" },
+  "dry_ford_scouting": { "name": "Dry Ford" },
+  "section": { "title": "Missions" },
+  "loading": "Loading missions...",
+  "loadError": "Could not load missions.",
+  "availableMissions": "Available missions",
+  "activeMissions": "Active missions",
+  "send": "Send",
+  "sending": "Sending...",
+  "units": "Units",
+  "rewards": "Rewards",
+  "risk": "Risk",
+  "minimum": "Minimum",
+  "minimumUnits": "total {{total}}, scouts {{scouts}}",
+  "duration": "{{seconds}} sec",
+  "sentUnits": "Units",
+  "unitSummary": "{{unit}}: {{sent}} sent, {{lost}} lost, {{returned}} returned",
+  "resolvesAt": "Resolves at {{date}}",
+  "completedAt": "Completed {{date}}",
+  "result": "Result",
+  "noAvailable": "No available missions.",
+  "noActive": "No active missions.",
+  "refresh": "Refresh missions",
+  "validation": {
+    "choosePositiveUnits": "Choose a whole non-negative number of units."
+  }
+}

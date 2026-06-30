@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 23: i18n Foundation ru/en.
+Phase 24: UI Copy Migration.
 
-Playtest 001 is complete. The frontend now has a Russian/English localization foundation; the next planned UX/i18n work is full UI copy migration.
+Playtest 001 is complete. The frontend now has a Russian/English localization foundation and most current UI labels are localized; event/report narrative localization is planned later.
 
 ## Documentation
 
