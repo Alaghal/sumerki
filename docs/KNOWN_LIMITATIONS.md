@@ -48,6 +48,7 @@ This document describes current MVP and playtest limitations. It is not a roadma
 ## UX Limitations
 
 - current interface still feels like a dashboard/site
+- dashboard sections are decomposed into feature panels, but the page is not yet a game shell
 - navigation is not yet a true game-mode navigation
 - map-first game shell is not implemented yet
 - local SVG map is not implemented yet

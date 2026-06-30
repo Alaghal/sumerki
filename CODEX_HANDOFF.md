@@ -2,20 +2,19 @@
 
 ## Current Phase
 
-Phase 24: UI Copy Migration.
+Phase 25: Dashboard Decomposition.
 
 ## Status
 
-Phase 24 completed.
+Phase 25 completed.
 
 ## Completed
 
-- Added gameplay translation namespaces for resources, buildings, units, missions, reports, patrons, events, and raids.
-- Registered the new namespaces in the i18n setup.
-- Migrated DashboardPage player-facing gameplay labels to i18n.
-- Reduced mixed Russian/English UI in the current screens.
-- Replaced known resource/building/unit/mission/patron/event/raid enum labels with translated labels.
-- Kept backend event/report narrative localization out of scope for Phase 30.
+- Split the large DashboardPage render into focused feature panels.
+- Added dashboard feature components for header, refresh, kingdom, patron, resources, ruler, buildings, army, missions, raids, events, and reports.
+- Kept DashboardPage as the orchestration layer for session access, API loading, state ownership, refresh functions, and action handlers.
+- Preserved existing gameplay behavior, API calls, visual order, and i18n label handling.
+- Kept Game Shell, SVG map, mode navigation, backend changes, API shape changes, gameplay mechanics, and balance changes out of scope.
 - Updated README, MVP phases, known limitations, post-playtest roadmap, and handoff.
 
 ## Changed Files
@@ -25,58 +24,39 @@ Phase 24 completed.
 - `docs/MVP_PHASES.md`
 - `docs/KNOWN_LIMITATIONS.md`
 - `docs/POST_PLAYTEST_ROADMAP.md`
-- `frontend/src/api/errors.ts`
-- `frontend/src/components/i18n/LanguageSwitcher.tsx`
-- `frontend/src/i18n/index.ts`
-- `frontend/src/i18n/resources/en/common.json`
-- `frontend/src/i18n/resources/en/game.json`
-- `frontend/src/i18n/resources/en/buildings.json`
-- `frontend/src/i18n/resources/en/events.json`
-- `frontend/src/i18n/resources/en/missions.json`
-- `frontend/src/i18n/resources/en/patrons.json`
-- `frontend/src/i18n/resources/en/raids.json`
-- `frontend/src/i18n/resources/en/reports.json`
-- `frontend/src/i18n/resources/en/resources.json`
-- `frontend/src/i18n/resources/en/units.json`
-- `frontend/src/i18n/resources/ru/common.json`
-- `frontend/src/i18n/resources/ru/game.json`
-- `frontend/src/i18n/resources/ru/buildings.json`
-- `frontend/src/i18n/resources/ru/events.json`
-- `frontend/src/i18n/resources/ru/missions.json`
-- `frontend/src/i18n/resources/ru/patrons.json`
-- `frontend/src/i18n/resources/ru/raids.json`
-- `frontend/src/i18n/resources/ru/reports.json`
-- `frontend/src/i18n/resources/ru/resources.json`
-- `frontend/src/i18n/resources/ru/units.json`
+- `frontend/src/features/dashboard/DashboardPanels.tsx`
+- `frontend/src/features/dashboard/shared.ts`
 - `frontend/src/pages/DashboardPage.tsx`
 
 ## Commands Run
 
-- `npm run typecheck`
-- `npm run build`
-- `rg -n "cultureLabels|patronLabels|standingLabels|pressureStatusLabels|healthLabels|missionTypeLabels|missionStatusLabels|missionResultLabels|reportTypeLabels|eventCategoryLabels|eventStatusLabels|powerEstimateLabels|raidBlockedReasonLabels" frontend/src/pages/DashboardPage.tsx`
-- `rg -n "\"Kingdom\"|\"Culture\"|\"Patron\"|\"Player\"|\"Favor\"|\"Logout\"|\"No data\"|northern_principality|black_forest_expedition|target_too_weak" frontend/src`
+- `cd frontend && npm run typecheck`
+- `cd frontend && npm run build`
+- `rg -n "DashboardPage" frontend/src/features frontend/src/pages`
+- `rg -n "\"Kingdom\"|\"Culture\"|\"Patron\"|\"Player\"|\"Favor\"|\"Logout\"|\"No data\"" frontend/src`
+- `rg -n "northern_principality|black_forest_expedition|target_too_weak" frontend/src`
+- `rg -n "cultureLabels|patronLabels|standingLabels|pressureStatusLabels|healthLabels|missionTypeLabels|missionStatusLabels|missionResultLabels|reportTypeLabels|eventCategoryLabels|eventStatusLabels|powerEstimateLabels|raidBlockedReasonLabels" frontend/src/pages/DashboardPage.tsx frontend/src/features/dashboard`
 - `git diff --check`
 - `git status --short`
+- `git diff --stat`
 
 ## What Works Now
 
-- Frontend initializes i18next before rendering the app.
-- Russian is the default UI language and English is the fallback.
-- Selected language persists in `localStorage` under `sumerki.ui.language`.
-- TopBar includes a language switcher.
-- Current UI labels switch between Russian and English more consistently.
-- Gameplay labels are mostly translated through i18n namespaces.
-- Additional languages can add equivalent namespace files.
+- DashboardPage no longer contains inline JSX for every major gameplay section.
+- Ruler, resources, buildings, army, missions, reports, patron, events, and raids render through focused panel components.
+- Dashboard state and API behavior remain centralized in DashboardPage.
+- Russian/English i18n namespaces continue to drive current UI labels.
+- Frontend typecheck and production build pass.
 
 ## Known Limitations
 
-- DashboardPage is still structurally large and should be decomposed in Phase 25.
+- The UI still feels like a dashboard/site rather than a map-first game shell.
 - Game Shell is not implemented yet.
 - SVG map is not implemented yet.
+- Mode navigation is not implemented yet.
 - Backend-provided event/report narrative text remains in its original language.
 - Some internal enum strings remain in code/types/translation keys but should not appear as normal player UI.
 
 ## Next Recommended Step
 
-Phase 25: Dashboard Decomposition.
+Phase 26: Game Shell v1.

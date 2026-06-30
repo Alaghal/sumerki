@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 24: UI Copy Migration.
+Phase 25: Dashboard Decomposition.
 
-Playtest 001 is complete. The frontend now has a Russian/English localization foundation and most current UI labels are localized; event/report narrative localization is planned later.
+Playtest 001 is complete. The frontend now has a Russian/English localization foundation, most current UI labels are localized, and the dashboard render sections are split into feature panels; event/report narrative localization is planned later.
 
 ## Documentation
 

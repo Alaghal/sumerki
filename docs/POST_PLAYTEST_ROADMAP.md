@@ -70,12 +70,16 @@ Status: Completed
 
 ### Phase 25: Dashboard Decomposition
 
-* Split the huge DashboardPage into feature panels.
-* Extract resources, buildings, army, missions, reports, patron, events, raids into separate feature components.
-* Keep behavior the same.
-* Prepare for game shell.
+Status: Completed
+
+* Split the large DashboardPage render into feature panels.
+* Extracted ruler, resources, buildings, army, missions, reports, patron, events, and raids into focused components.
+* Kept behavior and i18n handling the same.
+* Prepared the frontend structure for game shell work.
 
 ### Phase 26: Game Shell v1
+
+Status: Planned
 
 * Replace the pure dashboard layout with game shell:
   * top resource HUD

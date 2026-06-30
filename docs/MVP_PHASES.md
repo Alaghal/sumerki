@@ -412,12 +412,13 @@ Full backend event/report narrative content localization remains Phase 30.
 
 ## Phase 25: Dashboard Decomposition
 
-Status: Planned
+Status: Completed
 
-* Split the huge DashboardPage into feature panels.
-* Extract resources, buildings, army, missions, reports, patron, events, raids into separate feature components.
-* Keep behavior the same.
-* Prepare for game shell.
+Split the large DashboardPage render into focused feature panels for ruler, resources, buildings, army, missions, reports, patron, events, and raids.
+
+DashboardPage remains the container for session access, API loading, state ownership, refresh functions, and action handlers. Gameplay behavior and i18n label handling were preserved.
+
+Game Shell v1 remains Phase 26.
 
 ## Phase 26: Game Shell v1
 
