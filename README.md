@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 17: Event Engine.
+Phase 18: First Event Content Pack.
 
-This phase adds reusable choice-based events with lazy generation, lazy expiry, safe resource/unit/reputation/patron effects, event reports, and a dashboard Events section. It does not include the full event content pack, event chains, map/province events, dark god avatars, notifications, WebSocket, or background workers.
+This phase adds the first MVP-sized event content pack: 25 active event templates across economy, ruler, military, patron, and dark omen categories. It uses the existing Phase 17 event engine and does not add event chains, map/province events, dark god avatars, notifications, WebSocket, or background workers.
 
 ## Documentation
 
@@ -315,6 +315,8 @@ curl http://localhost:8080/api/raids/me \
 ```
 
 ## Events API
+
+Phase 18 adds the first 25 event content templates. The same Phase 17 event curl flow can be used to test them.
 
 Get current events:
 

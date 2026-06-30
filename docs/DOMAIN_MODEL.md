@@ -564,6 +564,9 @@ Represents a simple narrative or strategic choice.
 
 Rules:
 
-- Phase 17 seeds only five smoke-test events, one per category.
-- The full 20 to 30 event content pack is reserved for Phase 18.
+- Phase 17 seeds five smoke-test events, one per category.
+- Phase 18 expands the active catalog to 25 event templates.
+- Phase 18 distribution is five active events per category: economy, ruler, military, patron, and dark omen.
+- Phase 18 content uses the existing Phase 17 effect and condition schemas.
 - Event reports use simple local text and three phases: `Событие`, `Выбор`, and `Последствия`.
+- Event chains, advanced conditions, map/province events, alliance events, and dark god avatar mechanics remain out of scope.
