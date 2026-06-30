@@ -116,13 +116,13 @@ Status: Completed
 
 ### Phase 30: Localized Event And Report Content
 
-Status: Planned
+Status: Completed
 
-* Localize event and report text.
-* Prefer frontend translation by event/report keys where practical.
-* Keep backend compatible.
-* Add English text for current MVP event pack and report templates.
-* Keep Russian as default.
+* Added Russian and English frontend translations for current MVP event content where stable event and choice keys exist.
+* Localized event title/body/choice/result display through frontend i18n with backend fallback.
+* Localized report shell, type, result, and template title text where stable report type/result keys exist.
+* Preserved backend behavior, API contracts, effects, and report generation.
+* Documented that backend report narrative may still fall back to original text without stable content keys.
 
 ### Phase 31: Playtest 002 UX Build
 

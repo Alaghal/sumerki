@@ -42,7 +42,7 @@ This document describes current MVP and playtest limitations. It is not a roadma
 
 - event pack is small
 - reports use local templates
-- backend-provided event/report narrative text is not fully localized
+- report narrative text may still fall back to backend-provided text when no stable report content key is exposed
 - no final art direction
 
 ## UX Limitations
@@ -64,6 +64,7 @@ This document describes current MVP and playtest limitations. It is not a roadma
 
 - Russian/English i18n foundation exists
 - most current UI shell and gameplay labels are migrated
-- backend-provided event/report narrative text is not fully localized
-- backend-provided text remains in its original language
-- additional languages still require translation files and registration
+- current MVP event content has Russian/English frontend translations where stable event and choice keys exist
+- report shell, type, result, and template titles are localized where stable report type/result keys exist
+- backend-generated report narrative may remain in its original language when no stable content key is available
+- additional languages still require translation files, event/report namespace content, and registration

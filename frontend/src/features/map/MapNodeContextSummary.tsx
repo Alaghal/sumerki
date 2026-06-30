@@ -12,6 +12,7 @@ import type {
   Resources,
 } from '../../api/client';
 import type { DashboardFormatters } from '../dashboard/shared';
+import { getLocalizedEventTitle } from '../../utils/localizedContent';
 import type { SelectedContext } from './types';
 
 type MapNodeContextSummaryProps = {
@@ -41,7 +42,7 @@ export function MapNodeContextSummary({
   resources,
   unreadReportsCount,
 }: MapNodeContextSummaryProps) {
-  const { t } = useTranslation(['common', 'game', 'kingdom', 'map', 'missions', 'patrons', 'raids']);
+  const { t } = useTranslation(['common', 'events', 'game', 'kingdom', 'map', 'missions', 'patrons', 'raids']);
 
   if (context.kind === 'mission') {
     const activeMission = missions.find((mission) => mission.missionKey === context.missionKey && mission.status === 'active');
@@ -112,7 +113,7 @@ export function MapNodeContextSummary({
       <SummaryFrame title={t('game:context.events.title')}>
         <SummaryLine label={t('game:context.events.activeCount')} value={`${activeEvents.length}`} />
         <SummaryLine label={t('game:context.reports.unreadCount')} value={`${unreadReportsCount}`} />
-        {activeEvents[0] ? <p className="text-sm text-stone-400">{activeEvents[0].title}</p> : null}
+        {activeEvents[0] ? <p className="text-sm text-stone-400">{getLocalizedEventTitle(t, activeEvents[0])}</p> : null}
       </SummaryFrame>
     );
   }

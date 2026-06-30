@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 29: Responsive And Overflow Hardening.
+Phase 30: Localized Event And Report Content.
 
-Playtest 001 is complete. The frontend now has a Russian/English localization foundation, most current UI labels are localized, and `/app` uses a first game-shell layout with a symbolic local SVG map. The game shell now has responsive overflow hardening for narrow screens, dense panels, the HUD, mode navigation, context panels, the activity feed, and the local map.
+Playtest 001 is complete. The frontend now has a Russian/English localization foundation, most current UI labels are localized, and `/app` uses a first game-shell layout with a symbolic local SVG map. MVP event content now uses Russian/English frontend translations when stable event and choice keys exist, and report shell/template text is localized where stable report type/result keys are available. Backend narrative fallback remains possible when reports do not expose stable content keys.
 
 ## Documentation
 

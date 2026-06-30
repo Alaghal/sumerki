@@ -22,6 +22,17 @@ import type {
 } from '../../api/client';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import {
+  getLocalizedEventBody,
+  getLocalizedEventChoiceDescription,
+  getLocalizedEventChoiceLabel,
+  getLocalizedEventResultBody,
+  getLocalizedEventResultTitle,
+  getLocalizedEventSelectedChoiceLabel,
+  getLocalizedEventTitle,
+  getLocalizedReportPhaseTitle,
+  getLocalizedReportTitle,
+} from '../../utils/localizedContent';
 import { armyCostRows, DashboardFormatters, resourceRows, rulerStats, unitStatRows, unitTypes } from './shared';
 
 type DashboardHeaderProps = {
@@ -841,7 +852,6 @@ export function RaidsPanel({
 type EventsPanelProps = {
   choosingEventID: string | null;
   error: string;
-  eventChoiceLabel: (event: KingdomEvent) => string;
   events: KingdomEvent[];
   formatDate: (value: string) => string;
   loading: boolean;
@@ -849,8 +859,8 @@ type EventsPanelProps = {
   onRefresh: () => void;
 };
 
-export function EventsPanel({ choosingEventID, error, eventChoiceLabel, events, formatDate, loading, onChooseEvent, onRefresh }: EventsPanelProps) {
-  const { t } = useTranslation('events');
+export function EventsPanel({ choosingEventID, error, events, formatDate, loading, onChooseEvent, onRefresh }: EventsPanelProps) {
+  const { t } = useTranslation(['events', 'common']);
   const activeEvents = events.filter((event) => event.status === 'active');
   const resolvedEvents = events.filter((event) => event.status !== 'active');
 
@@ -873,21 +883,21 @@ export function EventsPanel({ choosingEventID, error, eventChoiceLabel, events, 
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="text-xs uppercase tracking-wide text-dusk-gold">{t(`categories.${event.category}`)}</p>
-                    <h3 className="mt-1 font-semibold text-stone-100">{event.title}</h3>
+                    <h3 className="mt-1 font-semibold text-stone-100">{getLocalizedEventTitle(t, event)}</h3>
                   </div>
                   <div className="text-right text-sm text-stone-400">
                     <div>{t(`status.${event.status}`)}</div>
                     <div>{t('expiresAt', { date: formatDate(event.expiresAt) })}</div>
                   </div>
                 </div>
-                <p className="mt-2 text-sm text-stone-400">{event.body}</p>
+                <p className="mt-2 text-sm text-stone-400">{getLocalizedEventBody(t, event)}</p>
                 <div className="mt-3 grid gap-2">
                   {event.choices.map((choice) => (
                     <div className="rounded border border-stone-800 bg-dusk-900 p-3" key={`${event.id}-${choice.key}`}>
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                          <h4 className="font-semibold text-stone-100">{choice.label}</h4>
-                          <p className="mt-1 text-sm text-stone-400">{choice.description}</p>
+                          <h4 className="font-semibold text-stone-100">{getLocalizedEventChoiceLabel(t, event, choice)}</h4>
+                          <p className="mt-1 text-sm text-stone-400">{getLocalizedEventChoiceDescription(t, event, choice)}</p>
                         </div>
                         <Button disabled={choosingEventID === event.id} onClick={() => onChooseEvent(event.id, choice.key)} type="button">
                           {choosingEventID === event.id ? t('choosing') : t('choose')}
@@ -908,18 +918,18 @@ export function EventsPanel({ choosingEventID, error, eventChoiceLabel, events, 
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="text-xs uppercase tracking-wide text-stone-500">{t(`categories.${event.category}`)}</p>
-                    <h3 className="mt-1 font-semibold text-stone-100">{event.title}</h3>
+                    <h3 className="mt-1 font-semibold text-stone-100">{getLocalizedEventTitle(t, event)}</h3>
                   </div>
                   <div className="text-right text-sm text-stone-400">
                     <div>{t(`status.${event.status}`)}</div>
                     {event.resolvedAt ? <div>{formatDate(event.resolvedAt)}</div> : null}
                   </div>
                 </div>
-                {event.selectedChoiceKey ? <p className="mt-2 text-sm text-stone-500">{t('selectedChoice', { choice: eventChoiceLabel(event) })}</p> : null}
+                {event.selectedChoiceKey ? <p className="mt-2 text-sm text-stone-500">{t('events:selectedChoice', { choice: getLocalizedEventSelectedChoiceLabel(t, event) })}</p> : null}
                 {event.result ? (
                   <div className="mt-2">
-                    <h4 className="font-semibold text-stone-100">{event.result.title}</h4>
-                    <p className="mt-1 text-sm text-stone-400">{event.result.body}</p>
+                    <h4 className="font-semibold text-stone-100">{getLocalizedEventResultTitle(t, event)}</h4>
+                    <p className="mt-1 text-sm text-stone-400">{getLocalizedEventResultBody(t, event)}</p>
                   </div>
                 ) : null}
               </div>
@@ -983,7 +993,7 @@ export function ReportsPanel({
                   <div className="flex flex-wrap justify-between gap-3">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-semibold text-stone-100">{report.title}</h3>
+                        <h3 className="font-semibold text-stone-100">{getLocalizedReportTitle(t, report)}</h3>
                         <span className="text-xs text-stone-500">{t(`types.${report.type}`)}</span>
                         <span className={report.isRead ? 'text-xs text-stone-500' : 'text-xs text-dusk-gold'}>
                           {report.isRead ? t('read') : t('new')}
@@ -1009,7 +1019,7 @@ export function ReportsPanel({
                         {report.phases.length === 0 ? <p className="text-sm text-stone-400">{t('noPhases')}</p> : null}
                         {report.phases.map((phase) => (
                           <div className="rounded border border-stone-800 bg-dusk-900 p-3" key={`${report.id}-${phase.title}`}>
-                            <h4 className="font-semibold text-stone-100">{phase.title}</h4>
+                            <h4 className="font-semibold text-stone-100">{getLocalizedReportPhaseTitle(t, phase.title)}</h4>
                             <p className="mt-1 text-sm text-stone-400">{phase.body}</p>
                           </div>
                         ))}

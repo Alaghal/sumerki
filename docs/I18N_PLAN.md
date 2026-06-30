@@ -119,6 +119,7 @@ reports:
 * report statuses
 * read/unread
 * report actions
+* report template titles by stable type/result keys
 
 patrons:
 
@@ -134,7 +135,7 @@ events:
 * event categories
 * event states
 * event UI shell copy
-* later: event content
+* event content by stable event and choice keys
 
 raids:
 
@@ -172,15 +173,34 @@ Examples:
 6. Run frontend typecheck/build.
 7. Manually check main flows.
 
-## Event And Report Content Later
+## Event And Report Content
 
-Current Phase 23/24 focus is UI localization.
+Phase 30 implemented frontend event/report content localization where stable keys are available.
 
-Event/report content localization is Phase 30.
+Fallback order:
 
-Preferred future approach:
+1. Frontend i18n by stable event, choice, report type, or report result key.
+2. Backend-provided text.
+3. Generic localized fallback.
 
-* backend returns `eventKey` and `choiceKey`
-* frontend translates title/body/choice/result by keys
-* backend keeps effects and resolution logic
-* old backend text can be fallback during transition
+Event content:
+
+* Use `events.content.<eventKey>.title`.
+* Use `events.content.<eventKey>.body`.
+* Use `events.content.<eventKey>.choices.<choiceKey>.label`.
+* Use `events.content.<eventKey>.choices.<choiceKey>.description`.
+* Use `events.content.<eventKey>.choices.<choiceKey>.result.title`.
+* Use `events.content.<eventKey>.choices.<choiceKey>.result.body`.
+
+Report content:
+
+* Use `reports.templates.<reportType>.title.<result>` for stable report title templates.
+* Use `reports.phaseTitles.<backendPhaseTitle>` only for stable/common phase labels.
+* Keep backend report body and detailed phase body as fallback unless the API exposes a stable content key.
+
+Adding new event/report translations:
+
+1. Add the backend `eventKey` and choice keys to `frontend/src/i18n/resources/ru/events.json`.
+2. Add matching English content to `frontend/src/i18n/resources/en/events.json`.
+3. Add report title templates to `reports.json` only when a stable type/result or future report key exists.
+4. Run frontend typecheck/build.
