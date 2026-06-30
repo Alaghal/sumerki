@@ -66,11 +66,11 @@ export function KingdomPanel({ kingdom, patronStatus, user }: KingdomPanelProps)
   return (
     <Card title={t('game:dashboard.kingdom')}>
       <dl className="grid gap-2">
-        <div className="flex justify-between gap-4">
+        <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
           <dt className="text-stone-400">{t('game:dashboard.culture')}</dt>
           <dd className="text-right text-stone-100">{t(`kingdom:cultures.${kingdom.culture}.name`)}</dd>
         </div>
-        <div className="flex justify-between gap-4">
+        <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
           <dt className="text-stone-400">{t('game:dashboard.patron')}</dt>
           <dd className="text-right text-stone-100">
             {patronStatus?.patron
@@ -80,9 +80,9 @@ export function KingdomPanel({ kingdom, patronStatus, user }: KingdomPanelProps)
                 : t('game:dashboard.noPatron')}
           </dd>
         </div>
-        <div className="flex justify-between gap-4">
+        <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
           <dt className="text-stone-400">{t('game:dashboard.player')}</dt>
-          <dd className="max-w-[14rem] truncate text-right text-stone-100">{user.email}</dd>
+          <dd className="min-w-0 max-w-full break-words text-left text-stone-100 sm:max-w-[14rem] sm:text-right">{user.email}</dd>
         </div>
       </dl>
     </Card>
@@ -171,27 +171,27 @@ export function PatronPanel({
                   </div>
                 </div>
                 <dl className="mt-3 grid gap-2 text-sm">
-                  <div className="flex justify-between gap-4">
+                  <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                     <dt className="text-stone-400">{t('patrons:tributeDebt')}</dt>
                     <dd className="text-right text-stone-100">{formatters.resourceList(pressure.tributeDebt)}</dd>
                   </div>
-                  <div className="flex justify-between gap-4">
+                  <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                     <dt className="text-stone-400">{t('patrons:contributionDebt')}</dt>
                     <dd className="text-right text-stone-100">{formatters.resourceList(pressure.contributionDebt)}</dd>
                   </div>
-                  <div className="flex justify-between gap-4">
+                  <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                     <dt className="text-stone-400">{t('patrons:nextTribute')}</dt>
                     <dd className="text-right text-stone-100">
                       {pressure.nextTributeAt ? formatters.formatDate(pressure.nextTributeAt) : t('patrons:noNextTribute')}
                     </dd>
                   </div>
                   {pressure.delayUntil ? (
-                    <div className="flex justify-between gap-4">
+                    <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                       <dt className="text-stone-400">{t('patrons:delayUntil')}</dt>
                       <dd className="text-right text-stone-100">{formatters.formatDate(pressure.delayUntil)}</dd>
                     </div>
                   ) : null}
-                  <div className="flex justify-between gap-4">
+                  <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                     <dt className="text-stone-400">{t('patrons:protectedMinimums')}</dt>
                     <dd className="text-right text-stone-100">
                       {pressure.protectedMinimums.gold ?? 0} / {pressure.protectedMinimums.food ?? 0} / {pressure.protectedMinimums.wood ?? 0} /{' '}
@@ -288,7 +288,7 @@ export function ResourcesPanel({ error, formatters, loading, onRefresh, resource
         {resources && !loading && !error ? (
           <dl className="grid gap-2">
             {resourceRows.map((key) => (
-              <div className="flex items-center justify-between gap-4" key={key}>
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1" key={key}>
                 <dt className="text-stone-400">{formatters.resourceLabel(key)}</dt>
                 <dd className="text-right">
                   <div className="font-semibold text-stone-100">{resources[key]}</div>
@@ -322,26 +322,26 @@ export function RulerPanel({ error, loading, ruler }: RulerPanelProps) {
       {ruler && !loading && !error ? (
         <div className="grid gap-4">
           <dl className="grid gap-2">
-            <div className="flex justify-between gap-4">
+            <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
               <dt className="text-stone-400">{t('game:ruler.name')}</dt>
               <dd className="text-right text-stone-100">{ruler.name}</dd>
             </div>
-            <div className="flex justify-between gap-4">
+            <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
               <dt className="text-stone-400">{t('game:ruler.age')}</dt>
               <dd className="text-right text-stone-100">{ruler.age}</dd>
             </div>
-            <div className="flex justify-between gap-4">
+            <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
               <dt className="text-stone-400">{t('game:ruler.health')}</dt>
               <dd className="text-right text-stone-100">{t(`game:ruler.healthStatus.${ruler.healthStatus}`)}</dd>
             </div>
-            <div className="flex justify-between gap-4">
+            <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
               <dt className="text-stone-400">{t('game:dashboard.culture')}</dt>
               <dd className="text-right text-stone-100">{t(`kingdom:cultures.${ruler.culture}.name`)}</dd>
             </div>
           </dl>
           <dl className="grid gap-2">
             {rulerStats.map((key) => (
-              <div className="flex justify-between gap-4" key={key}>
+              <div className="flex flex-wrap justify-between gap-x-4 gap-y-1" key={key}>
                 <dt className="text-stone-400">{t(`game:ruler.stats.${key}`)}</dt>
                 <dd className="text-right text-stone-100">{ruler[key]}</dd>
               </div>
@@ -468,19 +468,19 @@ export function ArmyPanel({
         {army && !loading ? (
           <>
             <dl className="grid gap-2">
-              <div className="flex justify-between gap-4">
+              <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                 <dt className="text-stone-400">{t('summary.total')}</dt>
                 <dd className="text-right text-stone-100">{army.summary.totalUnits}</dd>
               </div>
-              <div className="flex justify-between gap-4">
+              <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                 <dt className="text-stone-400">{t('stats.attack')}</dt>
                 <dd className="text-right text-stone-100">{army.summary.totalAttack}</dd>
               </div>
-              <div className="flex justify-between gap-4">
+              <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                 <dt className="text-stone-400">{t('stats.defense')}</dt>
                 <dd className="text-right text-stone-100">{army.summary.totalDefense}</dd>
               </div>
-              <div className="flex justify-between gap-4">
+              <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                 <dt className="text-stone-400">{t('stats.supply')}</dt>
                 <dd className="text-right text-stone-100">{army.summary.totalSupply}</dd>
               </div>
@@ -497,7 +497,7 @@ export function ArmyPanel({
                   </div>
                   <dl className="mt-3 grid gap-1 text-sm">
                     {unitStatRows.map((key) => (
-                      <div className="flex justify-between gap-4" key={key}>
+                      <div className="flex flex-wrap justify-between gap-x-4 gap-y-1" key={key}>
                         <dt className="text-stone-400">{t(`stats.${key}`)}</dt>
                         <dd className="text-right text-stone-100">{unit.stats[key]}</dd>
                       </div>
@@ -520,11 +520,11 @@ export function ArmyPanel({
             </div>
 
             <div className="grid gap-3 rounded border border-stone-800 bg-dusk-950 p-3">
-              <div className="grid gap-2 sm:grid-cols-[1fr_8rem_auto]">
-                <label className="grid gap-1 text-sm text-stone-400">
+              <div className="grid min-w-0 gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_8rem_auto]">
+                <label className="grid min-w-0 gap-1 text-sm text-stone-400">
                   {t('unitType')}
                   <select
-                    className="rounded border border-stone-700 bg-dusk-900 px-3 py-2 text-stone-100"
+                    className="min-w-0 rounded border border-stone-700 bg-dusk-900 px-3 py-2 text-stone-100"
                     disabled={isTraining}
                     onChange={(event) => onTrainingTypeChange(event.target.value as UnitType)}
                     value={trainingType}
@@ -536,10 +536,10 @@ export function ArmyPanel({
                     ))}
                   </select>
                 </label>
-                <label className="grid gap-1 text-sm text-stone-400">
+                <label className="grid min-w-0 gap-1 text-sm text-stone-400">
                   {t('amount')}
                   <input
-                    className="rounded border border-stone-700 bg-dusk-900 px-3 py-2 text-stone-100"
+                    className="min-w-0 rounded border border-stone-700 bg-dusk-900 px-3 py-2 text-stone-100"
                     disabled={isTraining}
                     max={50}
                     min={1}
@@ -639,12 +639,12 @@ export function MissionsPanel({
                   <p className="mt-1 text-sm text-stone-400">
                     {t('missions:rewards')}: {formatters.resourceList(mission.baseRewards)}
                   </p>
-                  <div className="mt-3 grid gap-2 sm:grid-cols-5">
+                  <div className="mt-3 grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
                     {unitTypes.map((unitType) => (
-                      <label className="grid gap-1 text-xs text-stone-400" key={unitType}>
+                      <label className="grid min-w-0 gap-1 text-xs text-stone-400" key={unitType}>
                         {formatters.unitLabel(unitType)}
                         <input
-                          className="rounded border border-stone-700 bg-dusk-900 px-2 py-2 text-stone-100"
+                          className="min-w-0 rounded border border-stone-700 bg-dusk-900 px-2 py-2 text-stone-100"
                           min={0}
                           onChange={(event) => onMissionUnitAmountChange(mission.key, unitType, Number(event.target.value))}
                           type="number"
@@ -782,12 +782,12 @@ export function RaidsPanel({
             {selectedRaidTargetID ? (
               <div className="grid gap-3 rounded border border-stone-800 bg-dusk-950 p-3">
                 <h3 className="font-semibold text-stone-100">{t('raids:sendParty')}</h3>
-                <div className="grid gap-2 sm:grid-cols-5">
+                <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
                   {unitTypes.map((unitType) => (
-                    <label className="grid gap-1 text-xs text-stone-400" key={unitType}>
+                    <label className="grid min-w-0 gap-1 text-xs text-stone-400" key={unitType}>
                       {formatters.unitLabel(unitType)}
                       <input
-                        className="rounded border border-stone-700 bg-dusk-900 px-2 py-2 text-stone-100"
+                        className="min-w-0 rounded border border-stone-700 bg-dusk-900 px-2 py-2 text-stone-100"
                         min={0}
                         onChange={(event) => onRaidUnitAmountChange(unitType, Number(event.target.value))}
                         type="number"

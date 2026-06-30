@@ -452,18 +452,19 @@ The right context panel now responds to selected map nodes with compact city, mi
 
 Improved the bottom activity feed with grouped actionable items for construction, training, missions, raids, events, reports, and patron pressure using existing frontend data. Feed items can switch local modes.
 
-Responsive and overflow hardening remains Phase 29.
+Responsive and overflow hardening was completed in Phase 29.
 
 ## Phase 29: Responsive And Overflow Hardening
 
-Status: Planned
+Status: Completed
 
-* Fix layout overflow.
-* Ensure long text wraps.
-* Ensure buttons wrap.
-* Ensure panels scroll when needed.
-* Test desktop, laptop, tablet-width, and narrow mobile-ish screens.
-* No new game mechanics.
+Added responsive overflow hardening across the game shell, top bar, HUD, mode navigation, context panel, activity feed, symbolic local SVG map, map legend, node context summaries, and dense dashboard panels.
+
+Long labels, emails, event/report text, activity items, map labels, and dense rows now wrap more safely. Unit training, mission, and raid input grids stack on narrow screens. The SVG map scales inside its container, and the context panel remains scrollable at large viewports.
+
+Browser checks covered `/app` at 390px, 768px, and 1280px with no horizontal overflow. Narrow mode navigation and the language switcher were also checked.
+
+No backend, API, balance, gameplay mechanic, province system, territory capture, pathfinding, pan/zoom, canvas, Phaser, Pixi, or Three.js changes were added.
 
 ## Phase 30: Localized Event And Report Content
 

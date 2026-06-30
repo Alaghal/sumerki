@@ -129,19 +129,19 @@ export function LocalMap({
   }
 
   return (
-    <section className="grid min-w-0 gap-3 rounded border border-stone-800 bg-dusk-900/70 p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
+    <section className="grid min-w-0 max-w-full gap-3 overflow-hidden rounded border border-stone-800 bg-dusk-900/70 p-4">
+      <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 max-w-full">
           <p className="text-xs uppercase tracking-normal text-dusk-gold">{t('map:subtitle')}</p>
-          <h2 className="text-2xl font-semibold text-stone-100">{t('map:title')}</h2>
+          <h2 className="break-words text-2xl font-semibold text-stone-100">{t('map:title')}</h2>
         </div>
-        <div className="rounded border border-stone-800 bg-dusk-950 px-3 py-2 text-sm text-stone-300">
+        <div className="min-w-0 break-words rounded border border-stone-800 bg-dusk-950 px-3 py-2 text-sm text-stone-300">
           {t(`map:actions.${selectedNode.mode}`)}
         </div>
       </div>
 
-      <div className="relative min-h-[29rem] overflow-hidden rounded border border-stone-800 bg-dusk-950">
-        <svg aria-hidden="true" className="h-full min-h-[29rem] w-full" preserveAspectRatio="xMidYMid meet" viewBox="0 0 100 100">
+      <div className="relative min-h-[22rem] overflow-hidden rounded border border-stone-800 bg-dusk-950 sm:min-h-[29rem]">
+        <svg aria-hidden="true" className="h-full min-h-[22rem] w-full sm:min-h-[29rem]" preserveAspectRatio="xMidYMid meet" viewBox="0 0 100 100">
           <defs>
             <radialGradient cx="50%" cy="48%" id="mapGlow" r="65%">
               <stop offset="0%" stopColor="#3f3426" stopOpacity="0.55" />
@@ -166,7 +166,7 @@ export function LocalMap({
           return (
             <button
               aria-pressed={isSelected}
-              className={`absolute max-w-[8.5rem] -translate-x-1/2 -translate-y-1/2 rounded border bg-dusk-950/95 px-3 py-2 text-center text-xs shadow transition hover:bg-dusk-800 focus:outline-none focus:ring-2 focus:ring-dusk-gold ${nodeColor(node.type)} ${
+              className={`absolute max-w-[5.5rem] -translate-x-1/2 -translate-y-1/2 rounded border bg-dusk-950/95 px-2 py-1 text-center text-[0.65rem] shadow transition hover:bg-dusk-800 focus:outline-none focus:ring-2 focus:ring-dusk-gold sm:max-w-[8.5rem] sm:px-3 sm:py-2 sm:text-xs ${nodeColor(node.type)} ${
                 isSelected ? 'ring-2 ring-dusk-gold' : ''
               }`}
               key={node.id}
@@ -174,11 +174,11 @@ export function LocalMap({
               style={{ left: `${node.x}%`, top: `${node.y}%` }}
               type="button"
             >
-              <span className="block font-semibold">{nodeTitle(node)}</span>
+              <span className="block break-words font-semibold">{nodeTitle(node)}</span>
               {statuses.length > 0 ? (
-                <span className="mt-1 flex flex-wrap justify-center gap-1">
+                <span className="mt-1 hidden flex-wrap justify-center gap-1 sm:flex">
                   {statuses.map((status) => (
-                    <span className="rounded bg-dusk-800 px-1.5 py-0.5 text-[0.65rem] text-stone-200" key={status}>
+                    <span className="break-words rounded bg-dusk-800 px-1.5 py-0.5 text-[0.65rem] text-stone-200" key={status}>
                       {status}
                     </span>
                   ))}
@@ -189,11 +189,11 @@ export function LocalMap({
         })}
       </div>
 
-      <div className="grid gap-3 rounded border border-stone-800 bg-dusk-950/90 p-3">
-        <div>
-          <h3 className="font-semibold text-stone-100">{nodeTitle(selectedNode)}</h3>
-          <p className="mt-1 text-sm text-stone-400">{nodeDescription(selectedNode)}</p>
-          {currentMode !== selectedNode.mode ? <p className="mt-2 text-xs text-dusk-gold">{t(`map:actions.${selectedNode.mode}`)}</p> : null}
+      <div className="grid min-w-0 gap-3 rounded border border-stone-800 bg-dusk-950/90 p-3">
+        <div className="min-w-0">
+          <h3 className="break-words font-semibold text-stone-100">{nodeTitle(selectedNode)}</h3>
+          <p className="mt-1 break-words text-sm text-stone-400">{nodeDescription(selectedNode)}</p>
+          {currentMode !== selectedNode.mode ? <p className="mt-2 break-words text-xs text-dusk-gold">{t(`map:actions.${selectedNode.mode}`)}</p> : null}
         </div>
         <MapLegend />
       </div>

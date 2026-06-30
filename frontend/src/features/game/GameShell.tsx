@@ -15,11 +15,11 @@ type GameShellProps = {
 
 export function GameShell({ activity, context, currentMode, hud, onModeChange, scene }: GameShellProps) {
   return (
-    <div className="grid min-w-0 gap-3">
+    <div className="grid min-w-0 max-w-full gap-3 overflow-x-hidden">
       {hud}
       <div className="grid min-w-0 gap-3 xl:grid-cols-[220px_minmax(0,1fr)_360px]">
         <GameModeNavigation currentMode={currentMode} onModeChange={onModeChange} />
-        <main className="min-w-0 overflow-hidden">{scene}</main>
+        <main className="min-w-0 max-w-full overflow-hidden">{scene}</main>
         <GameContextPanel currentMode={currentMode}>{context}</GameContextPanel>
       </div>
       {activity}

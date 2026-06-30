@@ -106,16 +106,17 @@ Status: Completed
 
 ### Phase 29: Responsive And Overflow Hardening
 
-Status: Planned
+Status: Completed
 
-* Fix layout overflow.
-* Ensure long text wraps.
-* Ensure buttons wrap.
-* Ensure panels scroll when needed.
-* Test desktop, laptop, tablet-width, and narrow mobile-ish screens.
-* No new game mechanics.
+* Hardened game shell, HUD, mode navigation, context panel, activity feed, local map, and dense panels against horizontal overflow.
+* Ensured long labels and event/report text wrap more safely.
+* Made unit training, mission, and raid input grids stack on narrow screens.
+* Browser-checked `/app` at 390px, 768px, and 1280px with no horizontal overflow.
+* Kept new game mechanics out of scope.
 
 ### Phase 30: Localized Event And Report Content
+
+Status: Planned
 
 * Localize event and report text.
 * Prefer frontend translation by event/report keys where practical.

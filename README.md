@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 28: Context Panels And Activity Feed.
+Phase 29: Responsive And Overflow Hardening.
 
-Playtest 001 is complete. The frontend now has a Russian/English localization foundation, most current UI labels are localized, and `/app` uses a first game-shell layout with a symbolic local SVG map. Context panels and the activity feed now react to selected map nodes.
+Playtest 001 is complete. The frontend now has a Russian/English localization foundation, most current UI labels are localized, and `/app` uses a first game-shell layout with a symbolic local SVG map. The game shell now has responsive overflow hardening for narrow screens, dense panels, the HUD, mode navigation, context panels, the activity feed, and the local map.
 
 ## Documentation
 

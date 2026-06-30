@@ -14,10 +14,10 @@ export function MapLegend() {
   const { t } = useTranslation('map');
 
   return (
-    <div className="flex flex-wrap gap-2 text-xs text-stone-400">
+    <div className="flex min-w-0 max-w-full flex-wrap gap-2 text-xs text-stone-400">
       {legendItems.map(([key, colorClass]) => (
-        <span className="inline-flex items-center gap-2 rounded border border-stone-800 bg-dusk-950/90 px-2 py-1" key={key}>
-          <span className={`h-2 w-2 rounded-full ${colorClass}`} />
+        <span className="inline-flex min-w-0 items-center gap-2 rounded border border-stone-800 bg-dusk-950/90 px-2 py-1" key={key}>
+          <span className={`h-2 w-2 shrink-0 rounded-full ${colorClass}`} />
           {t(`legend.${key}`)}
         </span>
       ))}

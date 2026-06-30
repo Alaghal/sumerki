@@ -42,7 +42,7 @@ This document describes current MVP and playtest limitations. It is not a roadma
 
 - event pack is small
 - reports use local templates
-- no localization beyond current Russian UI and text
+- backend-provided event/report narrative text is not fully localized
 - no final art direction
 
 ## UX Limitations
@@ -56,8 +56,8 @@ This document describes current MVP and playtest limitations. It is not a roadma
 - no territory capture
 - no pathfinding
 - no pan/zoom
-- some UI may still be too dense
-- overflow and responsiveness need hardening
+- some UI may still be too dense on very small screens
+- responsive hardening is first-pass and still needs broader device playtesting
 - final art direction is not implemented
 
 ## Localization Limitations
