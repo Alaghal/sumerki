@@ -50,6 +50,27 @@
   "activity": {
     "title": "Activity Feed",
     "noActivity": "Quiet",
+    "empty": "No active matters at court.",
+    "construction": "Construction",
+    "training": "Training",
+    "missions": "Mission",
+    "raids": "Raid",
+    "events": "Event",
+    "reports": "Report",
+    "patron": "Patron",
+    "openCity": "Open city",
+    "openArmy": "Open army",
+    "openMissions": "Open missions",
+    "openRaids": "Open raids",
+    "openEvents": "Open events",
+    "openReports": "Open reports",
+    "openPatron": "Open patron",
+    "resolvesAt": "Resolves at {{date}}",
+    "endsAt": "Until {{date}}",
+    "nextTributeAt": "Tribute {{date}}",
+    "unreadReports": "Unread reports: {{count}}",
+    "activeEvents": "Events: {{count}}",
+    "patronWarning": "Pressure is rising",
     "activeUpgrades": "Upgrades",
     "activeMissions": "Missions",
     "activeRaids": "Raids",
@@ -60,6 +81,40 @@
     "activeRaidsCount": "Raids: {{count}}",
     "activeEventsCount": "Events: {{count}}",
     "unreadReportsCount": "Unread reports: {{count}}"
+  },
+  "context": {
+    "title": "Selected Node",
+    "selected": "Status",
+    "noSelection": "No node selected",
+    "clickMapNode": "Choose a node on the map.",
+    "city": {
+      "title": "Settlement",
+      "description": "Court, resources, and construction."
+    },
+    "mission": {
+      "title": "Mission Site",
+      "active": "A party is already on the road",
+      "available": "A party can be sent",
+      "suggestedAction": "Choose units below and send a mission."
+    },
+    "neighbor": {
+      "title": "Neighbor",
+      "canRaid": "Raid can be started",
+      "cannotRaid": "Raid unavailable",
+      "unknown": "Neighbor is still unknown"
+    },
+    "patron": {
+      "title": "Patron Road",
+      "noPatron": "No patron chosen",
+      "pressure": "Pressure"
+    },
+    "events": {
+      "title": "Omens",
+      "activeCount": "Active events"
+    },
+    "reports": {
+      "unreadCount": "Unread"
+    }
   },
   "dashboard": {
     "title": "{{name}}",

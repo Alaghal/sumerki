@@ -66,7 +66,8 @@ import { GameHud } from '../features/game/GameHud';
 import { GameShell } from '../features/game/GameShell';
 import type { GameMode } from '../features/game/types';
 import { LocalMap } from '../features/map/LocalMap';
-import type { LocalMapNode, LocalMapNodeID } from '../features/map/types';
+import { MapNodeContextSummary } from '../features/map/MapNodeContextSummary';
+import { contextFromMapNode, type LocalMapNode, type LocalMapNodeID, type SelectedContext } from '../features/map/types';
 
 export function DashboardPage() {
   const { i18n, t } = useTranslation([
@@ -134,6 +135,7 @@ export function DashboardPage() {
   const [choosingEventID, setChoosingEventID] = useState<string | null>(null);
   const [currentMode, setCurrentMode] = useState<GameMode>('map');
   const [selectedMapNodeID, setSelectedMapNodeID] = useState<LocalMapNodeID>('home');
+  const [selectedContext, setSelectedContext] = useState<SelectedContext>({ kind: 'home' });
 
   function formatDate(value: string) {
     return new Date(value).toLocaleString(i18n.language === 'en' ? 'en-US' : 'ru-RU');
@@ -175,8 +177,31 @@ export function DashboardPage() {
   function handleMapNodeSelect(node: LocalMapNode, neighborID?: string) {
     setSelectedMapNodeID(node.id);
     setCurrentMode(node.mode);
+    setSelectedContext(contextFromMapNode(node, neighborID));
     if (neighborID) {
       setSelectedRaidTargetID(neighborID);
+    }
+  }
+
+  function handleModeChange(mode: GameMode) {
+    setCurrentMode(mode);
+    if (mode === 'city' || mode === 'map') {
+      setSelectedContext({ kind: 'home' });
+      setSelectedMapNodeID('home');
+    } else if (mode === 'army') {
+      setSelectedContext({ kind: 'army' });
+    } else if (mode === 'missions') {
+      setSelectedContext({ kind: 'missions' });
+    } else if (mode === 'raids') {
+      setSelectedContext({ kind: 'raids' });
+    } else if (mode === 'reports') {
+      setSelectedContext({ kind: 'reports' });
+    } else if (mode === 'patron') {
+      setSelectedContext({ kind: 'patron' });
+      setSelectedMapNodeID('patron_road');
+    } else if (mode === 'events') {
+      setSelectedContext({ kind: 'events' });
+      setSelectedMapNodeID('omens');
     }
   }
 
@@ -1097,6 +1122,22 @@ export function DashboardPage() {
     reports: reportsPanel,
   };
 
+  const contextSummary = (
+    <MapNodeContextSummary
+      activeEvents={activeEvents}
+      availableMissions={availableMissions}
+      context={selectedContext}
+      formatters={formatters}
+      kingdom={kingdom}
+      missions={missions}
+      neighbors={neighbors}
+      patronPressure={patronPressure}
+      patronStatus={patronStatus}
+      resources={resources}
+      unreadReportsCount={unreadReportsCount}
+    />
+  );
+
   return (
     <AppShell showSidebar={false}>
       <GameShell
@@ -1107,10 +1148,19 @@ export function DashboardPage() {
             activeRaids={activeRaids}
             army={army}
             buildings={buildings}
+            formatDate={formatDate}
+            onModeChange={handleModeChange}
+            patronPressure={patronPressure}
+            reports={reports}
             unreadReportsCount={unreadReportsCount}
           />
         }
-        context={contextPanelByMode[currentMode]}
+        context={
+          <>
+            {contextSummary}
+            {contextPanelByMode[currentMode]}
+          </>
+        }
         currentMode={currentMode}
         hud={
           <GameHud
@@ -1123,7 +1173,7 @@ export function DashboardPage() {
             unreadReportsCount={unreadReportsCount}
           />
         }
-        onModeChange={setCurrentMode}
+        onModeChange={handleModeChange}
         scene={
           <LocalMap
             activeEvents={activeEvents}
