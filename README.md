@@ -6,9 +6,9 @@ The first milestone is a playable vertical slice where a player can register, cr
 
 ## Current Phase
 
-Phase 21: First Playtest Build.
+Post-Playtest Roadmap Documentation.
 
-This phase prepares the MVP for the first internal manual playtest with focused tester instructions, feedback templates, known limitations, release notes, and playtest helper commands.
+Playtest 001 is complete. The next planned work is UX/i18n: transforming the dashboard into a map-first game shell and adding Russian/English localization.
 
 ## Documentation
 
@@ -26,6 +26,10 @@ This phase prepares the MVP for the first internal manual playtest with focused 
 - `docs/KNOWN_LIMITATIONS.md`: current MVP limitations.
 - `docs/PLAYTEST_CHECKLIST.md`: manual browser playtest checklist.
 - `docs/RELEASE_NOTES_PLAYTEST_001.md`: first playtest release notes.
+- `docs/POST_PLAYTEST_ROADMAP.md`: planned UX/i18n roadmap after Playtest 001.
+- `docs/UX_I18N_STRATEGY.md`: target game-shell UX and localization strategy.
+- `docs/I18N_PLAN.md`: practical ru/en localization implementation plan.
+- `docs/UI_COPY_RULES.md`: player-facing copy and enum display rules.
 - `docs/phases/`: detailed phase notes.
 
 ## Planned Stack
@@ -185,6 +189,13 @@ Playtest docs:
 - `docs/KNOWN_LIMITATIONS.md`
 - `docs/PLAYTEST_CHECKLIST.md`
 - `docs/RELEASE_NOTES_PLAYTEST_001.md`
+
+Post-Playtest 001 UX/i18n docs:
+
+- `docs/POST_PLAYTEST_ROADMAP.md`
+- `docs/UX_I18N_STRATEGY.md`
+- `docs/I18N_PLAN.md`
+- `docs/UI_COPY_RULES.md`
 
 ## Auth API
 

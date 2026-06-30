@@ -49,3 +49,21 @@ Playtest 001 is the first local-development playtest baseline. It includes auth,
 Status: Accepted
 
 The phase documentation should reflect the implemented Playtest 001 order and actual feature set. Some earlier prompt order drift placed Tribute and Pressure before Raids; the repository now documents the completed order without renumbering migrations or code history.
+
+## 0009. Map-First Game Shell After Playtest 001
+
+Status: Accepted
+
+After Playtest 001, the frontend should move from a dashboard-style layout to a map-first game shell with HUD, navigation, central map/scene, context panel, and activity feed.
+
+## 0010. i18n Foundation Before Further UI Polish
+
+Status: Accepted
+
+Before deeper UI polish, the frontend should add a localization foundation for Russian and English with a structure that allows more languages later.
+
+## 0011. Do Not Use Phaser/Pixi/Three.js For First Map UX
+
+Status: Accepted
+
+The first game map should use simple SVG/HTML inside React. Phaser, Pixi, and Three.js remain out of scope until a later phase proves they are necessary.

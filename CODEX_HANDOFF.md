@@ -2,62 +2,63 @@
 
 ## Current Phase
 
-Documentation Sync after Phase 21.
+Post-Playtest Roadmap Documentation.
 
 ## Status
 
-Documentation sync completed after Phase 21 Playtest 001. This was a documentation-only pass to align stale planning and reference docs with the implemented Playtest 001 state.
+Roadmap updated to reflect UX/i18n strategy after Playtest 001.
 
 ## Completed
 
-- Synced `docs/MVP_PHASES.md` to the actual implemented phase order through Phase 21.
-- Added top-level implementation status and phase-order correction notes to `docs/MVP_PHASES.md`.
-- Marked Phases 0 through 21 as completed in `docs/MVP_PHASES.md`.
-- Corrected Phase 15 and Phase 16 ordering:
-  - Phase 15: Simple PvP Raids With Protection
-  - Phase 16: Tribute And Pressure
-- Removed stale Patron System mention of an unimplemented patron help endpoint.
-- Updated phase descriptions for actual patron, raid, tribute/pressure, event, seed/smoke, and playtest deliverables.
-- Updated the Final MVP Definition of Done as completed for Playtest 001.
-- Updated `docs/API_CONTRACT.md` intro and report wording so it reflects the implemented Playtest 001 API and event report coverage.
-- Updated `docs/DOMAIN_MODEL.md` intro and small stale phase-specific statements.
-- Updated `docs/DOMAIN_MODEL.md` to show starting scouts as 3.
-- Added current known limitations to `docs/DOMAIN_MODEL.md`.
-- Added accepted decisions:
-  - `0007. Playtest 001 Baseline`
-  - `0008. Documentation Follows Implemented Phase Order`
+- Added `docs/POST_PLAYTEST_ROADMAP.md`.
+- Added `docs/UX_I18N_STRATEGY.md`.
+- Added `docs/I18N_PLAN.md`.
+- Added `docs/UI_COPY_RULES.md`.
+- Updated `docs/MVP_PHASES.md` with planned Phase 22 through Phase 31.
+- Updated `docs/KNOWN_LIMITATIONS.md` with UX and localization limitations.
+- Added accepted UX/i18n decisions to `docs/DECISIONS.md`.
+- Updated `README.md` with post-playtest roadmap links and next-work note.
 
 ## Changed Files
 
 - `CODEX_HANDOFF.md`
+- `README.md`
+- `docs/POST_PLAYTEST_ROADMAP.md`
+- `docs/UX_I18N_STRATEGY.md`
+- `docs/I18N_PLAN.md`
+- `docs/UI_COPY_RULES.md`
 - `docs/MVP_PHASES.md`
-- `docs/API_CONTRACT.md`
-- `docs/DOMAIN_MODEL.md`
+- `docs/KNOWN_LIMITATIONS.md`
 - `docs/DECISIONS.md`
 
 ## Commands Run
 
-- `rg` checks for stale patron help, old Phase 15/16 ordering, old draft wording, stale scout counts, old report type names, and stale report wording
-- `rg -n "Status: Completed|Implementation Status|Phase Order Correction|Final MVP" docs/MVP_PHASES.md`
-- `rg -n "patron/pressure|events/me|events/\\{id\\}/choose|neighbors|raids/me|raids/start|event" docs/API_CONTRACT.md`
+- `rg "POST_PLAYTEST_ROADMAP|UX_I18N_STRATEGY|I18N_PLAN|UI_COPY_RULES" README.md docs`
+- `rg "Phase 22|Phase 31|Post-Playtest" docs/MVP_PHASES.md`
+- `rg "Map-First|i18n|SVG" docs/DECISIONS.md`
+- `rg -n "Phase 2[2-9]|Phase 3[0-1]" docs/MVP_PHASES.md docs/POST_PLAYTEST_ROADMAP.md`
+- `rg -n "UX Limitations|Localization Limitations|Russian/English localization|map-first game shell" docs/KNOWN_LIMITATIONS.md docs/UX_I18N_STRATEGY.md`
+- `git diff --stat`
+- `git diff --check`
+- `git status --short`
 
-No backend or frontend tests were run because this was a documentation-only sync and no code files were modified.
+No backend or frontend tests were required because this was documentation-only.
 
 ## What Works Now
 
-- Documentation no longer claims Phases 16 or 21 are pending.
-- `docs/MVP_PHASES.md` shows Playtest 001 as completed.
-- `docs/MVP_PHASES.md` no longer contradicts `CODEX_HANDOFF.md` about Phase 15/16 ordering.
-- Patron docs no longer list the unimplemented patron help endpoint.
-- API contract and domain docs match README and the current implemented MVP feature set more closely.
-- Decisions record the Playtest 001 baseline and the phase-order correction policy.
+- Playtest 001 remains documented as complete.
+- The post-playtest direction is documented as UX/i18n before new gameplay systems.
+- The planned Phase 22 through Phase 31 path covers strategy docs, i18n foundation, copy migration, dashboard decomposition, game shell, SVG map, context panels, overflow hardening, localized event/report content, and Playtest 002 UX packaging.
+- README links to the new roadmap and copy/i18n documents.
+- Decisions record the map-first shell, i18n foundation, and SVG-first map choice.
 
 ## Known Limitations
 
-- Documentation sync is based on existing docs and handoff, not a fresh live API smoke run.
-- Code was intentionally not changed.
-- README was reviewed and not changed because it already points to the Playtest 001 docs and current Phase 21 state.
+- This only updates roadmap/docs.
+- No i18n code is implemented yet.
+- No game shell code is implemented yet.
+- Dashboard remains unchanged until Phase 23+.
 
 ## Next Recommended Step
 
-Begin post-playtest feedback collection or create issues from Playtest 001 feedback.
+Start Phase 23: i18n Foundation ru/en, or run a screenshot-based UX review before coding.
