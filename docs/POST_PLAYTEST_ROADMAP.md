@@ -50,6 +50,8 @@ Status: Completed
 
 ### Phase 23: i18n Foundation ru/en
 
+Status: Completed
+
 * Add i18n infrastructure.
 * Support Russian and English.
 * Add language switcher.

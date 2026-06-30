@@ -1,0 +1,28 @@
+{
+  "app": {
+    "name": "Sumerki",
+    "subtitle": "Twilight Realm",
+    "playtestLabel": "Playtest 001"
+  },
+  "navigation": {
+    "city": "City",
+    "ruler": "Ruler",
+    "army": "Army",
+    "outskirts": "Outskirts",
+    "reports": "Reports",
+    "patron": "Patron",
+    "map": "Map",
+    "events": "Events",
+    "raids": "Raids"
+  },
+  "dashboard": {
+    "title": "{{name}}",
+    "subtitle": "Settlement dashboard for {{email}}",
+    "kingdom": "Kingdom",
+    "culture": "Culture",
+    "patron": "Patron",
+    "player": "Player",
+    "noPatron": "No patron",
+    "refreshCity": "Refresh city"
+  }
+}

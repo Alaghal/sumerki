@@ -396,14 +396,11 @@ Documented the target map-first game shell, localization strategy, i18n implemen
 
 ## Phase 23: i18n Foundation ru/en
 
-Status: Planned
+Status: Completed
 
-* Add i18n infrastructure.
-* Support Russian and English.
-* Add language switcher.
-* Persist selected language.
-* Create translation namespace structure.
-* Do not migrate all game text yet.
+Added i18next/react-i18next, Russian and English resources, default Russian language with English fallback, language persistence in `localStorage`, a TopBar language switcher, and initial shell/auth/kingdom/basic dashboard translation coverage.
+
+Remaining full UI copy migration is Phase 24.
 
 ## Phase 24: UI Copy Migration
 
