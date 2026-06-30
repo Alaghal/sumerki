@@ -44,3 +44,20 @@ This document describes current MVP and playtest limitations. It is not a roadma
 - reports use local templates
 - no localization beyond current Russian UI and text
 - no final art direction
+
+## UX Limitations
+
+- current interface still feels like a dashboard/site
+- navigation is not yet a true game-mode navigation
+- map-first game shell is not implemented yet
+- local SVG map is not implemented yet
+- some UI may still be too dense
+- overflow and responsiveness need hardening
+- final art direction is not implemented
+
+## Localization Limitations
+
+- Russian/English localization is not implemented yet
+- some UI copy may still be hardcoded
+- event/report text is not fully localizable yet
+- adding more languages requires i18n foundation first

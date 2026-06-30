@@ -381,3 +381,120 @@ Playtest 001 completion status:
 * [x] player cannot be fully destroyed by another player
 * [x] README explains how to run and playtest the project
 * [x] `CODEX_HANDOFF.md` is up to date
+
+---
+
+# Post-Playtest 001 Planned Phases
+
+Phases 0 through 21 remain completed. Phases 22 through 31 are planned post-MVP UX/i18n phases. No new gameplay systems are planned until UX/i18n work is evaluated.
+
+## Phase 22: UX And i18n Strategy Docs
+
+Status: Planned
+
+* Write the UX target.
+* Write the localization strategy.
+* Define the game shell layout.
+* Define UI copy rules.
+* No code changes.
+
+## Phase 23: i18n Foundation ru/en
+
+Status: Planned
+
+* Add i18n infrastructure.
+* Support Russian and English.
+* Add language switcher.
+* Persist selected language.
+* Create translation namespace structure.
+* Do not migrate all game text yet.
+
+## Phase 24: UI Copy Migration
+
+Status: Planned
+
+* Move hardcoded player-facing labels to i18n.
+* Remove mixed Russian/English UI.
+* Hide enum/API keys from player-facing UI.
+* Translate shell, dashboard labels, errors, buttons, resources, units, buildings, missions, reports, patrons, events, raids.
+
+## Phase 25: Dashboard Decomposition
+
+Status: Planned
+
+* Split the huge DashboardPage into feature panels.
+* Extract resources, buildings, army, missions, reports, patron, events, raids into separate feature components.
+* Keep behavior the same.
+* Prepare for game shell.
+
+## Phase 26: Game Shell v1
+
+Status: Planned
+
+* Replace the pure dashboard layout with game shell:
+  * top resource HUD
+  * left mode navigation
+  * central scene area
+  * right context panel
+  * bottom activity feed
+* Do not add new gameplay mechanics.
+
+## Phase 27: Local SVG Map v1
+
+Status: Planned
+
+* Add simple local map:
+  * player settlement
+  * Black Forest
+  * Old Kurgan
+  * Dry Ford
+  * neighbor kingdoms
+* Clicking map nodes opens context panels.
+* Use SVG/HTML, not Phaser/Pixi/Three.js.
+
+## Phase 28: Context Panels And Activity Feed
+
+Status: Planned
+
+* Move major actions into contextual panels:
+  * city context
+  * mission context
+  * raid target context
+  * patron context
+  * event context
+* Add bottom feed for:
+  * active building upgrades
+  * active training
+  * active missions
+  * active raids
+  * unread reports
+  * active events
+
+## Phase 29: Responsive And Overflow Hardening
+
+Status: Planned
+
+* Fix layout overflow.
+* Ensure long text wraps.
+* Ensure buttons wrap.
+* Ensure panels scroll when needed.
+* Test desktop, laptop, tablet-width, and narrow mobile-ish screens.
+* No new game mechanics.
+
+## Phase 30: Localized Event And Report Content
+
+Status: Planned
+
+* Localize event and report text.
+* Prefer frontend translation by event/report keys where practical.
+* Keep backend compatible.
+* Add English text for current MVP event pack and report templates.
+* Keep Russian as default.
+
+## Phase 31: Playtest 002 UX Build
+
+Status: Planned
+
+* Package the UX/i18n improvements for a second playtest.
+* Update playtest guide, release notes, known limitations, checklist, and feedback template.
+* Focus on whether the game now feels like a strategy game rather than a dashboard.
