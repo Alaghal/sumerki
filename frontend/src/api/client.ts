@@ -236,6 +236,31 @@ export type PatronStatus = {
   availablePatrons: PatronKey[];
 };
 
+export type PatronPressureStatus = 'none' | 'warning' | 'active' | 'delayed';
+
+export type PatronPressureAction = 'pay_tribute' | 'ask_delay' | 'break_patron';
+
+export type PatronPressure = {
+  patron: PatronKey;
+  patronLabel: string;
+  pressureLevel: number;
+  crisisStatus: PatronPressureStatus;
+  tributeDebt: {
+    gold: number;
+    food: number;
+  };
+  contributionDebt: {
+    food: number;
+  };
+  nextTributeAt: string | null;
+  delayUntil: string | null;
+  summary: string;
+  availableActions: PatronPressureAction[];
+  protectedMinimums: Partial<ResourceValues> & {
+    population: number | null;
+  };
+};
+
 export type Neighbor = {
   kingdomId: string;
   name: string;
@@ -394,6 +419,23 @@ type JoinPatronResponse = {
 type BreakPatronResponse = {
   patron: null;
   kingdom: PatronKingdomResponse;
+};
+
+type PatronPressureResponse = {
+  pressure: PatronPressure | null;
+};
+
+type PayTributeResponse = {
+  pressure: PatronPressure;
+  resources: Resources;
+};
+
+type PatronCrisisChoice = 'ask_delay' | 'break_patron';
+
+type PatronCrisisChoiceResponse = {
+  patron?: null;
+  pressure: PatronPressure | null;
+  kingdom?: PatronKingdomResponse;
 };
 
 type ApiErrorResponse = {
@@ -587,6 +629,25 @@ export function joinPatron(patron: PatronKey, token?: string) {
 export function breakPatron(token?: string) {
   return request<BreakPatronResponse>('/api/patron/break', {
     method: 'POST',
+    token,
+  });
+}
+
+export function getPatronPressure(token?: string) {
+  return request<PatronPressureResponse>('/api/patron/pressure', { token });
+}
+
+export function payPatronTribute(token?: string) {
+  return request<PayTributeResponse>('/api/patron/pay-tribute', {
+    method: 'POST',
+    token,
+  });
+}
+
+export function choosePatronCrisis(choice: PatronCrisisChoice, token?: string) {
+  return request<PatronCrisisChoiceResponse>('/api/patron/crisis-choice', {
+    method: 'POST',
+    body: { choice },
     token,
   });
 }

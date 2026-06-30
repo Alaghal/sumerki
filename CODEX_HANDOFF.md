@@ -2,50 +2,38 @@
 
 ## Current Phase
 
-Phase 15: Simple PvP Raids with Protection.
+Phase 16: Tribute and Pressure.
 
 ## Status
 
-Phase 15 is implemented according to the attached prompt: players can view neighbors, start asynchronous raids, have sent units removed until resolution, resolve raids lazily, steal limited protected resources, gain dread, and receive attacker/defender raid reports.
+Phase 16 is implemented according to the attached prompt: patron tribute and pressure now resolve lazily for the Empire of Dusk and Old Pact. Independent kingdoms have no tribute, debt, or pressure.
 
 ## Completed
 
-- Added reversible Goose migration `00010_create_raids.sql`.
-- Added `kingdoms.dread` and `kingdoms.honor`.
-- Added `raids` and `raid_units` tables.
-- Extended `mission_reports` type/result constraints for PvP raid reports.
-- Added raid game config for duration, unit limits, loot caps, protected minimums, cooldowns, and protection windows.
-- Added raid domain model.
-- Added raid repository.
-- Added raid service with:
-  - neighbor discovery
-  - weak-player/newbie/repeat/global protection checks
-  - raid start validation
-  - attacker unit subtraction
-  - defender unit snapshot
-  - lazy raid completion
-  - deterministic score/result calculation
-  - walls and patron defensive modifiers
-  - limited loot transfer
-  - attacker survivor return
-  - dread gain
-  - attacker and defender reports
-- Added `GET /api/neighbors`.
-- Added `GET /api/raids/me`.
-- Added `POST /api/raids/start`.
-- Existing report listing now also resolves completed raids before returning reports.
-- Added frontend raid API types and calls.
-- Added dashboard Neighbors/Raids UI with target selection, unit inputs, start action, active/completed raid display, and refresh.
-- Updated reports UI labels to support PvP raid results.
-- Updated README with raid curl examples and manual flow.
+- Added reversible Goose migration `00011_create_patron_pressure_states.sql`.
+- Added `patron_pressure_states` table for tribute debt, Old Pact contribution debt, pressure level, crisis status, next tribute time, and delay state.
+- Added patron pressure domain model, repository, game config, and service.
+- Added protected-reserve resource spending helper for tribute and contribution payment.
+- Integrated patron pressure lifecycle with patron join, patron break, and patron status reads.
+- Added lazy pressure resolution for:
+  - `GET /api/patron/pressure`
+  - `POST /api/patron/pay-tribute`
+  - `POST /api/patron/crisis-choice`
+  - `GET /api/patron/me`
+  - patron join and break flows
+- Added `GET /api/patron/pressure`.
+- Added `POST /api/patron/pay-tribute`.
+- Added `POST /api/patron/crisis-choice`.
+- Added dashboard patron pressure UI with debt, crisis state, protected reserves, pay action, delay request, and crisis break action.
+- Updated README with patron pressure curl examples and local flow note.
 - Updated API contract and domain model docs.
-- Added raid service unit tests for result thresholds, protected loot, and unit validation.
 
 ## Phase Order Note
 
-- The attached prompt defines Phase 15 as `Simple PvP Raids with Protection`.
-- `docs/MVP_PHASES.md` currently places `Tribute and Pressure` before `Simple PvP Raids`; this session followed the attached prompt and did not implement tribute/pressure.
-- This session did not start Phase 16.
+- `docs/MVP_PHASES.md` lists Tribute and Pressure before Simple PvP Raids.
+- The prior handoff recorded Simple PvP Raids with Protection as Phase 15 because that earlier prompt requested raids first.
+- This session treated the requested Phase 16 as Tribute and Pressure and did not reimplement raids.
+- This session did not start the next phase.
 
 ## Changed Files
 
@@ -53,77 +41,66 @@ Phase 15 is implemented according to the attached prompt: players can view neigh
 - `CODEX_HANDOFF.md`
 - `docs/API_CONTRACT.md`
 - `docs/DOMAIN_MODEL.md`
-- `backend/migrations/00010_create_raids.sql`
-- `backend/internal/domain/kingdom.go`
-- `backend/internal/domain/raid.go`
-- `backend/internal/gameconfig/raids.go`
-- `backend/internal/repository/kingdom_repository.go`
-- `backend/internal/repository/raid_repository.go`
-- `backend/internal/repository/report_repository.go`
-- `backend/internal/service/mission_service.go`
-- `backend/internal/service/raid_service.go`
-- `backend/internal/service/raid_service_test.go`
+- `backend/migrations/00011_create_patron_pressure_states.sql`
+- `backend/internal/domain/patron_pressure.go`
+- `backend/internal/gameconfig/patron_pressure.go`
+- `backend/internal/repository/patron_pressure_repository.go`
+- `backend/internal/service/patron_pressure_service.go`
+- `backend/internal/service/patron_service.go`
 - `backend/internal/service/resources_service.go`
-- `backend/internal/http/handlers/raid_handler.go`
+- `backend/internal/http/handlers/patron_pressure_handler.go`
 - `backend/internal/http/server.go`
 - `frontend/src/api/client.ts`
 - `frontend/src/pages/DashboardPage.tsx`
 
 ## Commands Run
 
-- `gofmt -w backend/internal/domain/raid.go backend/internal/gameconfig/raids.go backend/internal/repository/kingdom_repository.go backend/internal/repository/report_repository.go backend/internal/repository/raid_repository.go backend/internal/service/resources_service.go backend/internal/service/raid_service.go backend/internal/service/raid_service_test.go backend/internal/service/mission_service.go backend/internal/http/handlers/raid_handler.go backend/internal/http/server.go`
-- `cd backend && GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build GOMODCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-mod go test ./...`
+- `gofmt -w backend/internal/domain/patron_pressure.go backend/internal/gameconfig/patron_pressure.go backend/internal/repository/patron_pressure_repository.go backend/internal/service/patron_service.go backend/internal/service/patron_pressure_service.go backend/internal/service/resources_service.go backend/internal/http/handlers/patron_pressure_handler.go backend/internal/http/server.go`
 - `cd frontend && npm run typecheck`
+- `cd backend && go test ./...` (failed because the sandbox could not write to `/Users/andrey/Library/Caches/go-build`)
+- `cd backend && GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build go test ./...`
 - `cd frontend && npm run build`
-- `POSTGRES_PORT=15432 docker compose up -d postgres`
+- `docker compose ps`
+- `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make migrate-up`
+- `docker compose exec -T postgres psql -U sumerki -d sumerki -c '\d patron_pressure_states'`
+- `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make migrate-down`
 - `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make migrate-up`
 - `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable' make migrate-status`
-- Attempted to run local backend on `18080`; escalated approval timed out twice, and the sandboxed attempt failed with `listen tcp :18080: bind: operation not permitted`.
 
 ## Verification
 
-- `go test ./...` completed successfully.
 - `npm run typecheck` completed successfully.
+- `GOCACHE=/Users/andrey/Documents/pets/sumerki/.cache/go-build go test ./...` completed successfully.
 - `npm run build` completed successfully.
-- Goose applied `00010_create_raids.sql` successfully.
-- Goose status shows migrations `00001` through `00010` applied.
-- Live API smoke tests were not completed because the local backend process could not be started in this turn after approval timeouts and sandbox bind denial.
-
-Notes:
-
-- Port `5432` was already allocated locally in earlier work, so migration verification used `POSTGRES_PORT=15432` and `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable'`.
-- Defender unit losses are calculated and reported but not subtracted from defender `kingdom_units` in Phase 15.
-- Raid completion idempotency is guarded by completing only `active` raids; reports are created after the completion update succeeds.
+- Docker shows `sumerki-postgres-1` running and healthy on local port `15432`.
+- Goose applied `00011_create_patron_pressure_states.sql` successfully.
+- Goose rolled back and reapplied `00011_create_patron_pressure_states.sql` successfully.
+- Goose status shows migrations `00001` through `00011` applied.
+- `psql \d patron_pressure_states` confirmed the table, unique kingdom row, foreign key to `kingdoms(id)`, nonnegative debt constraints, patron constraint, pressure range constraint, and crisis status constraint.
 
 ## What Works Now
 
-- Players can view up to 20 neighboring kingdoms.
-- Neighbor results expose culture, patron, dread, power estimate, `canRaid`, and blocked reason without exposing exact resources or unit counts.
-- Players can start raids against valid targets.
-- Sent attacker units are unavailable while the raid is active.
-- Raids resolve lazily when raids or reports are read or when another raid starts.
-- Completed raids return attacker survivors.
-- Successful raids steal limited resources while respecting protected minimums.
-- Population is never stolen.
-- Defender city/buildings are never destroyed.
-- Newbie protection, too-weak protection, same-target cooldown, and defender global protection are enforced on raid start.
-- Raid completion creates attacker and defender reports.
-- Dashboard shows neighbors, raid start controls, and current/completed raids.
+- Empire of Dusk pressure resolves lazily over time.
+- Empire tribute is paid from surplus gold and food above protected reserves.
+- Unpaid Empire tribute becomes debt and can raise pressure.
+- Old Pact tracks a soft food contribution debt with low capped pressure.
+- Independent kingdoms have no pressure, debt, tribute, or next tribute time.
+- Players can view current pressure, debt, available actions, protected minimums, and next tribute time.
+- Players can pay tribute/contribution when debt exists.
+- Players can ask for a delay during warning/active pressure.
+- Players can break patron relation through the pressure crisis endpoint.
+- Dashboard exposes the basic pressure loop without background workers.
 
 ## Known Limitations
 
-- Raid combat is simple deterministic score comparison.
-- Defender unit losses are report-only and are not applied to defender army yet.
-- No territory capture.
-- No city destruction.
-- No alliance wars.
-- No NPC retaliation.
-- No patron military help beyond a small defensive score modifier.
-- No revenge or bounty system.
-- No map distance or travel routes.
-- Raid start and completion are not wrapped in one cross-repository database transaction.
-- No background workers by design; raid completion is lazy.
+- No NPC raids or retaliation.
+- No patron military help or Old Pact troop support.
+- No tribute events or event engine integration.
+- No vassalage, city seizure, land transfer, alliances, large map, market, trading, payments, chat, WebSocket, or real-time combat.
+- Patron pressure updates are not wrapped in cross-repository database transactions.
+- The local Docker database is currently published on `15432`, so verification used `DATABASE_URL='postgres://sumerki:sumerki@localhost:15432/sumerki?sslmode=disable'` instead of the Makefile default `5432`.
+- Live authenticated API smoke tests were not run in this turn; verification covered compile/tests/build and database migration/schema.
 
-## Next Recommended Step
+## Next Recommended Phase
 
-Start Phase 16 only when explicitly requested. Based on the attached execution order, the next likely phase is Tribute and Pressure or the next prompt-specified phase.
+Start the next prompt-specified phase only when explicitly requested. Based on the current implemented features, the next likely area is Event Engine or Report Polish, depending on the revised phase plan.

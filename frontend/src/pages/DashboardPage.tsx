@@ -6,6 +6,7 @@ import {
   breakPatron,
   Building,
   BuildingType,
+  choosePatronCrisis,
   getAvailableMissions,
   getMyArmy,
   getMyBuildings,
@@ -17,6 +18,7 @@ import {
   getMyRuler,
   getNeighbors,
   getPatronOptions,
+  getPatronPressure,
   getReport,
   joinPatron,
   markReportRead,
@@ -25,10 +27,12 @@ import {
   Neighbor,
   PatronKey,
   PatronOption,
+  PatronPressure,
   PatronStatus,
   Raid,
   Resources,
   Ruler,
+  payPatronTribute,
   startMission,
   startRaid,
   trainUnits,
@@ -59,6 +63,13 @@ const standingLabels = {
   neutral: 'Нейтрально',
   warm: 'Тепло',
   loyal: 'Верно',
+};
+
+const pressureStatusLabels = {
+  none: 'Спокойно',
+  warning: 'Предупреждение',
+  active: 'Кризис',
+  delayed: 'Отсрочка',
 };
 
 const healthLabels = {
@@ -176,10 +187,13 @@ export function DashboardPage() {
   const [reportsError, setReportsError] = useState('');
   const [patronOptions, setPatronOptions] = useState<PatronOption[]>([]);
   const [patronStatus, setPatronStatus] = useState<PatronStatus | null>(null);
+  const [patronPressure, setPatronPressure] = useState<PatronPressure | null>(null);
   const [patronLoading, setPatronLoading] = useState(true);
   const [patronError, setPatronError] = useState('');
   const [joiningPatron, setJoiningPatron] = useState<PatronKey | null>(null);
   const [isBreakingPatron, setIsBreakingPatron] = useState(false);
+  const [isPayingTribute, setIsPayingTribute] = useState(false);
+  const [crisisChoice, setCrisisChoice] = useState<'ask_delay' | 'break_patron' | null>(null);
   const [neighbors, setNeighbors] = useState<Neighbor[]>([]);
   const [raids, setRaids] = useState<Raid[]>([]);
   const [raidsLoading, setRaidsLoading] = useState(true);
@@ -307,9 +321,14 @@ export function DashboardPage() {
     setPatronError('');
 
     try {
-      const [optionsResponse, statusResponse] = await Promise.all([getPatronOptions(token), getMyPatron(token)]);
+      const [optionsResponse, statusResponse, pressureResponse] = await Promise.all([
+        getPatronOptions(token),
+        getMyPatron(token),
+        getPatronPressure(token),
+      ]);
       setPatronOptions(optionsResponse.patrons);
       setPatronStatus(statusResponse);
+      setPatronPressure(pressureResponse.pressure);
     } catch {
       setPatronError('Не удалось загрузить покровителя.');
     } finally {
@@ -399,7 +418,7 @@ export function DashboardPage() {
 
     try {
       await joinPatron(patron, token);
-      await loadPatron();
+      await Promise.all([loadPatron(), loadResources()]);
     } catch (caughtError) {
       setPatronError(toUserMessage(caughtError));
     } finally {
@@ -422,6 +441,47 @@ export function DashboardPage() {
       setPatronError(toUserMessage(caughtError));
     } finally {
       setIsBreakingPatron(false);
+    }
+  }
+
+  async function handlePayTribute() {
+    if (!token) {
+      return;
+    }
+
+    setIsPayingTribute(true);
+    setPatronError('');
+
+    try {
+      const response = await payPatronTribute(token);
+      setPatronPressure(response.pressure);
+      setResources(response.resources);
+    } catch (caughtError) {
+      setPatronError(toUserMessage(caughtError));
+    } finally {
+      setIsPayingTribute(false);
+    }
+  }
+
+  async function handleCrisisChoice(choice: 'ask_delay' | 'break_patron') {
+    if (!token) {
+      return;
+    }
+
+    setCrisisChoice(choice);
+    setPatronError('');
+
+    try {
+      const response = await choosePatronCrisis(choice, token);
+      setPatronPressure(response.pressure);
+      if (response.kingdom) {
+        setPatronStatus((current) => (current ? { ...current, patron: null } : current));
+      }
+      await Promise.all([loadPatron(), loadResources()]);
+    } catch (caughtError) {
+      setPatronError(toUserMessage(caughtError));
+    } finally {
+      setCrisisChoice(null);
     }
   }
 
@@ -631,10 +691,15 @@ export function DashboardPage() {
       setPatronError('');
 
       try {
-        const [optionsResponse, statusResponse] = await Promise.all([getPatronOptions(token), getMyPatron(token)]);
+        const [optionsResponse, statusResponse, pressureResponse] = await Promise.all([
+          getPatronOptions(token),
+          getMyPatron(token),
+          getPatronPressure(token),
+        ]);
         if (isActive) {
           setPatronOptions(optionsResponse.patrons);
           setPatronStatus(statusResponse);
+          setPatronPressure(pressureResponse.pressure);
         }
       } catch {
         if (isActive) {
@@ -872,10 +937,7 @@ export function DashboardPage() {
                           {patronStatus?.patron ? patronStatus.patron.label : 'Покровитель не выбран'}
                         </h3>
                         <p className="mt-1 text-sm text-stone-400">
-                          Дань и военная помощь появятся в следующих версиях.
-                        </p>
-                        <p className="mt-1 text-sm text-stone-400">
-                          Сейчас выбор покровителя фиксирует политический путь, но ещё не запускает давление.
+                          {patronPressure?.summary ?? 'Выберите политический путь для княжества.'}
                         </p>
                       </div>
                       {patronStatus?.patron ? (
@@ -892,6 +954,69 @@ export function DashboardPage() {
                       </Button>
                     ) : null}
                   </div>
+
+                  {patronPressure ? (
+                    <div className="rounded border border-stone-800 bg-dusk-950 p-3">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <h3 className="font-semibold text-stone-100">Давление</h3>
+                          <p className="mt-1 text-sm text-stone-400">{patronPressure.summary}</p>
+                        </div>
+                        <div className="text-right text-sm text-stone-300">
+                          <div>{pressureStatusLabels[patronPressure.crisisStatus]}</div>
+                          <div>{patronPressure.pressureLevel} / 100</div>
+                        </div>
+                      </div>
+                      <dl className="mt-3 grid gap-2 text-sm">
+                        <div className="flex justify-between gap-4">
+                          <dt className="text-stone-400">Долг дани</dt>
+                          <dd className="text-right text-stone-100">
+                            {patronPressure.tributeDebt.gold} золота, {patronPressure.tributeDebt.food} еды
+                          </dd>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                          <dt className="text-stone-400">Обязательство</dt>
+                          <dd className="text-right text-stone-100">{patronPressure.contributionDebt.food} еды</dd>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                          <dt className="text-stone-400">Следующий сбор</dt>
+                          <dd className="text-right text-stone-100">
+                            {patronPressure.nextTributeAt ? new Date(patronPressure.nextTributeAt).toLocaleString('ru-RU') : 'Нет'}
+                          </dd>
+                        </div>
+                        {patronPressure.delayUntil ? (
+                          <div className="flex justify-between gap-4">
+                            <dt className="text-stone-400">Отсрочка до</dt>
+                            <dd className="text-right text-stone-100">{new Date(patronPressure.delayUntil).toLocaleString('ru-RU')}</dd>
+                          </div>
+                        ) : null}
+                        <div className="flex justify-between gap-4">
+                          <dt className="text-stone-400">Неприкосновенный запас</dt>
+                          <dd className="text-right text-stone-100">
+                            {patronPressure.protectedMinimums.gold ?? 0} / {patronPressure.protectedMinimums.food ?? 0} /{' '}
+                            {patronPressure.protectedMinimums.wood ?? 0} / {patronPressure.protectedMinimums.stone ?? 0}
+                          </dd>
+                        </div>
+                      </dl>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {patronPressure.availableActions.includes('pay_tribute') ? (
+                          <Button disabled={isPayingTribute} onClick={handlePayTribute} type="button">
+                            {isPayingTribute ? 'Платим...' : 'Заплатить'}
+                          </Button>
+                        ) : null}
+                        {patronPressure.availableActions.includes('ask_delay') ? (
+                          <Button disabled={crisisChoice === 'ask_delay'} onClick={() => handleCrisisChoice('ask_delay')} type="button">
+                            {crisisChoice === 'ask_delay' ? 'Просим...' : 'Попросить отсрочку'}
+                          </Button>
+                        ) : null}
+                        {patronPressure.availableActions.includes('break_patron') ? (
+                          <Button disabled={crisisChoice === 'break_patron'} onClick={() => handleCrisisChoice('break_patron')} type="button">
+                            {crisisChoice === 'break_patron' ? 'Разрываем...' : 'Разорвать через кризис'}
+                          </Button>
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : null}
 
                   <div className="flex flex-wrap gap-2">
                     <Button disabled={patronLoading} onClick={loadPatron} type="button">

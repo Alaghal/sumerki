@@ -50,10 +50,21 @@ type PatronBreakResult struct {
 type PatronService struct {
 	kingdoms PatronKingdomRepository
 	patrons  PatronRepository
+	pressure PatronPressureLifecycle
 }
 
 func NewPatronService(kingdoms PatronKingdomRepository, patrons PatronRepository) *PatronService {
 	return &PatronService{kingdoms: kingdoms, patrons: patrons}
+}
+
+type PatronPressureLifecycle interface {
+	EnsureForJoin(ctx context.Context, kingdomID string, patron string, samePatron bool) error
+	ClearForBreak(ctx context.Context, kingdomID string) error
+	ResolveForKingdom(ctx context.Context, kingdom domain.Kingdom) error
+}
+
+func (s *PatronService) SetPressureLifecycle(pressure PatronPressureLifecycle) {
+	s.pressure = pressure
 }
 
 func (s *PatronService) Options() []gameconfig.PatronConfig {
@@ -80,6 +91,11 @@ func (s *PatronService) Current(ctx context.Context, userID string) (PatronStatu
 	if err != nil {
 		return PatronStatus{}, err
 	}
+	if s.pressure != nil {
+		if err := s.pressure.ResolveForKingdom(ctx, kingdom); err != nil {
+			return PatronStatus{}, err
+		}
+	}
 
 	view := patronRelationView(relation)
 	return PatronStatus{
@@ -102,9 +118,15 @@ func (s *PatronService) Join(ctx context.Context, userID string, patron string) 
 	if err != nil {
 		return PatronJoinResult{}, err
 	}
+	samePatron := kingdom.Patron != nil && *kingdom.Patron == patron
 	updatedKingdom, err := s.kingdoms.UpdatePatronByID(ctx, kingdom.ID, &patron)
 	if err != nil {
 		return PatronJoinResult{}, err
+	}
+	if s.pressure != nil {
+		if err := s.pressure.EnsureForJoin(ctx, kingdom.ID, patron, samePatron); err != nil {
+			return PatronJoinResult{}, err
+		}
 	}
 
 	return PatronJoinResult{
@@ -120,6 +142,11 @@ func (s *PatronService) Break(ctx context.Context, userID string) (PatronBreakRe
 	}
 	if err := s.patrons.BreakForKingdom(ctx, kingdom.ID); err != nil {
 		return PatronBreakResult{}, err
+	}
+	if s.pressure != nil {
+		if err := s.pressure.ClearForBreak(ctx, kingdom.ID); err != nil {
+			return PatronBreakResult{}, err
+		}
 	}
 
 	updatedKingdom, err := s.kingdoms.UpdatePatronByID(ctx, kingdom.ID, nil)
