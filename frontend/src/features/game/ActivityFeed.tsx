@@ -94,22 +94,22 @@ export function ActivityFeed({
   ];
 
   return (
-    <section className="rounded border border-stone-800 bg-dusk-900/90 p-3">
-      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-semibold text-stone-100">{t('game:activity.title')}</h2>
-        {!hasActivity ? <span className="text-sm text-stone-500">{t('game:activity.empty')}</span> : null}
+    <section className="min-w-0 max-w-full overflow-hidden rounded border border-stone-800 bg-dusk-900/90 p-3">
+      <div className="mb-2 flex min-w-0 flex-wrap items-center justify-between gap-2">
+        <h2 className="break-words font-semibold text-stone-100">{t('game:activity.title')}</h2>
+        {!hasActivity ? <span className="break-words text-sm text-stone-500">{t('game:activity.empty')}</span> : null}
       </div>
-      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid min-w-0 gap-2 sm:grid-cols-2 xl:grid-cols-4">
         {items.map((item) => (
           <button
-            className="min-w-0 rounded border border-stone-800 bg-dusk-950 px-3 py-2 text-left text-sm text-stone-300 hover:border-dusk-gold/60 hover:bg-dusk-800"
+            className="min-w-0 max-w-full rounded border border-stone-800 bg-dusk-950 px-3 py-2 text-left text-sm text-stone-300 hover:border-dusk-gold/60 hover:bg-dusk-800"
             key={`${item.mode}-${item.title}-${item.value}`}
             onClick={() => onModeChange(item.mode)}
             type="button"
           >
-            <span className="block text-xs uppercase tracking-normal text-stone-500">{item.title}</span>
-            <span className="mt-1 block truncate font-semibold text-stone-100">{item.value}</span>
-            <span className="mt-1 block truncate text-xs text-stone-400">{item.detail}</span>
+            <span className="block break-words text-xs uppercase tracking-normal text-stone-500">{item.title}</span>
+            <span className="mt-1 block break-words font-semibold text-stone-100">{item.value}</span>
+            <span className="mt-1 block break-words text-xs text-stone-400">{item.detail}</span>
           </button>
         ))}
       </div>

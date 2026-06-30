@@ -151,12 +151,12 @@ function SummaryFrame({ children, title }: SummaryFrameProps) {
   const { t } = useTranslation('game');
 
   return (
-    <section className="grid gap-3 rounded border border-dusk-gold/40 bg-dusk-950 p-3">
-      <div>
-        <p className="text-xs uppercase tracking-normal text-dusk-gold">{t('context.title')}</p>
-        <h3 className="mt-1 font-semibold text-stone-100">{title}</h3>
+    <section className="grid min-w-0 max-w-full gap-3 overflow-hidden rounded border border-dusk-gold/40 bg-dusk-950 p-3">
+      <div className="min-w-0">
+        <p className="break-words text-xs uppercase tracking-normal text-dusk-gold">{t('context.title')}</p>
+        <h3 className="mt-1 break-words font-semibold text-stone-100">{title}</h3>
       </div>
-      <div className="grid gap-2">{children}</div>
+      <div className="grid min-w-0 gap-2 break-words">{children}</div>
     </section>
   );
 }
@@ -168,9 +168,9 @@ type SummaryLineProps = {
 
 function SummaryLine({ label, value }: SummaryLineProps) {
   return (
-    <div className="flex justify-between gap-4 text-sm">
-      <span className="text-stone-500">{label}</span>
-      <span className="text-right text-stone-100">{value}</span>
+    <div className="flex min-w-0 flex-wrap justify-between gap-x-4 gap-y-1 text-sm">
+      <span className="min-w-0 break-words text-stone-500">{label}</span>
+      <span className="min-w-0 break-words text-left text-stone-100 sm:text-right">{value}</span>
     </div>
   );
 }
